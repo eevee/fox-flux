@@ -1,0 +1,38 @@
+The following components are the property of third parties and are used with
+permission:
+
+- The Flora setting belongs to GlitchedPuppet and is licensed as CC BY-SA 3.0.
+  http://floraverse.com/faqs/
+
+- The "vendor" directory contains third-party Lua code; see the README in that
+  directory for attribution, and the source files for licenses.
+
+- The "assets/fonts" directory contains third-party fonts; see the README in
+  that directory for attribution and licenses.
+
+All other work is copyright ©2016 Lexy Munroe aka Eevee.
+
+--------------------------------------------------------------------------------
+
+Code, Lua and otherwise, is available under the ISC license, viewable at
+https://opensource.org/licenses/ISC and reproduced here:
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+
+--------------------------------------------------------------------------------
+
+Other assets are available under Creative Commons Attribution ShareAlike 4.0,
+viewable at https://creativecommons.org/licenses/by-sa/4.0/ but not reproduced
+here due to length.  The gist (not a substitute for the full license) is: use
+it however you want, credit the creator, indicate if you changed anything, and
+release your derivations under the same license.
