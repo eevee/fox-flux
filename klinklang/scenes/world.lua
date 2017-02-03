@@ -49,12 +49,12 @@ function WorldScene:init(...)
     self.stashed_submaps = {}
 
     -- TODO probably need a more robust way of specifying music
-    self.music = love.audio.newSource('assets/music/square-one.ogg', 'stream')
-    self.music:setLooping(true)
+    --self.music = love.audio.newSource('assets/music/square-one.ogg', 'stream')
+    --self.music:setLooping(true)
 end
 
 function WorldScene:enter()
-    self.music:play()
+    --self.music:play()
     self:_refresh_canvas()
 end
 
@@ -373,6 +373,7 @@ function WorldScene:draw()
     love.graphics.push('all')
 
     -- FIXME put this and the debug stuff on a separate "layer" which doesn't have to live here
+    --[[
     love.graphics.draw(p8_spritesheet, love.graphics.newQuad(192, 128, 64, 64, p8_spritesheet:getDimensions()), 0, 0)
     love.graphics.setScissor(16, 16, love.graphics.getWidth(), 32)
     local name = love.graphics.newText(m5x7, self.player.inventory[self.player.inventory_cursor].display_name)
@@ -408,6 +409,7 @@ function WorldScene:draw()
         love.graphics.setColor(52, 52, 52)
         love.graphics.print("Q", 0 + (32 - keylen) / 2, 40 + (32 - line_height) / 2)
     end
+    ]]
     love.graphics.pop()
 
 

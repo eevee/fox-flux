@@ -7,7 +7,7 @@ local ResourceManager = require 'klinklang.resources'
 local WorldScene = require 'klinklang.scenes.world'
 local SpriteSet = require 'klinklang.sprite'
 local tiledmap = require 'klinklang.tiledmap'
-local TitleScene = require 'isaacsdescent.scenes.title'
+--local TitleScene = require 'isaacsdescent.scenes.title'
 
 
 game = {
@@ -83,17 +83,8 @@ function love.load(args)
     end
 
     -- Load all the graphics upfront
-    -- FIXME the savepoint sparkle is wrong, because i have no way to specify
-    -- where to loop back to
-    dialogueboximg = love.graphics.newImage('assets/images/isaac-dialogue.png')
-    dialogueboximg2 = love.graphics.newImage('assets/images/lexy-dialogue.png')
-    -- FIXME evict this global
-    p8_spritesheet = love.graphics.newImage('assets/images/spritesheet.png')
-
     for _, tspath in ipairs{
-        'data/tilesets/pico8.tsx.json',
-        'data/tilesets/player.tsx.json',
-        'data/tilesets/portraits.tsx.json',
+        'data/tilesets/lexy.tsx.json',
     } do
         local tileset = tiledmap.TiledTileset(tspath, nil, resource_manager)
         resource_manager:add(tspath, tileset)
@@ -109,28 +100,19 @@ function love.load(args)
     love.joystick.loadGamepadMappings("vendor/gamecontrollerdb.txt")
 
     game.maps = {
-        'pico8-01.tmx.json',
-        'pico8-02.tmx.json',
-        'pico8-03.tmx.json',
-        'pico8-04.tmx.json',
-        'pico8-05.tmx.json',
-        'pico8-06.tmx.json',
-        'pico8-07.tmx.json',
-        'pico8-08.tmx.json',
-        'pico8-09.tmx.json',
-        'pico8-10.tmx.json',
-        'pico8-11.tmx.json',
+        'playground.tmx.json',
     }
     -- TODO should maps instead hardcode their next maps?  or should they just
     -- have a generic "exit" a la doom?
     game.map_index = 1
-    --map = tiledmap.TiledMap("data/maps/" .. game.maps[game.map_index], resource_manager)
+    local map = tiledmap.TiledMap("data/maps/" .. game.maps[game.map_index], resource_manager)
     --map = tiledmap.TiledMap("data/maps/slopetest.tmx.json", resource_manager)
     worldscene = WorldScene()
+    worldscene:load_map(map)
 
     Gamestate.registerEvents()
-    --Gamestate.switch(worldscene)
-    Gamestate.switch(TitleScene(worldscene, "data/maps/" .. game.maps[game.map_index]))
+    Gamestate.switch(worldscene)
+    --Gamestate.switch(TitleScene(worldscene, "data/maps/" .. game.maps[game.map_index]))
 
     --local tmpscene = DialogueScene(worldscene)
     --Gamestate.switch(tmpscene)

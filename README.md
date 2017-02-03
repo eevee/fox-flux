@@ -1,16 +1,13 @@
-# Isaac's Descent HD Remix
+# Fox flux
 
-This is a puzzle-platformer based on the PICO-8 game I did for Ludum Dare 36, [Isaac's Descent](https://c.eev.ee/isaacs-descent/).
+This is a puzzle-platformer.  Details forthcoming.
 
-It requires [LÖVE](https://love2d.org/) 0.10+ and nothing else.
+It requires [LÖVE](https://love2d.org/) 0.10.2 and nothing else.
 
 
 ## Running
 
 Just install LÖVE and run this repository with it.
-
-    git clone https://github.com/eevee/isaacs-descent.git
-    love isaacs-descent
 
 
 ## Built with

@@ -6,15 +6,12 @@ local Object = require 'klinklang.object'
 local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 
--- FIXME lol
-local actors_misc2 = require 'isaacsdescent.actors.misc'
-
 
 local Player = actors_base.MobileActor:extend{
-    name = 'isaac',
-    sprite_name = 'isaac',
-    dialogue_position = 'left',
-    dialogue_sprite_name = 'isaac portrait',
+    name = 'lexy',
+    sprite_name = 'lexy',
+    --dialogue_position = 'left',
+    --dialogue_sprite_name = 'isaac portrait',
     z = 1000,
 
     is_player = true,
@@ -36,26 +33,6 @@ function Player:init(...)
     -- game and correctly restored on map load
     self.inventory = {}
     table.insert(self.inventory, {
-        -- TODO i feel like this should be a real type, or perhaps attached to
-        -- an actor somehow, but i don't want you to have real actual actors in
-        -- your inventory.  i suppose you could just have a count of actor
-        -- /types/, which i think is how zdoom works?
-        display_name = 'Staff of Iesus',
-        sprite_name = 'staff',
-        on_inventory_use = function(self, activator)
-            if activator.ptrs.savepoint then
-                -- TODO seems like a good place to use :die()
-                worldscene:remove_actor(activator.ptrs.savepoint)
-                activator.ptrs.savepoint = nil
-            end
-
-            game.resource_manager:get('assets/sounds/staff.ogg'):play()
-            local savepoint = actors_misc2.Savepoint(
-                -- TODO this constant is /totally/ arbitrary, hmm
-                activator.pos + Vector(0, -16))
-            worldscene:add_actor(savepoint)
-            activator.ptrs.savepoint = savepoint
-        end,
     })
 
 end
@@ -149,7 +126,6 @@ function Player:update(dt)
             if self.velocity.y > -self.jumpvel then
                 self.velocity.y = -self.jumpvel
                 self.on_ground = false
-                game.resource_manager:get('assets/sounds/jump.ogg'):play()
                 -- FIXME gravity is applied after this and before you actually
                 -- move, which means that if the framerate is too low, your
                 -- initial jump velocity will be cut so much that you can't
@@ -260,7 +236,6 @@ local DeadScene = require 'klinklang.scenes.dead'
 -- TODO should other things also be able to die?
 function Player:die()
     if not self.is_dead then
-        game.resource_manager:get('assets/sounds/die.ogg'):play()
         local pose = 'die'
         self.sprite:set_pose(pose)
         self.is_dead = true
