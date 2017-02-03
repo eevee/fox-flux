@@ -286,6 +286,7 @@ end
 function WorldScene:draw()
     local w, h = game:getDimensions()
     love.graphics.setCanvas(self.canvas)
+    love.graphics.clear()
 
     love.graphics.push('all')
     love.graphics.translate(-self.camera.x, -self.camera.y)
