@@ -29,9 +29,10 @@ game = {
         -- Default resolution is 640 × 360, which is half of 720p and a third
         -- of 1080p and equal to 40 × 22.5 tiles.  With some padding, I get
         -- these as the max viewport size.
+        -- TODO this doesn't specify any /minimum/ size...  but it could
         local w, h = love.graphics.getDimensions()
-        local MAX_WIDTH = 50 * 16
-        local MAX_HEIGHT = 30 * 16
+        local MAX_WIDTH = 50 * 16  -- 800
+        local MAX_HEIGHT = 30 * 16  -- 480
         self.scale = math.ceil(math.max(w / MAX_WIDTH, h / MAX_HEIGHT))
     end,
 
@@ -133,8 +134,6 @@ end
 
 function love.keypressed(key, scancode, isrepeat)
     if scancode == 'return' and not isrepeat and love.keyboard.isDown('lalt', 'ralt') then
-        -- FIXME disabled until i can figure out how to scale this larger game
-        do return end
         if love.window.getFullscreen() then
             love.window.setFullscreen(false)
             -- FIXME this freezes X for me until i ssh in and killall love, so.

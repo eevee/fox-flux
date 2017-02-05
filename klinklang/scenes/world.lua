@@ -365,7 +365,7 @@ function WorldScene:draw()
     love.graphics.pop()
 
     love.graphics.setCanvas()
-    love.graphics.draw(self.canvas, 0, 0, 0, self.scale, self.scale)
+    love.graphics.draw(self.canvas, 0, 0, 0, game.scale, game.scale)
 
     if game.debug then
         self:_draw_blockmap()
