@@ -374,8 +374,8 @@ function WorldScene:draw()
     love.graphics.push('all')
 
     -- FIXME put this and the debug stuff on a separate "layer" which doesn't have to live here
-    --[[
-    love.graphics.draw(p8_spritesheet, love.graphics.newQuad(192, 128, 64, 64, p8_spritesheet:getDimensions()), 0, 0)
+    local frame = game.sprites['inventory frame']:instantiate()
+    frame:draw_at(Vector(0, 0))
     love.graphics.setScissor(16, 16, love.graphics.getWidth(), 32)
     local name = love.graphics.newText(m5x7, self.player.inventory[self.player.inventory_cursor].display_name)
     local dy = 32
@@ -397,6 +397,7 @@ function WorldScene:draw()
     love.graphics.pop()
 
     love.graphics.push('all')
+    --[[
     local sprite = game.sprites['keycap']:instantiate()
     sprite:draw_at(Vector(36, 40))
     love.graphics.setColor(52, 52, 52)

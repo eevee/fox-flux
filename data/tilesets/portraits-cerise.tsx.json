@@ -1,0 +1,25 @@
+{ "columns":2,
+ "image":"..\/..\/assets\/images\/portraits-cerise.png",
+ "imageheight":144,
+ "imagewidth":224,
+ "margin":0,
+ "name":"portraits-cerise",
+ "spacing":0,
+ "tilecount":2,
+ "tileheight":144,
+ "tileproperties":
+    {
+     "0":
+        {
+         "sprite name":"cerise portrait\/default"
+        }
+    },
+ "tilepropertytypes":
+    {
+     "0":
+        {
+         "sprite name":"string"
+        }
+    },
+ "tilewidth":112
+}

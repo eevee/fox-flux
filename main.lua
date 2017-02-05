@@ -86,10 +86,17 @@ function love.load(args)
     -- Load all the graphics upfront
     for _, tspath in ipairs{
         'data/tilesets/lexy.tsx.json',
+        'data/tilesets/ui.tsx.json',
+        'data/tilesets/ui64.tsx.json',
+        'data/tilesets/portraits.tsx.json',
+        'data/tilesets/portraits-cerise.tsx.json',
     } do
         local tileset = tiledmap.TiledTileset(tspath, nil, resource_manager)
         resource_manager:add(tspath, tileset)
     end
+
+    local DialogueScene = require 'klinklang.scenes.dialogue'
+    DialogueScene.default_background = game.resource_manager:load('assets/images/dialoguebox-lexy.png')
 
     -- FIXME probably want a way to specify fonts with named roles
     local fontscale = 2

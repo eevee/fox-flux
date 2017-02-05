@@ -1,0 +1,25 @@
+{ "columns":2,
+ "image":"..\/..\/assets\/images\/ui.png",
+ "imageheight":128,
+ "imagewidth":128,
+ "margin":0,
+ "name":"ui",
+ "spacing":0,
+ "tilecount":4,
+ "tileheight":64,
+ "tileproperties":
+    {
+     "0":
+        {
+         "sprite name":"inventory frame\/default"
+        }
+    },
+ "tilepropertytypes":
+    {
+     "0":
+        {
+         "sprite name":"string"
+        }
+    },
+ "tilewidth":64
+}

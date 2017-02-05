@@ -9,9 +9,9 @@ local whammo_shapes = require 'klinklang.whammo.shapes'
 
 local Player = actors_base.MobileActor:extend{
     name = 'lexy',
-    sprite_name = 'lexy',
-    --dialogue_position = 'left',
-    --dialogue_sprite_name = 'isaac portrait',
+    sprite_name = 'lexy: rubber',
+    dialogue_position = 'left',
+    dialogue_sprite_name = 'lexy portrait',
     z = 1000,
 
     is_player = true,
@@ -33,6 +33,23 @@ function Player:init(...)
     -- game and correctly restored on map load
     self.inventory = {}
     table.insert(self.inventory, {
+        display_name = 'Compact',
+        sprite_name = 'compact',
+        description = 'Your compact.  You never leave home without it!',
+        on_inventory_use = function(self, activator)
+            -- TODO menu for who to dial?  later, when robin exists
+            -- FIXME need a better way to specify an actor class as a speaker
+            local actors_npcs = require 'foxflux.actors.npcs'
+            local Gamestate = require 'vendor.hump.gamestate'
+            local DialogueScene = require 'klinklang.scenes.dialogue'
+            Gamestate.push(DialogueScene({
+                lexy = activator,
+                cerise = actors_npcs.Cerise,
+            }, {
+                { "Hey, sweetie!\nHere are a few more\nlines of text\njust for you!", speaker = 'cerise' },
+                { "Oh, hey.", speaker = 'lexy' },
+            }))
+        end,
     })
 
 end
