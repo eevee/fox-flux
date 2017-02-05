@@ -1,12 +1,12 @@
 { "columns":18,
  "image":"..\/..\/assets\/images\/lexy.png",
- "imageheight":64,
+ "imageheight":512,
  "imagewidth":576,
  "margin":0,
  "name":"lexy",
  "spacing":0,
- "tilecount":18,
- "tileheight":64,
+ "tilecount":144,
+ "tileheight":80,
  "tileproperties":
     {
      "0":
@@ -17,9 +17,43 @@
         {
          "sprite name":"lexy\/walk"
         },
-     "10":
+     "11":
         {
+         "animation stops":true,
          "sprite name":"lexy\/jump"
+        },
+     "18":
+        {
+         "sprite name":"lexy: rubber\/stand"
+        },
+     "19":
+        {
+         "sprite name":"lexy: rubber\/walk"
+        },
+     "27":
+        {
+         "sprite name":"lexy: rubber\/fall"
+        },
+     "29":
+        {
+         "animation stops":true,
+         "sprite name":"lexy: rubber\/jump"
+        },
+     "36":
+        {
+         "sprite name":"lexy: slime\/stand"
+        },
+     "37":
+        {
+         "sprite name":"lexy: slime\/walk"
+        },
+     "45":
+        {
+         "sprite name":"lexy: slime\/fall"
+        },
+     "47":
+        {
+         "sprite name":"lexy: slime\/jump"
         },
      "9":
         {
@@ -36,7 +70,41 @@
         {
          "sprite name":"string"
         },
-     "10":
+     "11":
+        {
+         "animation stops":"bool",
+         "sprite name":"string"
+        },
+     "18":
+        {
+         "sprite name":"string"
+        },
+     "19":
+        {
+         "sprite name":"string"
+        },
+     "27":
+        {
+         "sprite name":"string"
+        },
+     "29":
+        {
+         "animation stops":"bool",
+         "sprite name":"string"
+        },
+     "36":
+        {
+         "sprite name":"string"
+        },
+     "37":
+        {
+         "sprite name":"string"
+        },
+     "45":
+        {
+         "sprite name":"string"
+        },
+     "47":
         {
          "sprite name":"string"
         },
@@ -175,8 +243,373 @@
              "y":0
             }
         },
+     "11":
+        {
+         "animation":[
+                {
+                 "duration":50,
+                 "tileid":11
+                }, 
+                {
+                 "duration":1000,
+                 "tileid":12
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":20,
+                     "y":60
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "18":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":20,
+                     "y":60
+                    }, 
+                    {
+                     "height":52,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":24,
+                     "x":8,
+                     "y":8
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "19":
+        {
+         "animation":[
+                {
+                 "duration":100,
+                 "tileid":19
+                }, 
+                {
+                 "duration":100,
+                 "tileid":20
+                }, 
+                {
+                 "duration":100,
+                 "tileid":21
+                }, 
+                {
+                 "duration":100,
+                 "tileid":22
+                }, 
+                {
+                 "duration":100,
+                 "tileid":23
+                }, 
+                {
+                 "duration":100,
+                 "tileid":24
+                }, 
+                {
+                 "duration":100,
+                 "tileid":25
+                }, 
+                {
+                 "duration":100,
+                 "tileid":26
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":20,
+                     "y":60
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "27":
+        {
+         "animation":[
+                {
+                 "duration":150,
+                 "tileid":27
+                }, 
+                {
+                 "duration":200,
+                 "tileid":28
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":20,
+                     "y":60
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "29":
+        {
+         "animation":[
+                {
+                 "duration":50,
+                 "tileid":29
+                }, 
+                {
+                 "duration":1000,
+                 "tileid":30
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":20,
+                     "y":60
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "36":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":20,
+                     "y":60
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "37":
+        {
+         "animation":[
+                {
+                 "duration":100,
+                 "tileid":37
+                }, 
+                {
+                 "duration":100,
+                 "tileid":38
+                }, 
+                {
+                 "duration":100,
+                 "tileid":39
+                }, 
+                {
+                 "duration":100,
+                 "tileid":40
+                }, 
+                {
+                 "duration":100,
+                 "tileid":41
+                }, 
+                {
+                 "duration":100,
+                 "tileid":42
+                }, 
+                {
+                 "duration":100,
+                 "tileid":43
+                }, 
+                {
+                 "duration":100,
+                 "tileid":44
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":20,
+                     "y":60
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "45":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":20,
+                     "y":60
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "47":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":20,
+                     "y":60
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
      "9":
         {
+         "animation":[
+                {
+                 "duration":150,
+                 "tileid":9
+                }, 
+                {
+                 "duration":200,
+                 "tileid":10
+                }],
          "objectgroup":
             {
              "draworder":"index",

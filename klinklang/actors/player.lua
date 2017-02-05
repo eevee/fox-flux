@@ -81,6 +81,19 @@ function Player:update(dt)
         return
     end
 
+    -- FIXME testing purposes only!!
+    if not self.is_stone and love.keyboard.isDown('s') then
+        self.is_stone = true
+        self.gravity_multiplier = 2
+        self.decision_walk = 0
+        self.aircontrol = 0.5
+    end
+    if not self.is_stone and love.keyboard.isDown('d') then
+        self.sprite_name = 'lexy: rubber'
+        self.sprite = game.sprites[self.sprite_name]:instantiate()
+        self.dialogue_sprite_name = 'lexy portrait: rubber'
+    end
+
     local xmult
     if self.on_ground then
         -- TODO adjust this factor when on a slope, so ascending is harder than
@@ -96,7 +109,9 @@ function Player:update(dt)
     -- Explicit movement
     -- TODO should be whichever was pressed last?
     local pose = 'stand'
-    if self.decision_walk > 0 then
+    if self.is_stone and self.on_ground then
+        -- Stone can't walk
+    elseif self.decision_walk > 0 then
         -- FIXME hmm is this the right way to handle a maximum walking speed?
         -- it obviously doesn't work correctly in another frame of reference
         if self.velocity.x < self.max_speed then
@@ -158,7 +173,10 @@ function Player:update(dt)
     end
 
     -- Update pose depending on actual movement
-    if self.on_ground then
+    if self.is_stone then
+        pose = 'stone'
+        self.facing_left = false
+    elseif self.on_ground then
     elseif self.velocity.y < 0 then
         pose = 'jump'
     elseif self.velocity.y > 0 then

@@ -56,7 +56,7 @@ function love.load(args)
     love.graphics.setDefaultFilter('nearest', 'nearest', 1)
 
     -- Eagerly load all actor modules, so we can access them by name
-    for _, package in ipairs{'klinklang', 'isaacsdescent'} do
+    for _, package in ipairs{'klinklang', 'foxflux'} do
         local dir = package .. '/actors'
         for _, filename in ipairs(love.filesystem.getDirectoryItems(dir)) do
             -- FIXME this should recurse, but i can't be assed right now
