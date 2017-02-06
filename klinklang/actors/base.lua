@@ -469,28 +469,18 @@ function SentientActor:update(dt)
     --print("position", self.pos, "velocity", self.velocity)
 
     -- Explicit movement
-    -- TODO should be whichever was pressed last?
-    local pose = 'stand'
-    if self.is_stone and self.on_ground then
-        -- Stone can't walk
-    elseif self.decision_walk > 0 then
+    if self.decision_walk > 0 then
         -- FIXME hmm is this the right way to handle a maximum walking speed?
         -- it obviously doesn't work correctly in another frame of reference
         if self.velocity.x < self.max_speed then
             self.velocity.x = math.min(self.max_speed, self.velocity.x + self.xaccel * xmult * dt)
         end
         self.facing_left = false
-        pose = 'walk'
     elseif self.decision_walk < 0 then
         if self.velocity.x > -self.max_speed then
             self.velocity.x = math.max(-self.max_speed, self.velocity.x - self.xaccel * xmult * dt)
         end
         self.facing_left = true
-        pose = 'walk'
-    end
-    if self.is_floating then
-        -- FIXME probably doesn't belong here, buut
-        pose = 'fall'
     end
 
     -- Jumping
@@ -514,30 +504,31 @@ function SentientActor:update(dt)
     -- Apply physics
     SentientActor.__super.update(self, dt)
 
-    -- FIXME uhh this sucks, but otherwise the death animation is clobbered by
-    -- the bit below!  should death skip the rest of the actor's update cycle
-    -- entirely, including activating any other collision?  should death only
-    -- happen at the start of a frame?  should it be an event or something?
-    if self.is_dead then
-        return
-    end
+    -- Update the pose
+    self:update_pose()
+end
 
-    -- Update pose depending on actual movement
-    -- FIXME consolidate pose choice into one place, now that there's decision
-    if self.is_stone then
-        pose = 'stone'
-        self.facing_left = false
+-- Figure out a new pose and switch to it.  Default behavior is based on player
+-- logic; feel free to override.
+function SentientActor:update_pose()
+    local pose = 'stand'
+    if self.is_dead then
+        pose = 'dead'
+    elseif self.is_floating then
+        pose = 'fall'
     elseif self.on_ground then
+        if self.decision_walk ~= 0 then
+            pose = 'walk'
+        end
     elseif self.velocity.y < 0 then
         pose = 'jump'
     elseif self.velocity.y > 0 then
         pose = 'fall'
     end
-    -- TODO how do these work for things that aren't players?
+
     self.sprite:set_facing_right(not self.facing_left)
     self.sprite:set_pose(pose)
 end
-
 
 
 return {

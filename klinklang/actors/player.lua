@@ -135,12 +135,12 @@ end
 function Player:on_collide(actor, direction)
     if self.sprite_name == 'lexy: rubber' and actor.name == 'slime' and math.abs(actor.pos.y - (self.pos.y - 12)) < 4 then
         worldscene:remove_actor(actor)
-        self.locked = true
+        self.is_locked = true
         self.sprite_name = 'lexy: slime tf'
         self.sprite = game.sprites[self.sprite_name]:instantiate()
         -- FIXME DO AT END OF ANIMATION
         worldscene.tick:delay(function()
-            self.locked = false
+            self.is_locked = false
             self.sprite_name = 'lexy: slime'
             self.sprite = game.sprites[self.sprite_name]:instantiate()
             self.dialogue_sprite_name = 'lexy portrait: slime'
