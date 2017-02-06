@@ -58,8 +58,8 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
         local neighbors = self.blockmap:neighbors(shape, attempted:unpack())
         for neighbor in pairs(neighbors) do
             local move, touchtype, clock, normal = shape:slide_towards(neighbor, attempted)
-            --print("< got move, touchtype, clock:", move, touchtype, clock)
             if move then
+                --print("< got move, touchtype, clock:", move, touchtype, clock)
                 table.insert(collisions, {
                     shape = neighbor,
                     move = move,
@@ -207,11 +207,22 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
         -- Slide along the extreme that's closest to the direction of movement
         -- FIXME this logic is wrong, and it's because of the clock, naturally!
         -- if we collide with two surfaces simultaneously, there IS no slide!
-        --print("combined_clock:", combined_clock)
-        local slide = combined_clock:closest_extreme(attempted)
+        -- using lastclock helps, and fixes the case where we wiggle in a
+        -- corner without ever hitting both edges simultaneously, but can be
+        -- wrong if the movement is much greater than our size (so we slide
+        -- along an edge, /beyond/ the object, and then try to slide back
+        -- towards it)
+        local slide = lastclock:closest_extreme(attempted)
         if slide and attempted ~= first_collision.move then
             local remaining = attempted - first_collision.move
-            attempted = remaining:projectOn(slide)
+            if remaining * slide < 0 then
+                -- Can't slide anywhere near the direction of movement, so we
+                -- have to stop here
+                attempted = Vector.zero:clone()
+                break
+            else
+                attempted = remaining:projectOn(slide)
+            end
         else
             attempted = Vector.zero:clone()
         end
