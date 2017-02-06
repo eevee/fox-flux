@@ -1,4 +1,5 @@
 local anim8 = require 'vendor.anim8'
+local Vector = require 'vendor.hump.vector'
 
 local Object = require 'klinklang.object'
 
@@ -35,11 +36,13 @@ function SpriteSet:add(pose_name, anchor, shape, frames, durations, onloop, flip
         shape = shape,
         anchor = anchor,
     }
+    -- FIXME this assumes the frames are all the same size; either avoid
+    -- requiring that (which may be impossible) or explicitly enforce it
+    local _, _, w, _ = frames[1]:getViewport()
     local flipped_data = {
         animation = anim:clone():flipH(),
         shape = flipped_shape,
-        -- FIXME probably...  not right
-        anchor = anchor,
+        anchor = Vector(w - anchor.x, anchor.y),
     }
     if flipped then
         self.poses[pose_name] = {
