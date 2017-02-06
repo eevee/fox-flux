@@ -97,6 +97,11 @@ function Player:update(dt)
         self.sprite:update(dt)
         return
     end
+    if self.locked then
+        -- FIXME locked still has physics, just not input!!!  i think you can fix this and the gravity/friction ordering thing at the same time...
+        self.sprite:update(dt)
+        return
+    end
 
     -- FIXME testing purposes only!!
     if not self.is_stone and love.keyboard.isDown('s') then
@@ -105,8 +110,8 @@ function Player:update(dt)
         self.decision_walk = 0
         self.aircontrol = 0.5
     end
-    if not self.is_stone and love.keyboard.isDown('d') then
-        self.sprite_name = 'lexy: rubber'
+    if self.name == 'lexy' and not self.is_stone and love.keyboard.isDown('d') then
+        self.sprite_name = 'lexy: pooltoy'
         self.sprite = game.sprites[self.sprite_name]:instantiate()
         self.dialogue_sprite_name = 'lexy portrait: rubber'
     end
@@ -252,6 +257,22 @@ function Player:draw()
     end
     self.shape:draw('fill')
     love.graphics.setColor(255, 255, 255)
+end
+
+function Player:on_collide(actor, direction)
+    if self.sprite_name == 'lexy: rubber' and actor.name == 'slime' and math.abs(actor.pos.y - (self.pos.y - 12)) < 4 then
+        worldscene:remove_actor(actor)
+        self.locked = true
+        self.sprite_name = 'lexy: slime tf'
+        self.sprite = game.sprites[self.sprite_name]:instantiate()
+        -- FIXME DO AT END OF ANIMATION
+        worldscene.tick:delay(function()
+            self.locked = false
+            self.sprite_name = 'lexy: slime'
+            self.sprite = game.sprites[self.sprite_name]:instantiate()
+            self.dialogue_sprite_name = 'lexy portrait: slime'
+        end, 0.85)
+    end
 end
 
 function Player:damage(source, amount)

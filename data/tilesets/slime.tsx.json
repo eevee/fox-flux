@@ -1,11 +1,11 @@
-{ "columns":3,
+{ "columns":5,
  "image":"..\/..\/assets\/images\/slime.png",
  "imageheight":32,
- "imagewidth":96,
+ "imagewidth":160,
  "margin":0,
  "name":"slime",
  "spacing":0,
- "tilecount":3,
+ "tilecount":5,
  "tileheight":32,
  "tileproperties":
     {
@@ -18,7 +18,11 @@
         {
          "sprite name":"slime\/walk"
         },
-     "2":
+     "3":
+        {
+         "sprite name":"slime\/jump"
+        },
+     "4":
         {
          "sprite name":"slime\/fall"
         }
@@ -34,7 +38,11 @@
         {
          "sprite name":"string"
         },
-     "2":
+     "3":
+        {
+         "sprite name":"string"
+        },
+     "4":
         {
          "sprite name":"string"
         }
@@ -56,8 +64,8 @@
                      "rotation":0,
                      "type":"",
                      "visible":true,
-                     "width":24,
-                     "x":4,
+                     "width":16,
+                     "x":8,
                      "y":16
                     }, 
                     {
@@ -126,6 +134,62 @@
             }
         },
      "2":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":28
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "3":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":28
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "4":
         {
          "objectgroup":
             {

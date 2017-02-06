@@ -12,10 +12,23 @@ local whammo_shapes = require 'klinklang.whammo.shapes'
 local Slime = Player:extend{
     name = 'slime',
     sprite_name = 'slime',
+
+    max_speed = 128,
+    xaccel = 600,
+    -- FIXME gravity is hardcoded here
+    jumpvel = math.sqrt(2 * 675 * 16),
 }
 
 function Slime:update(dt)
-    if love.math.random() < 0.2 * dt then
+    local player_dist = worldscene.player.pos - self.pos
+    if math.abs(player_dist.x) < 32 then
+        if player_dist.x < 0 then
+            self:decide_walk(-1)
+        else
+            self:decide_walk(1)
+        end
+        self:decide_jump()
+    elseif love.math.random() < 0.2 * dt then
         self:decide_walk(love.math.random(3) - 2)
     end
 

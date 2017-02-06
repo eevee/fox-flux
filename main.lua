@@ -86,6 +86,7 @@ function love.load(args)
     -- Load all the graphics upfront
     for _, tspath in ipairs{
         'data/tilesets/lexy.tsx.json',
+        'data/tilesets/lexy-slime.tsx.json',
         'data/tilesets/ui.tsx.json',
         'data/tilesets/ui64.tsx.json',
         'data/tilesets/portraits.tsx.json',
