@@ -4,23 +4,12 @@ Read a map in Tiled's JSON format.
 
 local anim8 = require 'vendor.anim8'
 local Vector = require 'vendor.hump.vector'
-local json = require 'vendor.dkjson'
 
 local Object = require 'klinklang.object'
 local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 local SpriteSet = require 'klinklang.sprite'
 
-
--- I hate silent errors
-local function strict_json_decode(str)
-    local obj, pos, err = json.decode(str)
-    if err then
-        error(err)
-    else
-        return obj
-    end
-end
 
 -- TODO no idea how correct this is
 -- n.b.: a is assumed to hold a /filename/, which is popped off first
@@ -56,7 +45,7 @@ local TiledTileset = Object:extend{}
 function TiledTileset:init(path, data, resource_manager)
     self.path = path
     if not data then
-        data = strict_json_decode(love.filesystem.read(path))
+        data = util.strict_json_decode(love.filesystem.read(path))
     end
     self.raw = data
 
@@ -305,7 +294,7 @@ local TiledMap = Object:extend{
 }
 
 function TiledMap:init(path, resource_manager)
-    self.raw = strict_json_decode(love.filesystem.read(path))
+    self.raw = util.strict_json_decode(love.filesystem.read(path))
 
     -- Copy some basics
     self.tilewidth = self.raw.tilewidth

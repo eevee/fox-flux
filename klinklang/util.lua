@@ -2,8 +2,19 @@
 Argh!  The dreaded util module.  You know what to expect.
 ]]
 local Vector = require 'vendor.hump.vector'
+local json = require 'vendor.dkjson'
 
 local Object = require 'klinklang.object'
+
+-- I hate silent errors
+local function strict_json_decode(str)
+    local obj, pos, err = json.decode(str)
+    if err then
+        error(err)
+    else
+        return obj
+    end
+end
 
 --------------------------------------------------------------------------------
 -- Conspicuous mathematical omissions
@@ -287,6 +298,7 @@ end
 
 
 return {
+    strict_json_decode = strict_json_decode,
     sign = sign,
     clamp = clamp,
     divmod = divmod,

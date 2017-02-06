@@ -22,7 +22,7 @@ function SpriteSet:init(name, image)
 end
 
 function SpriteSet:add(pose_name, anchor, shape, frames, durations, onloop, flipped)
-    assert(not self.poses[pose_name], ("Pose %s already exists"):format(pose_name))
+    assert(not self.poses[pose_name], ("Pose %s already exists for sprite %s"):format(pose_name, self.name))
 
     -- FIXME this is pretty hokey and seems really specific to platformers
     local anim = anim8.newAnimation(frames, durations, onloop)
@@ -89,7 +89,7 @@ function Sprite:set_pose(pose)
         for pose_name in pairs(self.spriteset.poses) do
             table.insert(all_poses, pose_name)
         end
-        error(("No such pose %s (available: %s)"):format(pose, table.concat(all_poses, ", ")))
+        error(("No such pose '%s' for %s (available: %s)"):format(pose, self.spriteset.name, table.concat(all_poses, ", ")))
     end
 end
 
