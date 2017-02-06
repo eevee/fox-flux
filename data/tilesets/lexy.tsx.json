@@ -1,11 +1,11 @@
-{ "columns":18,
+{ "columns":19,
  "image":"..\/..\/assets\/images\/lexy.png",
- "imageheight":512,
- "imagewidth":576,
+ "imageheight":640,
+ "imagewidth":608,
  "margin":0,
  "name":"lexy",
  "spacing":0,
- "tilecount":144,
+ "tilecount":152,
  "tileheight":80,
  "tileproperties":
     {
@@ -22,38 +22,47 @@
          "animation stops":true,
          "sprite name":"lexy\/jump"
         },
-     "18":
+     "114":
         {
-         "sprite name":"lexy: rubber\/stand"
+         "sprite name":"lexy: glass\/stand"
         },
      "19":
         {
+         "sprite name":"lexy: rubber\/stand"
+        },
+     "20":
+        {
          "sprite name":"lexy: rubber\/walk"
         },
-     "27":
+     "28":
         {
          "sprite name":"lexy: rubber\/fall"
         },
-     "29":
+     "30":
         {
          "animation stops":true,
          "sprite name":"lexy: rubber\/jump"
         },
-     "36":
+     "38":
         {
          "sprite name":"lexy: slime\/stand"
         },
-     "37":
+     "39":
         {
          "sprite name":"lexy: slime\/walk"
         },
-     "45":
+     "47":
         {
          "sprite name":"lexy: slime\/fall"
         },
-     "47":
+     "49":
         {
+         "animation stops":true,
          "sprite name":"lexy: slime\/jump"
+        },
+     "76":
+        {
+         "sprite name":"lexy: pooltoy\/stand"
         },
      "9":
         {
@@ -75,7 +84,7 @@
          "animation stops":"bool",
          "sprite name":"string"
         },
-     "18":
+     "114":
         {
          "sprite name":"string"
         },
@@ -83,28 +92,37 @@
         {
          "sprite name":"string"
         },
-     "27":
+     "20":
         {
          "sprite name":"string"
         },
-     "29":
+     "28":
+        {
+         "sprite name":"string"
+        },
+     "30":
         {
          "animation stops":"bool",
          "sprite name":"string"
         },
-     "36":
+     "38":
         {
          "sprite name":"string"
         },
-     "37":
-        {
-         "sprite name":"string"
-        },
-     "45":
+     "39":
         {
          "sprite name":"string"
         },
      "47":
+        {
+         "sprite name":"string"
+        },
+     "49":
+        {
+         "animation stops":"bool",
+         "sprite name":"string"
+        },
+     "76":
         {
          "sprite name":"string"
         },
@@ -280,7 +298,35 @@
              "y":0
             }
         },
-     "18":
+     "114":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":20,
+                     "y":60
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "19":
         {
          "objectgroup":
             {
@@ -319,13 +365,9 @@
              "y":0
             }
         },
-     "19":
+     "20":
         {
          "animation":[
-                {
-                 "duration":100,
-                 "tileid":19
-                }, 
                 {
                  "duration":100,
                  "tileid":20
@@ -353,6 +395,10 @@
                 {
                  "duration":100,
                  "tileid":26
+                }, 
+                {
+                 "duration":100,
+                 "tileid":27
                 }],
          "objectgroup":
             {
@@ -380,16 +426,16 @@
              "y":0
             }
         },
-     "27":
+     "28":
         {
          "animation":[
                 {
                  "duration":150,
-                 "tileid":27
+                 "tileid":28
                 }, 
                 {
                  "duration":200,
-                 "tileid":28
+                 "tileid":29
                 }],
          "objectgroup":
             {
@@ -417,16 +463,16 @@
              "y":0
             }
         },
-     "29":
+     "30":
         {
          "animation":[
                 {
                  "duration":50,
-                 "tileid":29
+                 "tileid":30
                 }, 
                 {
                  "duration":1000,
-                 "tileid":30
+                 "tileid":31
                 }],
          "objectgroup":
             {
@@ -454,7 +500,7 @@
              "y":0
             }
         },
-     "36":
+     "38":
         {
          "objectgroup":
             {
@@ -482,17 +528,9 @@
              "y":0
             }
         },
-     "37":
+     "39":
         {
          "animation":[
-                {
-                 "duration":100,
-                 "tileid":37
-                }, 
-                {
-                 "duration":100,
-                 "tileid":38
-                }, 
                 {
                  "duration":100,
                  "tileid":39
@@ -516,35 +554,15 @@
                 {
                  "duration":100,
                  "tileid":44
+                }, 
+                {
+                 "duration":100,
+                 "tileid":45
+                }, 
+                {
+                 "duration":100,
+                 "tileid":46
                 }],
-         "objectgroup":
-            {
-             "draworder":"index",
-             "height":0,
-             "name":"",
-             "objects":[
-                    {
-                     "ellipse":true,
-                     "height":0,
-                     "id":1,
-                     "name":"",
-                     "rotation":0,
-                     "type":"anchor",
-                     "visible":true,
-                     "width":0,
-                     "x":20,
-                     "y":60
-                    }],
-             "opacity":1,
-             "type":"objectgroup",
-             "visible":true,
-             "width":0,
-             "x":0,
-             "y":0
-            }
-        },
-     "45":
-        {
          "objectgroup":
             {
              "draworder":"index",
@@ -572,6 +590,80 @@
             }
         },
      "47":
+        {
+         "animation":[
+                {
+                 "duration":150,
+                 "tileid":47
+                }, 
+                {
+                 "duration":200,
+                 "tileid":48
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":20,
+                     "y":60
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "49":
+        {
+         "animation":[
+                {
+                 "duration":50,
+                 "tileid":49
+                }, 
+                {
+                 "duration":1000,
+                 "tileid":50
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":20,
+                     "y":60
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "76":
         {
          "objectgroup":
             {
