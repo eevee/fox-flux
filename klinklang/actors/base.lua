@@ -224,63 +224,6 @@ local MobileActor = Actor:extend{
 }
 
 function MobileActor:_do_physics(dt)
-    -- Passive adjustments
-    if math.abs(self.velocity.x) < self.min_speed then
-        self.velocity.x = 0
-    end
-
-    -- FIXME i feel like these two are kinda crap, especially given how
-    -- max_speed works.  something about my physics is just not right.  check
-    -- sonic wiki?
-    -- Friction -- the general tendency for everything to decelerate.
-    -- It always pushes against the direction of motion, but never so much that
-    -- it would reverse the motion.  Note that taking the dot product with the
-    -- horizontal produces the normal force.
-    -- Include the dt factor from the beginning, to make capping easier.
-    -- Also, doing this before anything else ensures that it only considers
-    -- deliberate movement and momentum, not gravity.
-    -- FIXME doing this before actual movement has the same problem as the
-    -- interaction of gravity and jump height -- you walk very very slowly when
-    -- the framerate is low
-    local vellen = self.velocity:len()
-    if vellen > 1e-8 then
-        local vel1 = self.velocity / vellen
-        local friction_vector = Vector(self.friction, 0)
-        local deceleration = friction_vector * vel1 * dt
-        local decel_vector = -deceleration * friction_vector:normalized()
-        decel_vector:trimInplace(vellen)
-        self.velocity = self.velocity + decel_vector
-        --print("velocity after deceleration:", self.velocity)
-    end
-
-    if not self.is_floating then
-        -- TODO factor the ground_friction constant into both of these
-        -- Slope resistance -- an actor's ability to stay in place on an incline
-        -- It always pushes upwards along the slope.  It has no cap, since it
-        -- should always exactly oppose gravity, as long as the slope is shallow
-        -- enough.
-        -- Skip it entirely if we're not even moving in the general direction
-        -- of gravity, though, so it doesn't interfere with jumping.
-        if self.on_ground and self.last_slide then
-            --print("last slide:", self.last_slide)
-            local slide1 = self.last_slide:normalized()
-            if gravity * self.max_slope:normalized() - gravity * slide1 > -1e-8 then
-                local slope_resistance = -(gravity * slide1)
-                self.velocity = self.velocity + slope_resistance * dt * slide1
-                --print("velocity after slope resistance:", self.velocity)
-            end
-        end
-
-        -- Gravity
-        local mult = self.gravity_multiplier
-        if self.velocity.y > 0 then
-            mult = mult * self.gravity_multiplier_down
-        end
-        self.velocity = self.velocity + gravity * mult * dt
-        self.velocity.y = math.min(self.velocity.y, terminal_velocity)
-        --print("velocity after gravity:", self.velocity)
-    end
-
     -- Fudge the movement to try ending up aligned to the pixel grid.
     -- This helps compensate for the physics engine's love of gross float
     -- coordinates, and should allow the player to position themselves
@@ -299,7 +242,6 @@ function MobileActor:_do_physics(dt)
     goalpos.y = math.floor(goalpos.y * 8 + 0.5) / 8
     local movement = goalpos - self.pos
 
-    ----------------------------------------------------------------------------
     -- Collision time!
     --print()
     --print()
@@ -344,6 +286,22 @@ function MobileActor:_do_physics(dt)
         end
     end
 
+    -- Ground test: from where we are, are we allowed to move straight down?
+    -- TODO i really want to replace clocks with just normals
+    -- TODO projecting velocity onto the direction of the ground makes us climb slopes more slowly!  feels nice
+    if last_clock then
+        self.last_slide = last_clock:closest_extreme(gravity)
+    else
+        self.last_slide = nil
+    end
+    if not self.on_ground then
+        -- We are on the ground iff our max standable slope is closer to gravity
+        -- (i.e. steeper) than our downwards slide angle, plus a fuzz factor
+        self.on_ground = (self.last_slide and
+            self.last_slide:normalized() * gravity
+            - self.max_slope:normalized() * gravity <= 1e-8)
+    end
+
     -- Trim velocity as necessary, based on the last surface we slid against
     --print("velocity is", self.velocity, "and clock is", last_clock)
     if last_clock and self.velocity ~= Vector.zero then
@@ -363,22 +321,6 @@ function MobileActor:_do_physics(dt)
     --print("and now it's", self.velocity)
     --print("movement", movement, "attempted", attempted)
 
-    -- Ground test: from where we are, are we allowed to move straight down?
-    -- TODO i really want to replace clocks with just normals
-    -- TODO projecting velocity onto the direction of the ground makes us climb slopes more slowly!  feels nice
-    if last_clock then
-        self.last_slide = last_clock:closest_extreme(gravity)
-    else
-        self.last_slide = nil
-    end
-    if not self.on_ground then
-        -- We are on the ground iff our max standable slope is closer to gravity
-        -- (i.e. steeper) than our downwards slide angle, plus a fuzz factor
-        self.on_ground = (self.last_slide and
-            self.last_slide:normalized() * gravity
-            - self.max_slope:normalized() * gravity <= 1e-8)
-    end
-
     self.pos = self.pos + movement
     --print("FINAL POSITION:", self.pos)
     if self.shape then
@@ -394,6 +336,63 @@ function MobileActor:_do_physics(dt)
             -- TODO should we also pass along the touchtype?
             actor:on_collide(self, movement)
         end
+    end
+
+    ----------------------------------------------------------------------------
+    -- Passive adjustments
+    -- We do these last so they don't erode an explicitly-set velocity before
+    -- that velocity even has a chance to affect movement.
+    if math.abs(self.velocity.x) < self.min_speed then
+        self.velocity.x = 0
+    end
+
+    -- FIXME i feel like these two are kinda crap, especially given how
+    -- max_speed works.  something about my physics is just not right.  check
+    -- sonic wiki?
+    -- Friction -- the general tendency for everything to decelerate.
+    -- It always pushes against the direction of motion, but never so much that
+    -- it would reverse the motion.  Note that taking the dot product with the
+    -- horizontal produces the normal force.
+    -- Include the dt factor from the beginning, to make capping easier.
+    -- Also, doing this before anything else ensures that it only considers
+    -- deliberate movement and momentum, not gravity.
+    local vellen = self.velocity:len()
+    if vellen > 1e-8 then
+        local vel1 = self.velocity / vellen
+        local friction_vector = Vector(self.friction, 0)
+        local deceleration = friction_vector * vel1 * dt
+        local decel_vector = -deceleration * friction_vector:normalized()
+        decel_vector:trimInplace(vellen)
+        self.velocity = self.velocity + decel_vector
+        --print("velocity after deceleration:", self.velocity)
+    end
+
+    if not self.is_floating then
+        -- TODO factor the ground_friction constant into both of these
+        -- Slope resistance -- an actor's ability to stay in place on an incline
+        -- It always pushes upwards along the slope.  It has no cap, since it
+        -- should always exactly oppose gravity, as long as the slope is shallow
+        -- enough.
+        -- Skip it entirely if we're not even moving in the general direction
+        -- of gravity, though, so it doesn't interfere with jumping.
+        if self.on_ground and self.last_slide then
+            --print("last slide:", self.last_slide)
+            local slide1 = self.last_slide:normalized()
+            if gravity * self.max_slope:normalized() - gravity * slide1 > -1e-8 then
+                local slope_resistance = -(gravity * slide1)
+                self.velocity = self.velocity + slope_resistance * dt * slide1
+                --print("velocity after slope resistance:", self.velocity)
+            end
+        end
+
+        -- Gravity
+        local mult = self.gravity_multiplier
+        if self.velocity.y > 0 then
+            mult = mult * self.gravity_multiplier_down
+        end
+        self.velocity = self.velocity + gravity * mult * dt
+        self.velocity.y = math.min(self.velocity.y, terminal_velocity)
+        --print("velocity after gravity:", self.velocity)
     end
 
     return hits
