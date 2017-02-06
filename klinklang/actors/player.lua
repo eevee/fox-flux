@@ -7,7 +7,7 @@ local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 
 
-local Player = actors_base.MobileActor:extend{
+local Player = actors_base.SentientActor:extend{
     name = 'lexy',
     sprite_name = 'lexy: rubber',
     dialogue_position = 'left',
@@ -24,7 +24,7 @@ local Player = actors_base.MobileActor:extend{
 }
 
 function Player:init(...)
-    actors_base.MobileActor.init(self, ...)
+    Player.__super.init(self, ...)
 
     -- TODO not sure how i feel about having player state attached to the
     -- actor, but it /does/ make sense, and it's certainly an improvement over
@@ -64,45 +64,7 @@ function Player:move_to(...)
     self.touching_mechanism = nil
 end
 
--- "Thinking" API
--- Totally not sure about this yet, but it seems handy for critter AI.
-
--- Decide to start walking in the given direction.  -1 for left, 1 for right,
--- or 0 to stop walking.  Persists until changed.
-function Player:decide_walk(direction)
-    self.decision_walk = direction
-end
-
--- Decide to jump.
-function Player:decide_jump()
-    if self.is_floating then
-        return
-    end
-
-    -- Jumping has three states:
-    -- 2: starting to jump
-    -- 1: continuing a jump
-    -- 0: not jumping (i.e., falling)
-    self.decision_jump_mode = 2
-end
-
--- Decide to abandon an ongoing jump, if any, which may reduce the jump height.
-function Player:decide_abandon_jump()
-    self.decision_jump_mode = 0
-end
-
 function Player:update(dt)
-    if self.is_dead then
-        -- FIXME a corpse still has physics, just not input
-        self.sprite:update(dt)
-        return
-    end
-    if self.locked then
-        -- FIXME locked still has physics, just not input!!!  i think you can fix this and the gravity/friction ordering thing at the same time...
-        self.sprite:update(dt)
-        return
-    end
-
     -- FIXME testing purposes only!!
     if not self.is_stone and love.keyboard.isDown('s') then
         self.is_stone = true
@@ -116,97 +78,8 @@ function Player:update(dt)
         self.dialogue_sprite_name = 'lexy portrait: rubber'
     end
 
-    local xmult
-    if self.on_ground then
-        -- TODO adjust this factor when on a slope, so ascending is harder than
-        -- descending?  maybe even affect max_speed going uphill?
-        xmult = self.ground_friction
-    else
-        xmult = self.aircontrol
-    end
-    --print()
-    --print()
-    --print("position", self.pos, "velocity", self.velocity)
-
-    -- Explicit movement
-    -- TODO should be whichever was pressed last?
-    local pose = 'stand'
-    if self.is_stone and self.on_ground then
-        -- Stone can't walk
-    elseif self.decision_walk > 0 then
-        -- FIXME hmm is this the right way to handle a maximum walking speed?
-        -- it obviously doesn't work correctly in another frame of reference
-        if self.velocity.x < self.max_speed then
-            self.velocity.x = math.min(self.max_speed, self.velocity.x + self.xaccel * xmult * dt)
-        end
-        self.facing_left = false
-        pose = 'walk'
-    elseif self.decision_walk < 0 then
-        if self.velocity.x > -self.max_speed then
-            self.velocity.x = math.max(-self.max_speed, self.velocity.x - self.xaccel * xmult * dt)
-        end
-        self.facing_left = true
-        pose = 'walk'
-    end
-    if self.is_floating then
-        -- FIXME probably doesn't belong here, buut
-        pose = 'fall'
-    end
-
-    -- Jumping
-    -- This uses the Sonic approach: pressing jump immediately sets (not
-    -- increases!) the player's y velocity, and releasing jump lowers the y
-    -- velocity to a threshold
-    if self.decision_jump_mode == 2 then
-        self.decision_jump_mode = 1
-        if self.on_ground then
-            if self.velocity.y > -self.jumpvel then
-                self.velocity.y = -self.jumpvel
-                self.on_ground = false
-                -- FIXME gravity is applied after this and before you actually
-                -- move, which means that if the framerate is too low, your
-                -- initial jump velocity will be cut so much that you can't
-                -- reach the maximum jump height.
-                -- currently this is worked around by slicing updates in the
-                -- world scene, which is probably a good idea anyway, but i
-                -- think my whole ordering of actions vs passive forces needs a
-                -- little tweaking.
-                -- btw, walking has the same kind of problem -- friction is
-                -- applied after the speed cap but before actual movement, so
-                -- at a very low framerate, you move very slowly.  a real fix
-                -- may need some comprehensive rearrangement of stuff
-            end
-        end
-    elseif self.decision_jump_mode == 0 then
-        if not self.on_ground then
-            self.velocity.y = math.max(self.velocity.y, -self.jumpvel * self.jumpcap)
-        end
-    end
-
     -- Run the base logic to perform movement, collision, sprite updating, etc.
-    actors_base.MobileActor.update(self, dt)
-
-    -- FIXME uhh this sucks, but otherwise the death animation is clobbered by
-    -- the bit below!  should death skip the rest of the actor's update cycle
-    -- entirely, including activating any other collision?  should death only
-    -- happen at the start of a frame?  should it be an event or something?
-    if self.is_dead then
-        return
-    end
-
-    -- Update pose depending on actual movement
-    if self.is_stone then
-        pose = 'stone'
-        self.facing_left = false
-    elseif self.on_ground then
-    elseif self.velocity.y < 0 then
-        pose = 'jump'
-    elseif self.velocity.y > 0 then
-        pose = 'fall'
-    end
-    -- TODO how do these work for things that aren't players?
-    self.sprite:set_facing_right(not self.facing_left)
-    self.sprite:set_pose(pose)
+    Player.__super.update(self, dt)
 
     -- TODO ugh, this whole block should probably be elsewhere; i need a way to
     -- check current touches anyway.  would be nice if it could hook into the

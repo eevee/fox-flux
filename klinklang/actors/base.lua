@@ -4,6 +4,8 @@ local Object = require 'klinklang.object'
 local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 
+-- ========================================================================== --
+-- BareActor
 -- An extremely barebones actor, implementing only the bare minimum of the
 -- interface.  Most actors probably want to inherit from Actor, which supports
 -- drawing from a sprite.  Code operating on arbitrary actors should only use
@@ -85,7 +87,8 @@ function BareActor:move_to(position)
 end
 
 
-
+-- ========================================================================== --
+-- Actor
 -- Base class for an actor: any object in the world with any behavior at all.
 -- (The world also contains tiles, but those are purely decorative; they don't
 -- have an update call, and they're drawn all at once by the map rather than
@@ -178,8 +181,9 @@ function Actor:set_shape(new_shape)
 end
 
 
--- Base class for an actor that's subject to standard physics.  Generally
--- something that makes conscious decisions, like a player or monster
+-- ========================================================================== --
+-- MobileActor
+-- Base class for an actor that's subject to standard physics
 -- TODO not a fan of using subclassing for this; other options include
 -- component-entity, or going the zdoom route and making everything have every
 -- behavior but toggled on and off via myriad flags
@@ -207,23 +211,17 @@ local MobileActor = Actor:extend{
     gravity_multiplier = 1,
     gravity_multiplier_down = 1,
 
-    -- Active physics parameters
-    -- TODO these are a little goofy because friction works differently; may be
-    -- worth looking at that again.
-    xaccel = 2700,
-    -- Max height of a projectile = vy² / (2g), so vy = √2gh
-    -- Pick a jump velocity that gets us up 2 tiles, plus a margin of error
-    jumpvel = math.sqrt(2 * gravity.y * (TILE_SIZE * 2.25)),
-    jumpcap = 0.25,
-    -- Multiplier for xaccel while airborne.  MUST be greater than the ratio of
-    -- friction to xaccel, or the player won't be able to move while floating!
-    aircontrol = 0.75,
-
     -- Physics state
     on_ground = false,
 }
 
-function MobileActor:_do_physics(dt)
+function MobileActor:blocks(actor, d)
+    return true
+end
+
+function MobileActor:update(dt)
+    MobileActor.__super.update(self, dt)
+
     -- Fudge the movement to try ending up aligned to the pixel grid.
     -- This helps compensate for the physics engine's love of gross float
     -- coordinates, and should allow the player to position themselves
@@ -395,25 +393,156 @@ function MobileActor:_do_physics(dt)
         --print("velocity after gravity:", self.velocity)
     end
 
-    return hits
+    -- FIXME this sucks
+    self._stupid_hits_hack = hits
 end
 
-function MobileActor:update(dt)
-    Actor.update(self, dt)
 
-    -- TODO i don't think this is going to work, since the base class's
-    -- update() eventually needs to be called to make sure we're updating the
-    -- sprite too
-    self._stupid_hits_hack = self:_do_physics(dt)
+-- ========================================================================== --
+-- SentientActor
+-- An actor that makes conscious movement decisions.  This is modeled on the
+-- player's own behavior, but can be used for other things as well.
+-- Note that, unlike the classes above, this class changes the actor's pose.  A
+-- sentient actor should have stand, walk, and fall poses at a minimum.
+local SentientActor = MobileActor:extend{
+    decision_jump_mode = 0,
+    decision_walk = 0,
+
+    is_dead = false,
+    is_locked = false,
+
+    -- Active physics parameters
+    -- TODO these are a little goofy because friction works differently; may be
+    -- worth looking at that again.
+    xaccel = 2700,
+    -- Max height of a projectile = vy² / (2g), so vy = √2gh
+    -- Pick a jump velocity that gets us up 2 tiles, plus a margin of error
+    jumpvel = math.sqrt(2 * gravity.y * (TILE_SIZE * 2.25)),
+    jumpcap = 0.25,
+    -- Multiplier for xaccel while airborne.  MUST be greater than the ratio of
+    -- friction to xaccel, or the player won't be able to move while floating!
+    aircontrol = 0.75,
+}
+
+-- Decide to start walking in the given direction.  -1 for left, 1 for right,
+-- or 0 to stop walking.  Persists until changed.
+function SentientActor:decide_walk(direction)
+    self.decision_walk = direction
 end
 
-function MobileActor:blocks(actor, d)
-    return true
+-- Decide to jump.
+function SentientActor:decide_jump()
+    if self.is_floating then
+        return
+    end
+
+    -- Jumping has three states:
+    -- 2: starting to jump
+    -- 1: continuing a jump
+    -- 0: not jumping (i.e., falling)
+    self.decision_jump_mode = 2
 end
+
+-- Decide to abandon an ongoing jump, if any, which may reduce the jump height.
+function SentientActor:decide_abandon_jump()
+    self.decision_jump_mode = 0
+end
+
+function SentientActor:update(dt)
+    if self.is_dead or self.is_locked then
+        -- Ignore conscious decisions; just apply physics
+        -- FIXME i think "locked" only makes sense for the player?
+        SentientActor.__super.update(self, dt)
+        return
+    end
+
+    local xmult
+    if self.on_ground then
+        -- TODO adjust this factor when on a slope, so ascending is harder than
+        -- descending?  maybe even affect max_speed going uphill?
+        xmult = self.ground_friction
+    else
+        xmult = self.aircontrol
+    end
+    --print()
+    --print()
+    --print("position", self.pos, "velocity", self.velocity)
+
+    -- Explicit movement
+    -- TODO should be whichever was pressed last?
+    local pose = 'stand'
+    if self.is_stone and self.on_ground then
+        -- Stone can't walk
+    elseif self.decision_walk > 0 then
+        -- FIXME hmm is this the right way to handle a maximum walking speed?
+        -- it obviously doesn't work correctly in another frame of reference
+        if self.velocity.x < self.max_speed then
+            self.velocity.x = math.min(self.max_speed, self.velocity.x + self.xaccel * xmult * dt)
+        end
+        self.facing_left = false
+        pose = 'walk'
+    elseif self.decision_walk < 0 then
+        if self.velocity.x > -self.max_speed then
+            self.velocity.x = math.max(-self.max_speed, self.velocity.x - self.xaccel * xmult * dt)
+        end
+        self.facing_left = true
+        pose = 'walk'
+    end
+    if self.is_floating then
+        -- FIXME probably doesn't belong here, buut
+        pose = 'fall'
+    end
+
+    -- Jumping
+    -- This uses the Sonic approach: pressing jump immediately sets (not
+    -- increases!) the player's y velocity, and releasing jump lowers the y
+    -- velocity to a threshold
+    if self.decision_jump_mode == 2 then
+        self.decision_jump_mode = 1
+        if self.on_ground then
+            if self.velocity.y > -self.jumpvel then
+                self.velocity.y = -self.jumpvel
+                self.on_ground = false
+            end
+        end
+    elseif self.decision_jump_mode == 0 then
+        if not self.on_ground then
+            self.velocity.y = math.max(self.velocity.y, -self.jumpvel * self.jumpcap)
+        end
+    end
+
+    -- Apply physics
+    SentientActor.__super.update(self, dt)
+
+    -- FIXME uhh this sucks, but otherwise the death animation is clobbered by
+    -- the bit below!  should death skip the rest of the actor's update cycle
+    -- entirely, including activating any other collision?  should death only
+    -- happen at the start of a frame?  should it be an event or something?
+    if self.is_dead then
+        return
+    end
+
+    -- Update pose depending on actual movement
+    -- FIXME consolidate pose choice into one place, now that there's decision
+    if self.is_stone then
+        pose = 'stone'
+        self.facing_left = false
+    elseif self.on_ground then
+    elseif self.velocity.y < 0 then
+        pose = 'jump'
+    elseif self.velocity.y > 0 then
+        pose = 'fall'
+    end
+    -- TODO how do these work for things that aren't players?
+    self.sprite:set_facing_right(not self.facing_left)
+    self.sprite:set_pose(pose)
+end
+
 
 
 return {
     BareActor = BareActor,
     Actor = Actor,
     MobileActor = MobileActor,
+    SentientActor = SentientActor,
 }
