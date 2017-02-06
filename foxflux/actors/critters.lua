@@ -2,14 +2,12 @@ local Vector = require 'vendor.hump.vector'
 
 local actors_base = require 'klinklang.actors.base'
 local actors_misc = require 'klinklang.actors.misc'
-local Player = require 'klinklang.actors.player'
 local Object = require 'klinklang.object'
 local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 
 
--- FIXME don't...  don't inherit player
-local Slime = Player:extend{
+local Slime = actors_base.SentientActor:extend{
     name = 'slime',
     sprite_name = 'slime',
 
