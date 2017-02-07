@@ -84,16 +84,14 @@ function love.load(args)
     end
 
     -- Load all the graphics upfront
-    for _, tspath in ipairs{
-        'data/tilesets/lexy.tsx.json',
-        'data/tilesets/lexy-slime.tsx.json',
-        'data/tilesets/ui.tsx.json',
-        'data/tilesets/ui64.tsx.json',
-        'data/tilesets/portraits.tsx.json',
-        'data/tilesets/portraits-cerise.tsx.json',
-    } do
-        local tileset = tiledmap.TiledTileset(tspath, nil, resource_manager)
-        resource_manager:add(tspath, tileset)
+    local tilesetdir = 'data/tilesets'
+    for _, filename in ipairs(love.filesystem.getDirectoryItems(tilesetdir)) do
+        -- FIXME recurse?
+        local path = tilesetdir .. '/' .. filename
+        if love.filesystem.isFile(path) then
+            local tileset = tiledmap.TiledTileset(path, nil, resource_manager)
+            resource_manager:add(path, tileset)
+        end
     end
 
     local DialogueScene = require 'klinklang.scenes.dialogue'
