@@ -64,6 +64,13 @@ function Player:move_to(...)
     self.touching_mechanism = nil
 end
 
+function Player:blocks(actor, ...)
+    if actor.name == 'draclear' then
+        return false
+    end
+    return Player.__super.blocks(self, actor, ...)
+end
+
 function Player:update(dt)
     -- FIXME testing purposes only!!
     if not self.is_stone and love.keyboard.isDown('s') then
@@ -134,17 +141,36 @@ end
 
 function Player:on_collide(actor, direction)
     if self.sprite_name == 'lexy: rubber' and actor.name == 'slime' and math.abs(actor.pos.y - (self.pos.y - 12)) < 4 then
+        self.facing_left = actor.pos.x < self.pos.x
         worldscene:remove_actor(actor)
         self.is_locked = true
-        self.sprite_name = 'lexy: slime tf'
-        self.sprite = game.sprites[self.sprite_name]:instantiate()
+        self:set_sprite('lexy: slime tf')
+        self.sprite:set_facing_right(not self.facing_left)
         -- FIXME DO AT END OF ANIMATION
         worldscene.tick:delay(function()
             self.is_locked = false
-            self.sprite_name = 'lexy: slime'
-            self.sprite = game.sprites[self.sprite_name]:instantiate()
+            self:set_sprite('lexy: slime')
             self.dialogue_sprite_name = 'lexy portrait: slime'
         end, 0.85)
+    elseif self.sprite_name == 'lexy: rubber' and actor.name == 'draclear' then
+        local dist = self.pos + Vector(-6, -37) - actor.pos
+        if math.abs(dist.x) < 8 and math.abs(dist.y) < 8 then
+        local draclear = actor
+        worldscene:remove_actor(actor)
+        self.is_locked = true
+        self.facing_left = dist.x < 0
+        self:set_sprite('lexy: glass tf')
+        self.sprite:set_facing_right(not self.facing_left)
+        -- FIXME DO AT END OF ANIMATION
+        worldscene.tick:delay(function()
+            self.is_locked = false
+            self:set_sprite('lexy: glass')
+            self.dialogue_sprite_name = 'lexy portrait: glass'
+
+            draclear:sate()
+            worldscene:add_actor(draclear)
+        end, 1.1)
+        end
     end
 end
 

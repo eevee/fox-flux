@@ -1,11 +1,11 @@
 { "columns":8,
  "image":"..\/..\/assets\/images\/portraits.png",
- "imageheight":512,
+ "imageheight":768,
  "imagewidth":512,
  "margin":0,
  "name":"portraits",
  "spacing":0,
- "tilecount":40,
+ "tilecount":64,
  "tileheight":96,
  "tileproperties":
     {
@@ -16,6 +16,10 @@
      "1":
         {
          "sprite name":"lexy portrait\/talking"
+        },
+     "48":
+        {
+         "sprite name":"lexy portrait: glass\/default"
         },
      "8":
         {
@@ -33,6 +37,10 @@
          "sprite name":"string"
         },
      "1":
+        {
+         "sprite name":"string"
+        },
+     "48":
         {
          "sprite name":"string"
         },
