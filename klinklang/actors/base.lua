@@ -180,6 +180,11 @@ function Actor:set_shape(new_shape)
     end
 end
 
+function Actor:set_sprite(sprite_name)
+    self.sprite_name = sprite_name
+    self.sprite = game.sprites[self.sprite_name]:instantiate()
+end
+
 
 -- ========================================================================== --
 -- MobileActor
@@ -202,7 +207,6 @@ local MobileActor = Actor:extend{
     -- Passive physics parameters
     -- Units are pixels and seconds!
     min_speed = 1,
-    max_speed = 240,
     -- FIXME i feel like this is not done well.  floating should feel floatier
     -- FIXME friction should probably be separate from deliberate deceleration?
     friction = 1800,
@@ -259,8 +263,17 @@ function MobileActor:update(dt)
     local attempted = movement
     local movement, hits, last_clock = worldscene.collider:slide(self.shape, movement:unpack())
 
-    -- FIXME this is turning this method into a "deliberate actor" method,
-    -- which i'm fine with, but it should be separate
+    -- Ground sticking
+    -- If we walk up off the top of a slope, our momentum will carry us into
+    -- the air, which looks very silly.  A conscious actor would step off the
+    -- ramp.  So if we're only a very short distance above the ground, we were
+    -- on the ground before moving, and we're not trying to jump, then stick us
+    -- to the floor.
+    -- FIXME move this to SentientActor, somehow (difficulty is that i want it
+    -- to add to the movement before all this other stuff happens -- although
+    -- we should merge in collisions too...)
+    -- XXX note that this is the only place on_ground is set to /false/, so it
+    -- shouldn't only be run when not jumping or whatever
     if self.on_ground then
         -- FIXME how far should we try this?  128 is arbitrary, but works out
         -- to 2 pixels at 60fps, which...  i don't know what that means
@@ -302,6 +315,7 @@ function MobileActor:update(dt)
 
     -- Trim velocity as necessary, based on the last surface we slid against
     --print("velocity is", self.velocity, "and clock is", last_clock)
+    local original_velocity = self.velocity
     if last_clock and self.velocity ~= Vector.zero then
         local axis = last_clock:closest_extreme(self.velocity)
         if not axis then
@@ -331,8 +345,9 @@ function MobileActor:update(dt)
     for shape in pairs(hits) do
         local actor = worldscene.collider:get_owner(shape)
         if actor then
-            -- TODO should we also pass along the touchtype?
-            actor:on_collide(self, movement)
+            -- FIXME this should pass along the side the object is hit from!
+            -- FIXME i'm not so convinced about the velocity either
+            actor:on_collide(self, movement, original_velocity)
         end
     end
 
@@ -415,6 +430,7 @@ local SentientActor = MobileActor:extend{
     -- TODO these are a little goofy because friction works differently; may be
     -- worth looking at that again.
     xaccel = 2700,
+    max_speed = 240,
     -- Max height of a projectile = vy² / (2g), so vy = √2gh
     -- Pick a jump velocity that gets us up 2 tiles, plus a margin of error
     jumpvel = math.sqrt(2 * gravity.y * (TILE_SIZE * 2.25)),
