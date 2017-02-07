@@ -86,7 +86,20 @@ function Player:update(dt)
     end
 
     -- Run the base logic to perform movement, collision, sprite updating, etc.
+    local was_on_ground = self.on_ground
+    local original_velocity = self.velocity
     Player.__super.update(self, dt)
+
+    if self.sprite_name == 'lexy: glass' and not was_on_ground and self.on_ground then
+        print('hit!', original_velocity)
+    end
+    -- FIXME i'd like to do this with an "on-hit" callback, actually, which
+    -- also requires knowing the direction of contact...
+    if self.sprite_name == 'lexy: glass' and not was_on_ground and self.on_ground and original_velocity.y > 400 then
+        self.is_locked = true
+        self:set_sprite('lexy: glass revert')
+        self.sprite:set_facing_right(not self.facing_left)
+    end
 
     -- TODO ugh, this whole block should probably be elsewhere; i need a way to
     -- check current touches anyway.  would be nice if it could hook into the
