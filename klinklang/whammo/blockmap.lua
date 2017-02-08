@@ -8,6 +8,7 @@ local Blockmap = Object:extend()
 
 function Blockmap:init(blocksize)
     self.blocksize = blocksize
+    self.quantum = blocksize / 16
     self.blocks = {}
     self.bboxes = setmetatable({}, {__mode = 'k'})
     self.min_x = math.huge
@@ -81,8 +82,10 @@ end
 function Blockmap:neighbors(obj, dx, dy)
     local x0, y0, x1, y1 = obj:extended_bbox(dx, dy)
 
-    local a0, b0 = self:to_block_units(x0, y0)
-    local a1, b1 = self:to_block_units(x1, y1)
+    -- Pad by a tiny bit so we can detect, e.g., two objects touching exactly
+    -- on a cell edge
+    local a0, b0 = self:to_block_units(x0 - self.quantum, y0 - self.quantum)
+    local a1, b1 = self:to_block_units(x1 + self.quantum, y1 + self.quantum)
     local ret = {}
     for a = a0, a1 do
         for b = b0, b1 do
