@@ -94,7 +94,7 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
             local gravity = Vector(0, 1)
             if collision.shape._xxx_is_one_way_platform then
                 local faces_up = false
-                for _, normal in ipairs(collision.normals) do
+                for normal in pairs(collision.normals) do
                     if normal * gravity < 0 then
                         faces_up = true
                         break
@@ -118,11 +118,7 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
             end
 
             -- Restrict our slide angle if the object blocks us
-            if is_passable then
-                -- FIXME this means the caller will never get a touchtype of
-                -- -1?  do i care?  i have a test for it but idk if it matters
-                collision.touchtype = 0
-            else
+            if not is_passable then
                 combined_clock:intersect(collision.clock)
             end
 
@@ -132,7 +128,7 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
                 --print("< found first collision:", collision.movement, "amount:", collision.amount)
             end
 
-            -- Log the first type of contact with each shape
+            -- Log the first contact with each shape
             if hits[collision.shape] == nil then
                 hits[collision.shape] = collision
             end

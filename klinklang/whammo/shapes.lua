@@ -318,7 +318,7 @@ function Polygon:slide_towards(other, movement)
             local perp = fullaxis:perpendicular()
             clock:union(perp, -perp)
 
-            possible_hits[fullaxis] = { dot = dot, dist = dist }
+            possible_hits[fullaxis] = { dot = dot, dist = dist, axis = axis }
         end
         if dist > maxdist then
             maxdist = dist
@@ -339,7 +339,7 @@ function Polygon:slide_towards(other, movement)
             touchdist = 0,
             touchtype = -1,
             clock = util.ClockRange(util.ClockRange.ZERO, util.ClockRange.ZERO),
-            normals = {-maxdir},
+            normals = {[-maxdir] = -maxdir:normalized()},
             reject = maxsep:projectOn(maxdir),
         }
     end
@@ -353,9 +353,12 @@ function Polygon:slide_towards(other, movement)
     -- twice against the same axis and divide the results.  Most of it cancels,
     -- and we're left with...  the ratio of dot products!  Vectors are neat.
     local amount = (maxsep * maxdir) / (movement * maxdir)
-    if amount > 1 then
-        -- Won't actually hit!  This also takes care of the inf case.
+    if amount > 1 and maxdist > 0 then
+        -- We're allowed to move further than the requested distance, AND we're
+        -- not already touching.  (Touching is handled as a slide below!)
         return
+    elseif math.abs(amount) < PRECISION then
+        amount = 0
     end
 
     -- Figure out which surfaces we actually hit, expressed as normals
@@ -368,7 +371,7 @@ function Polygon:slide_towards(other, movement)
             -- Is dist / dot == amount?  Rearranged to avoid division:
             math.abs(data.dist - data.dot * amount) < PRECISION
         then
-            table.insert(normals, -fullaxis)
+            normals[-fullaxis] = -data.axis
         end
     end
 
@@ -425,8 +428,8 @@ function Polygon:_multi_slide_towards(other, movement)
                 if ret.touchtype == 0 then
                     ret.touchtype = collision.touchtype
                 end
-                for _, normal in ipairs(collision.normals) do
-                    table.insert(ret.normals, normal)
+                for full, norm in ipairs(collision.normals) do
+                    ret.normals[full] = norm
                 end
             end
         end

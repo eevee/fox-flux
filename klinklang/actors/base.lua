@@ -211,7 +211,6 @@ local MobileActor = Actor:extend{
     -- FIXME friction should probably be separate from deliberate deceleration?
     friction = 1800,
     ground_friction = 1,
-    max_slope = Vector(1, 1),
     gravity_multiplier = 1,
     gravity_multiplier_down = 1,
 
@@ -283,9 +282,9 @@ function MobileActor:update(dt)
         --print("\\\\\\ end drop")
         local any_hit = false
         for shape, collision in pairs(drop_hits) do
+            hits[shape] = collision
             if collision.touchtype > 0 then
                 any_hit = true
-                break
             end
         end
         if any_hit then
@@ -314,20 +313,27 @@ function MobileActor:update(dt)
         end
     end
 
-    -- Ground test: from where we are, are we allowed to move straight down?
-    -- TODO i really want to replace clocks with just normals
-    -- TODO projecting velocity onto the direction of the ground makes us climb slopes more slowly!  feels nice
-    if last_clock then
-        self.last_slide = last_clock:closest_extreme(gravity)
-    else
-        self.last_slide = nil
+    -- Ground test: did we collide with something facing upwards?
+    -- Find the normal that faces /most/ upwards, i.e. most away from gravity
+    local mindot = 0  -- 0 is vertical, which we don't want
+    local ground
+    -- FIXME this is actually wrong!  it doesn't have the same logic as the
+    -- clocks, resetting if we move in a second pass
+    for _, collision in pairs(hits) do
+        if collision.touchtype >= 0 then
+            for normal, normal1 in pairs(collision.normals) do
+                local dot = normal1 * gravity
+                if dot < mindot then
+                    mindot = dot
+                    ground = normal1
+                end
+            end
+        end
     end
-    if not self.on_ground then
-        -- We are on the ground iff our max standable slope is closer to gravity
-        -- (i.e. steeper) than our downwards slide angle, plus a fuzz factor
-        self.on_ground = (self.last_slide and
-            self.last_slide:normalized() * gravity
-            - self.max_slope:normalized() * gravity <= 1e-8)
+    self.ground_normal = ground
+    if ground then
+        -- FIXME is this now redundant with ground_normal?
+        self.on_ground = true
     end
 
     -- Trim velocity as necessary, based on the last surface we slid against
@@ -357,9 +363,7 @@ function MobileActor:update(dt)
         self.velocity.x = 0
     end
 
-    -- FIXME i feel like these two are kinda crap, especially given how
-    -- max_speed works.  something about my physics is just not right.  check
-    -- sonic wiki?
+    -- FIXME friction is separate from an actor's deliberate deceleration
     -- Friction -- the general tendency for everything to decelerate.
     -- It always pushes against the direction of motion, but never so much that
     -- it would reverse the motion.  Note that taking the dot product with the
@@ -379,23 +383,8 @@ function MobileActor:update(dt)
     end
 
     if not self.is_floating then
-        -- TODO factor the ground_friction constant into both of these
-        -- Slope resistance -- an actor's ability to stay in place on an incline
-        -- It always pushes upwards along the slope.  It has no cap, since it
-        -- should always exactly oppose gravity, as long as the slope is shallow
-        -- enough.
-        -- Skip it entirely if we're not even moving in the general direction
-        -- of gravity, though, so it doesn't interfere with jumping.
-        if self.on_ground and self.last_slide then
-            --print("last slide:", self.last_slide)
-            local slide1 = self.last_slide:normalized()
-            if gravity * self.max_slope:normalized() - gravity * slide1 > -1e-8 then
-                local slope_resistance = -(gravity * slide1)
-                self.velocity = self.velocity + slope_resistance * dt * slide1
-                --print("velocity after slope resistance:", self.velocity)
-            end
-        end
-
+        -- TODO factor the ground_friction constant into this, and also into
+        -- slope resistance
         -- Gravity
         local mult = self.gravity_multiplier
         if self.velocity.y > 0 then
@@ -436,6 +425,9 @@ local SentientActor = MobileActor:extend{
     -- Multiplier for xaccel while airborne.  MUST be greater than the ratio of
     -- friction to xaccel, or the player won't be able to move while floating!
     aircontrol = 0.75,
+    -- Maximum slope that can be walked up or jumped off of
+    max_slope = Vector(1, -1),
+    max_slope_slowdown = 0.5,
 }
 
 -- Decide to start walking in the given direction.  -1 for left, 1 for right,
@@ -471,10 +463,26 @@ function SentientActor:update(dt)
     end
 
     local xmult
+    local max_speed = self.max_speed
+    local xdir = Vector(1, 0)
     if self.on_ground then
-        -- TODO adjust this factor when on a slope, so ascending is harder than
-        -- descending?  maybe even affect max_speed going uphill?
+        local uphill = self.decision_walk * self.ground_normal.x < 0
+        xdir = self.ground_normal:perpendicular()
         xmult = self.ground_friction
+        if uphill then
+            if self.too_steep then
+                xmult = 0
+            else
+                -- Linearly scale the slope slowdown, based on the y coordinate (of
+                -- the normal, which is the x coordinate of the slope itself).
+                -- This isn't mathematically correct, but it feels fine.
+                local ground_y = math.abs(self.ground_normal.y)
+                local max_y = math.abs(self.max_slope:normalized().y)
+                local slowdown = 1 - (1 - self.max_slope_slowdown) * (1 - ground_y) / (1 - max_y)
+                max_speed = max_speed * slowdown
+                xmult = xmult * slowdown
+            end
+        end
     else
         xmult = self.aircontrol
     end
@@ -486,13 +494,15 @@ function SentientActor:update(dt)
     if self.decision_walk > 0 then
         -- FIXME hmm is this the right way to handle a maximum walking speed?
         -- it obviously doesn't work correctly in another frame of reference
-        if self.velocity.x < self.max_speed then
-            self.velocity.x = math.min(self.max_speed, self.velocity.x + self.xaccel * xmult * dt)
+        if self.velocity.x < max_speed then
+            local dx = math.min(max_speed - self.velocity.x, self.xaccel * xmult * dt)
+            self.velocity = self.velocity + dx * xdir
         end
         self.facing_left = false
     elseif self.decision_walk < 0 then
-        if self.velocity.x > -self.max_speed then
-            self.velocity.x = math.max(-self.max_speed, self.velocity.x - self.xaccel * xmult * dt)
+        if self.velocity.x > -max_speed then
+            local dx = math.max(-max_speed - self.velocity.x, self.xaccel * xmult * dt)
+            self.velocity = self.velocity - dx * xdir
         end
         self.facing_left = true
     end
@@ -503,7 +513,9 @@ function SentientActor:update(dt)
     -- velocity to a threshold
     if self.decision_jump_mode == 2 then
         self.decision_jump_mode = 1
-        if self.on_ground then
+        if self.on_ground and not self.too_steep then
+            -- TODO maybe jump away from the ground, not always up?  then could
+            -- allow jumping off of steep slopes
             if self.velocity.y > -self.jumpvel then
                 self.velocity.y = -self.jumpvel
                 self.on_ground = false
@@ -517,6 +529,30 @@ function SentientActor:update(dt)
 
     -- Apply physics
     SentientActor.__super.update(self, dt)
+
+    -- Handle our own passive physics
+    if self.on_ground then
+        self.too_steep = (
+            self.ground_normal * gravity - self.max_slope:normalized() * gravity > 1e-8)
+
+        -- Slope resistance -- an actor's ability to stay in place on an incline
+        -- It always pushes upwards along the slope.  It has no cap, since it
+        -- should always exactly oppose gravity, as long as the slope is shallow
+        -- enough.
+        -- Skip it entirely if we're not even moving in the general direction
+        -- of gravity, though, so it doesn't interfere with jumping.
+        if not self.too_steep then
+            local slope = self.ground_normal:perpendicular()
+            if slope * gravity > 0 then
+                slope = -slope
+            end
+            local slope_resistance = -(gravity * slope)
+            self.velocity = self.velocity + slope_resistance * dt * slope
+            --print("velocity after slope resistance:", self.velocity)
+        end
+    else
+        self.too_steep = nil
+    end
 
     -- Update the pose
     self:update_pose()
