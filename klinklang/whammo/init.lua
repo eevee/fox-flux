@@ -143,7 +143,6 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
         -- bad loop somewhere
         -- TODO would be nice to avoid this entirely!  it happens, e.g., at the
         -- bottom of the slopetest ramp: position       (606.5,638.5)   velocity        (61.736288265774419415,121.03382860727833759)   movement        (1.5,2.5)
-        -- TODO hang on, is it even possible (or reasonable) to not move after the first iteration?
         if allowed_amount == 0 then
             stuckcounter = stuckcounter + 1
             if stuckcounter >= 3 then
@@ -159,8 +158,7 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
         -- TODO wow this is bad naming
         -- TODO this can be an empty clock, which is really an entire clock
         if lastclock and allowed_amount == 0 then
-            -- If we don't actually move, then...  this happens...
-            -- TODO should this even happen?
+            -- If we don't actually move, previous blocks are still valid
             --print("intersecting last clock with combined clock", lastclock, combined_clock)
             lastclock:intersect(combined_clock)
         else
@@ -193,14 +191,6 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
         successful = successful + allowed_movement
 
         -- Slide along the extreme that's closest to the direction of movement
-        -- FIXME this logic is wrong, and it's because of the clock, naturally!
-        -- if we collide with two surfaces simultaneously, there IS no slide!
-        -- using lastclock helps, and fixes the case where we wiggle in a
-        -- corner without ever hitting both edges simultaneously, but can be
-        -- wrong if the movement is much greater than our size (so we slide
-        -- along an edge, /beyond/ the object, and then try to slide back
-        -- towards it)
-        -- actually...  this is exactly the same problem as with one-way platforms.
         local slide = combined_clock:closest_extreme(attempted)
         if not slide then
             break
@@ -219,14 +209,12 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
         end
     end
 
-    -- Whatever's left over is unopposed
-    --print("TOTAL MOVEMENT:", successful, "OUT OF", dx, dy)
-
     -- FIXME i would very much like to round movement to the nearest pixel, but
     -- doing so requires finding a rounding direction that's not already
     -- blocked, and at the moment i seem to have much better luck doing no
     -- rounding whatsoever
 
+    --print("TOTAL MOVEMENT:", successful, "OUT OF", dx, dy)
     return successful, allhits, lastclock
 end
 
