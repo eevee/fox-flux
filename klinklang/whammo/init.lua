@@ -64,9 +64,6 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
                 table.insert(collisions, collision)
             end
         end
-        if #collisions == 0 then
-            break
-        end
 
         -- Look through the objects we'll hit, in the order we'll /touch/ them,
         -- and stop at the first that blocks us
@@ -161,7 +158,6 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
             stuckcounter = stuckcounter + 1
             if stuckcounter >= 3 then
                 print("!!!  BREAKING OUT OF LOOP BECAUSE WE'RE STUCK, OOPS")
-                attempted = Vector(0, 0)
                 break
             end
         else
@@ -191,8 +187,12 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
             end
         end
 
-        if allowed_amount == nil then
-            -- We don't actually hit anything this time!  Loop over
+        if allowed_amount == nil or allowed_amount >= 1 then
+            -- We don't hit anything this time!  Apply the remaining unopposed
+            -- movement and stop looping
+            --print("moving by leftovers", attempted)
+            shape:move(attempted:unpack())
+            successful = successful + attempted
             break
         end
 
@@ -211,32 +211,25 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
         -- along an edge, /beyond/ the object, and then try to slide back
         -- towards it)
         -- actually...  this is exactly the same problem as with one-way platforms.
-        local slide = lastclock:closest_extreme(attempted)
-        if slide and allowed_amount < 1 then
-            local remaining = attempted - allowed_movement
-            if remaining * slide < 0 then
-                -- Can't slide anywhere near the direction of movement, so we
-                -- have to stop here
-                attempted = Vector.zero:clone()
-                break
-            else
-                attempted = remaining:projectOn(slide)
-            end
-        else
-            attempted = Vector.zero:clone()
+        local slide = combined_clock:closest_extreme(attempted)
+        if not slide then
+            break
         end
+        local remaining = attempted - allowed_movement
+        if remaining * slide < 0 then
+            -- Can't slide anywhere near the direction of movement, so we
+            -- have to stop here
+            break
+        end
+        attempted = remaining:projectOn(slide)
 
         -- FIXME these values are completely arbitrary and i cannot justify them
         if math.abs(attempted.x) < 1/16 and math.abs(attempted.y) < 1/16 then
-            attempted = Vector.zero:clone()
             break
         end
     end
 
     -- Whatever's left over is unopposed
-    --print("moving by leftovers", attempted)
-    shape:move(attempted:unpack())
-    successful = successful + attempted
     --print("TOTAL MOVEMENT:", successful, "OUT OF", dx, dy)
 
     -- FIXME i would very much like to round movement to the nearest pixel, but
