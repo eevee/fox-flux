@@ -88,29 +88,18 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
             -- Check whether we can move through this object
             local is_passable = false
             -- One-way platforms only block us in downwards directions.
-            -- But the simple approach presents a problem.  If we're standing
-            -- on a platform, the first round will slide us against it (making
-            -- our y movement zero) and the second round will then catch the
-            -- platform again, see y == 0, and think it no longer blocks us.
-            -- We won't fall through it, but the actor code will think we're
-            -- suspended in midair.  So we have to check whether we've already
-            -- collided with this platform during a previous round.
-            -- Also, if we happen to be exactly on the platform but moving away
-            -- from it, that will count as a touch and update our collision
-            -- clock, which makes actor code think we're standing on ground.
-            -- So a slide always counts as passable, too.
-            -- FIXME that above bit doesn't sit right; if we want to announce
-            -- slides and update the clock for them, they should be important
-            -- for one-way platforms too.  if not, why have them at all?
+            -- Expressing that correctly is hard.
             -- FIXME un-xxx this
             -- FIXME this assumes the direction of gravity
-            -- FIXME oh!!  my god!!  now you can't walk up one-way platform
-            -- slopes!!  because when you hit the corner the clock includes
-            -- gravity!!
+            local gravity = Vector(0, 1)
+            local gravity_perp = gravity:perpendicular()
             if collision.shape._xxx_is_one_way_platform and
-                allhits[collision.shape] ~= 1 and (
-                    collision.clock:includes(Vector(0, 1))
-                    or collision.touchtype <= 0)
+                collision.clock:includes(gravity) and
+                -- FIXME this is an incredibly stupid way to check for a
+                -- surface that's facing upwards, i.e., something we could
+                -- stand on.  i wish i just had a list of encountered surfaces??
+                not (collision.clock:includes(Vector(-0.1, -1)) and
+                    collision.clock:includes(Vector(0.1, -1)))
             then
                 is_passable = true
             end
