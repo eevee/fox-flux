@@ -87,21 +87,22 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
 
             -- Check whether we can move through this object
             local is_passable = false
-            -- One-way platforms only block us in downwards directions.
-            -- Expressing that correctly is hard.
+            -- One-way platforms only block us when we collide with an
+            -- upwards-facing surface.  Expressing that correctly is hard.
             -- FIXME un-xxx this
             -- FIXME this assumes the direction of gravity
             local gravity = Vector(0, 1)
-            local gravity_perp = gravity:perpendicular()
-            if collision.shape._xxx_is_one_way_platform and
-                collision.clock:includes(gravity) and
-                -- FIXME this is an incredibly stupid way to check for a
-                -- surface that's facing upwards, i.e., something we could
-                -- stand on.  i wish i just had a list of encountered surfaces??
-                not (collision.clock:includes(Vector(-0.1, -1)) and
-                    collision.clock:includes(Vector(0.1, -1)))
-            then
-                is_passable = true
+            if collision.shape._xxx_is_one_way_platform then
+                local faces_up = false
+                for _, normal in ipairs(collision.normals) do
+                    if normal * gravity < 0 then
+                        faces_up = true
+                        break
+                    end
+                end
+                if not faces_up then
+                    is_passable = true
+                end
             end
             if collision.touchtype < 0 then
                 -- Objects we're overlapping are always passable

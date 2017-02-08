@@ -273,10 +273,10 @@ function Polygon:slide_towards(other, movement)
     -- think at most we can return a span of two normals, if you hit a corner
     local clock = util.ClockRange()
     local is_slide = false
+    local possible_hits = {}
     --print("us:", self:bbox())
     --print("them:", other:bbox())
     for fullaxis, axis in pairs(axes) do
-        local is_move_axis = fullaxis == movenormal
         local min1, max1, minpt1, maxpt1 = self:project_onto_axis(axis)
         local min2, max2, minpt2, maxpt2 = other:project_onto_axis(axis)
         local dist, sep
@@ -290,6 +290,7 @@ function Polygon:slide_towards(other, movement)
             -- Note that sep is always the vector from us to them
             sep = maxpt2 - minpt1
             -- Likewise, flip the axis so it points towards them
+            axis = -axis
             fullaxis = -fullaxis
         end
         -- Ignore extremely tiny overlaps, which are likely precision errors
@@ -300,7 +301,7 @@ function Polygon:slide_towards(other, movement)
         if dist >= 0 then
             -- This dot product is positive if we're moving closer along this
             -- axis, negative if we're moving away
-            local dot = fullaxis * movement
+            local dot = axis * movement
             if dist == 0 and math.abs(dot) < PRECISION then
                 -- Zero dot and zero distance mean the movement is parallel and
                 -- the shapes can slide against each other.  But we still need
@@ -316,6 +317,8 @@ function Polygon:slide_towards(other, movement)
             -- anywhere in the general direction of this axis
             local perp = fullaxis:perpendicular()
             clock:union(perp, -perp)
+
+            possible_hits[fullaxis] = { dot = dot, dist = dist }
         end
         if dist > maxdist then
             maxdist = dist
@@ -336,7 +339,7 @@ function Polygon:slide_towards(other, movement)
             touchdist = 0,
             touchtype = -1,
             clock = util.ClockRange(util.ClockRange.ZERO, util.ClockRange.ZERO),
-            normal = -maxdir,
+            normals = {-maxdir},
             reject = maxsep:projectOn(maxdir),
         }
     end
@@ -353,6 +356,20 @@ function Polygon:slide_towards(other, movement)
     if amount > 1 then
         -- Won't actually hit!  This also takes care of the inf case.
         return
+    end
+
+    -- Figure out which surfaces we actually hit, expressed as normals
+    -- FIXME this can spit out duplicates, because we look at duplicate axes
+    local normals = {}
+    for fullaxis, data in pairs(possible_hits) do
+        if
+            -- Touches count, of course
+            data.dist == 0 or
+            -- Is dist / dot == amount?  Rearranged to avoid division:
+            math.abs(data.dist - data.dot * amount) < PRECISION
+        then
+            table.insert(normals, -fullaxis)
+        end
     end
 
     if is_slide then
@@ -373,7 +390,7 @@ function Polygon:slide_towards(other, movement)
             touchdist = touchdist,
             touchtype = 0,
             clock = clock,
-            normal = -maxdir,
+            normals = normals,
         }
     end
 
@@ -385,7 +402,7 @@ function Polygon:slide_towards(other, movement)
         touchdist = amount,
         touchtype = 1,
         clock = clock,
-        normal = -maxdir,
+        normals = normals,
     }
 end
 
@@ -408,7 +425,9 @@ function Polygon:_multi_slide_towards(other, movement)
                 if ret.touchtype == 0 then
                     ret.touchtype = collision.touchtype
                 end
-                -- TODO normal?  dangit
+                for _, normal in ipairs(collision.normals) do
+                    table.insert(ret.normals, normal)
+                end
             end
         end
     end
