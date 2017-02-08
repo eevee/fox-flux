@@ -68,10 +68,13 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
             break
         end
 
-        -- Look through the objects we'll hit, in the order we'll hit them, and
-        -- stop at the first that blocks us
+        -- Look through the objects we'll hit, in the order we'll /touch/ them,
+        -- and stop at the first that blocks us
         table.sort(collisions, function(a, b)
-            return a.amount < b.amount
+            if a.touchdist == b.touchdist then
+                return a.touchtype < b.touchtype
+            end
+            return a.touchdist < b.touchdist
         end)
         local allowed_amount
         -- Intersection of all the "clocks" (sets of allowable slide angles) we find
