@@ -224,6 +224,16 @@ function Polygon:project_onto_axis(axis)
     return min, max, minpt, maxpt
 end
 
+-- If this shape were to move by a given distance, would it collide with the
+-- given other shape?  If no, returns nil.  If yes, even if the two would slide
+-- against each other, returns a table with the following keys:
+--   movement: Movement vector, trimmed so it won't collide
+--   amount: How much of the given movement can be performed before hitting the
+--      other shape, from 0 to 1
+--   touchdist: Like `amount`, but how much before touching the other shape,
+--      which can be different when two shapes slide
+--   touchtype: 1 for collision, 0 for slide, -1 for already overlapping
+--   clock: Range of angles that would move the shapes apart
 function Polygon:slide_towards(other, movement)
     -- TODO skip entirely if bbox movement renders this impossible
     -- Use the separating axis theorem.
@@ -262,7 +272,7 @@ function Polygon:slide_towards(other, movement)
     -- TODO i would love to get rid of ClockRange, and it starts right here; i
     -- think at most we can return a span of two normals, if you hit a corner
     local clock = util.ClockRange()
-    local cant_collide = false
+    local is_slide = false
     --print("us:", self:bbox())
     --print("them:", other:bbox())
     for fullaxis, axis in pairs(axes) do
@@ -288,20 +298,18 @@ function Polygon:slide_towards(other, movement)
         end
         --print("    axis:", fullaxis, "dist:", dist, "sep:", sep)
         if dist >= 0 then
-            -- The movement itself may be away from the other shape, in which
-            -- case we can stop here; we know they'll never collide.
-            -- (The most common case here is that fullaxis is the move normal.)
-            if fullaxis * movement <= 0 then
-                if dist > 0 then
-                    return
-                else
-                    -- If dist is zero, then they might still /touch/, and we
-                    -- need to know about that for other reasons
-                    -- FIXME wait, do we?  where do i care about a perfect
-                    -- existing slide?  if i'm sliding along the ground then
-                    -- i'm not /on/ the ground...
-                    cant_collide = true
-                end
+            -- This dot product is positive if we're moving closer along this
+            -- axis, negative if we're moving away
+            local dot = fullaxis * movement
+            if dist == 0 and math.abs(dot) < PRECISION then
+                -- Zero dot and zero distance mean the movement is parallel and
+                -- the shapes can slide against each other.  But we still need
+                -- to check other axes to know if they'll actually touch.
+                is_slide = true
+            elseif dist >= 0 and dot <= 0 then
+                -- Even if the shapes are already touching, they're not moving
+                -- closer together, so they can't possibly collide.  Stop here.
+                return
             end
 
             -- If the distance isn't negative, then it's possible to do a slide
@@ -316,45 +324,46 @@ function Polygon:slide_towards(other, movement)
         end
     end
 
+    local amount = 1
+    if movement ~= Vector.zero then
+        amount = maxdist / movement:len()
+    end
+    if amount > 1 then
+        -- Won't actually hit!
+        return
+    end
+
     if maxdist < 0 then
         -- Shapes are already colliding
-        -- FIXME should have /some/ kind of gentle rejection here
+        -- FIXME should have /some/ kind of gentle rejection here; should be
+        -- easier now that i have touchdist
         --print("ALREADY COLLIDING", maxdist, worldscene.collider:get_owner(other))
         --error("seem to be inside something!!  stopping so you can debug buddy  <3")
         return {
             movement = Vector.zero,
             amount = 0,
+            touchdist = maxdist,
             touchtype = -1,
-            clock = util.ClockRange(util.ClockRange.ZERO, util.ClockRange.ZERO)
-            -- TODO normal
+            clock = util.ClockRange(util.ClockRange.ZERO, util.ClockRange.ZERO),
+            normal = -maxdir,
         }
         --return
     end
 
-    local gap = maxsep:projectOn(maxdir)
-    if math.abs(gap.x) < PRECISION then
-        gap.x = 0
-    end
-    if math.abs(gap.y) < PRECISION then
-        gap.y = 0
-    end
-    local allowed = movement:projectOn(maxdir)
-    --print("  max dist:", maxdist, "in dir:", maxdir, "  gap:", gap, "allowed:", allowed, "clock:", clock)
-    if cant_collide then
+    if is_slide then
         -- One question remains: will we actually touch?
         -- TODO i'm not totally confident in this logic; seems like near misses
         -- without touches might not be handled correctly...?
-        -- TODO do we actually care about this at all?  there's a use for "what
-        -- am i overlapping" but that could be done differently
-        if gap:len2() <= allowed:len2() then
+        if amount <= 1 then
             -- This is a slide; we will touch (or are already touching) the
             -- other object, but can continue past it
             return {
                 movement = movement,
                 amount = 1,
+                touchdist = amount,
                 touchtype = 0,
                 clock = clock,
-                -- TODO normal
+                normal = -maxdir,
             }
         else
             -- We'll never touch
@@ -362,23 +371,10 @@ function Polygon:slide_towards(other, movement)
         end
     end
 
-    local amount
-    if allowed == Vector.zero then
-        error("pretty sure this shouldn't be possible")
-        amount = 0
-    elseif math.abs(allowed.x) > math.abs(allowed.y) then
-        amount = gap.x / allowed.x
-    else
-        amount = gap.y / allowed.y
-    end
-    if amount > 1 then
-        -- Won't actually hit!
-        return
-    end
-
     return {
         movement = movement * amount,
         amount = amount,
+        touchdist = amount,
         touchtype = 1,
         clock = clock,
         normal = -maxdir,
@@ -400,7 +396,11 @@ function Polygon:_multi_slide_towards(other, movement)
                 ret = collision
             elseif collision.amount == ret.amount then
                 ret.clock:intersect(collision.clock)
-                ret.touchtype = math.min(ret.touchtype, collision.touchtype)
+                ret.touchdist = math.min(ret.touchdist, collision.touchdist)
+                if ret.touchtype == 0 then
+                    ret.touchtype = collision.touchtype
+                end
+                -- TODO normal?  dangit
             end
         end
     end
