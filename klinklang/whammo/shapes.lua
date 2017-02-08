@@ -324,15 +324,6 @@ function Polygon:slide_towards(other, movement)
         end
     end
 
-    local amount = 1
-    if movement ~= Vector.zero then
-        amount = maxdist / movement:len()
-    end
-    if amount > 1 then
-        -- Won't actually hit!
-        return
-    end
-
     if maxdist < 0 then
         -- Shapes are already colliding
         -- FIXME should have /some/ kind of gentle rejection here; should be
@@ -342,34 +333,51 @@ function Polygon:slide_towards(other, movement)
         return {
             movement = Vector.zero,
             amount = 0,
-            touchdist = maxdist,
+            touchdist = 0,
             touchtype = -1,
             clock = util.ClockRange(util.ClockRange.ZERO, util.ClockRange.ZERO),
             normal = -maxdir,
+            reject = maxsep:projectOn(maxdir),
         }
-        --return
+    end
+
+    -- Figure out how much of the movement is allowed.
+    -- The naïve answer is `maxdist / movement:len()`, but that needs a square
+    -- root, and for small distances the error can be significant.
+    -- Instead, we project both the movement and the separation onto the axis
+    -- used (which only needs division), then compare lengths component-wise.
+    -- Projection of A onto B is B * (A * B / ||B||²).  We want to do that
+    -- twice against the same axis and divide the results.  Most of it cancels,
+    -- and we're left with...  the ratio of dot products!  Vectors are neat.
+    local amount = (maxsep * maxdir) / (movement * maxdir)
+    if amount > 1 then
+        -- Won't actually hit!  This also takes care of the inf case.
+        return
     end
 
     if is_slide then
-        -- One question remains: will we actually touch?
-        -- TODO i'm not totally confident in this logic; seems like near misses
-        -- without touches might not be handled correctly...?
-        if amount <= 1 then
-            -- This is a slide; we will touch (or are already touching) the
-            -- other object, but can continue past it
-            return {
-                movement = movement,
-                amount = 1,
-                touchdist = amount,
-                touchtype = 0,
-                clock = clock,
-                normal = -maxdir,
-            }
-        else
-            -- We'll never touch
-            return
+        -- This is a slide; we will touch (or are already touching) the other
+        -- object, but can continue past it.  (If we wouldn't touch, amount
+        -- would exceed 1, and we would've returned earlier.)
+        -- touchdist is how far we can move before we touch.  If we're already
+        -- touching, then the touch axis will be the max distance, the dot
+        -- products above will be zero, and amount will be nonsense.  If not,
+        -- amount is correct.
+        local touchdist = amount
+        if maxdist == 0 then
+            touchdist = 0
         end
+        return {
+            movement = movement,
+            amount = 1,
+            touchdist = touchdist,
+            touchtype = 0,
+            clock = clock,
+            normal = -maxdir,
+        }
     end
+
+    assert(amount == amount, "somehow got nan here")
 
     return {
         movement = movement * amount,
