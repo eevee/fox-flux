@@ -321,7 +321,13 @@ function Polygon:slide_towards(other, movement)
         -- FIXME should have /some/ kind of gentle rejection here
         --print("ALREADY COLLIDING", maxdist, worldscene.collider:get_owner(other))
         --error("seem to be inside something!!  stopping so you can debug buddy  <3")
-        return Vector.zero, -1, util.ClockRange(util.ClockRange.ZERO, util.ClockRange.ZERO)
+        return {
+            movement = Vector.zero,
+            amount = 0,
+            touchtype = -1,
+            clock = util.ClockRange(util.ClockRange.ZERO, util.ClockRange.ZERO)
+            -- TODO normal
+        }
         --return
     end
 
@@ -343,55 +349,63 @@ function Polygon:slide_towards(other, movement)
         if gap:len2() <= allowed:len2() then
             -- This is a slide; we will touch (or are already touching) the
             -- other object, but can continue past it
-            return movement, 0, clock
+            return {
+                movement = movement,
+                amount = 1,
+                touchtype = 0,
+                clock = clock,
+                -- TODO normal
+            }
         else
             -- We'll never touch
             return
         end
     end
 
-    local mv
+    local amount
     if allowed == Vector.zero then
         error("pretty sure this shouldn't be possible")
-        mv = Vector.zero:clone()
+        amount = 0
     elseif math.abs(allowed.x) > math.abs(allowed.y) then
-        mv = movement * gap.x / allowed.x
+        amount = gap.x / allowed.x
     else
-        mv = movement * gap.y / allowed.y
+        amount = gap.y / allowed.y
     end
-    local move_len2 = mv:len2()
-    if move_len2 > movement:len2() then
+    if amount > 1 then
         -- Won't actually hit!
         return
     end
 
-    return mv, 1, clock, -maxdir
+    return {
+        movement = movement * amount,
+        amount = amount,
+        touchtype = 1,
+        clock = clock,
+        normal = -maxdir,
+    }
 end
 
 function Polygon:_multi_slide_towards(other, movement)
-    local move, touchtype, clock, movelen
+    local ret
     for _, subshape in ipairs(other.subshapes) do
-        local move2, touchtype2, clock2 = self:slide_towards(subshape, movement)
-        if move2 == nil then
+        local collision = self:slide_towards(subshape, movement)
+        if collision == nil then
             -- Do nothing
-        elseif move == nil then
+        elseif ret == nil then
             -- First result; just accept it
-            move, touchtype, clock = move2, touchtype2, clock2
-            movelen = move:len2()
+            ret = collision
         else
             -- Need to combine
-            local movelen2 = move2:len2()
-            if movelen2 < movelen then
-                move, touchtype, clock = move2, touchtype2, clock2
-                movelen = movelen2
-            elseif movelen2 == movelen then
-                clock:intersect(clock2)
-                touchtype = math.min(touchtype, touchtype2)
+            if collision.amount < ret.amount then
+                ret = collision
+            elseif collision.amount == ret.amount then
+                ret.clock:intersect(collision.clock)
+                ret.touchtype = math.min(ret.touchtype, collision.touchtype)
             end
         end
     end
 
-    return move, touchtype, clock
+    return ret
 end
 
 

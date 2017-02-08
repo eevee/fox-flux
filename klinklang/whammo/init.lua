@@ -57,17 +57,11 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
         local collisions = {}
         local neighbors = self.blockmap:neighbors(shape, attempted:unpack())
         for neighbor in pairs(neighbors) do
-            local move, touchtype, clock, normal = shape:slide_towards(neighbor, attempted)
-            if move then
-                --print("< got move, touchtype, clock:", move, touchtype, clock)
-                table.insert(collisions, {
-                    shape = neighbor,
-                    move = move,
-                    touchtype = touchtype,
-                    clock = clock,
-                    normal = normal,
-                    len2 = move:len2(),
-                })
+            local collision = shape:slide_towards(neighbor, attempted)
+            if collision then
+                --print(("< got move %f = %s, touchtype %d, clock %s"):format(collision.amount, collision.movement, collision.touchtype, collision.clock))
+                collision.shape = neighbor
+                table.insert(collisions, collision)
             end
         end
         if #collisions == 0 then
@@ -77,17 +71,17 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
         -- Look through the objects we'll hit, in the order we'll hit them, and
         -- stop at the first that blocks us
         table.sort(collisions, function(a, b)
-            return a.len2 < b.len2
+            return a.amount < b.amount
         end)
         local first_collision
         -- Intersection of all the "clocks" (sets of allowable slide angles) we find
         local combined_clock = util.ClockRange(util.ClockRange.ZERO, util.ClockRange.ZERO)
         for _, collision in ipairs(collisions) do
-            --print("checking collision...", collision.move, collision.len2, "at", collision.shape:bbox())
+            --print("checking collision...", collision.movement, collision.amount, "at", collision.shape:bbox())
             -- If we've already found something that blocks us, and this
             -- collision requires moving further, then stop here.  This allows
             -- for ties
-            if first_collision and first_collision.len2 < collision.len2 then
+            if first_collision and first_collision.amount < collision.amount then
                 break
             end
 
@@ -128,7 +122,7 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
                 -- knowledge of the actor api
                 local otheractor = self:get_owner(collision.shape)
                 local thisactor = self:get_owner(shape)
-                if otheractor and not otheractor:blocks(thisactor, collision.move) then
+                if otheractor and not otheractor:blocks(thisactor, collision.movement) then
                     is_passable = true
                 end
             end
@@ -145,7 +139,7 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
             -- If we're hitting the object and it's not passable, stop here
             if not first_collision and not is_passable and collision.touchtype > 0 then
                 first_collision = collision
-                --print("< found first collision:", first_collision.move, "len2:", first_collision.len2)
+                --print("< found first collision:", first_collision.movement, "amount:", first_collision.amount)
             end
 
             -- Log the first type of contact with each shape
@@ -160,7 +154,7 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
         -- TODO would be nice to avoid this entirely!  it happens, e.g., at the
         -- bottom of the slopetest ramp: position       (606.5,638.5)   velocity        (61.736288265774419415,121.03382860727833759)   movement        (1.5,2.5)
         -- TODO hang on, is it even possible (or reasonable) to not move after the first iteration?
-        if first_collision and first_collision.len2 == 0 then
+        if first_collision and first_collision.amount == 0 then
             stuckcounter = stuckcounter + 1
             if stuckcounter >= 3 then
                 print("!!!  BREAKING OUT OF LOOP BECAUSE WE'RE STUCK, OOPS")
@@ -175,7 +169,7 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
         -- they're still blocked in after moving
         -- TODO wow this is bad naming
         -- TODO this can be an empty clock, which is really an entire clock
-        if lastclock and first_collision and first_collision.len2 == 0 then
+        if lastclock and first_collision and first_collision.amount == 0 then
             -- If we don't actually move, then...  this happens...
             -- TODO should this even happen?
             --print("intersecting last clock with combined clock", lastclock, combined_clock)
@@ -188,7 +182,7 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
         -- FIXME this seems like a poor way to get at this logic from outside
         if xxx_no_slide then
             if first_collision then
-                return first_collision.move, allhits, lastclock
+                return first_collision.movement, allhits, lastclock
             else
                 return attempted, allhits, lastclock
             end
@@ -200,9 +194,9 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
         end
 
         -- Perform the actual move; we have to move ourselves so we can correctly handle the next iteration
-        --print("moving by", first_collision.move)
-        shape:move(first_collision.move:unpack())
-        successful = successful + first_collision.move
+        --print("moving by", first_collision.movement)
+        shape:move(first_collision.movement:unpack())
+        successful = successful + first_collision.movement
 
         -- Slide along the extreme that's closest to the direction of movement
         -- FIXME this logic is wrong, and it's because of the clock, naturally!
@@ -212,9 +206,10 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
         -- wrong if the movement is much greater than our size (so we slide
         -- along an edge, /beyond/ the object, and then try to slide back
         -- towards it)
+        -- actually...  this is exactly the same problem as with one-way platforms.
         local slide = lastclock:closest_extreme(attempted)
-        if slide and attempted ~= first_collision.move then
-            local remaining = attempted - first_collision.move
+        if slide and attempted ~= first_collision.movement then
+            local remaining = attempted - first_collision.movement
             if remaining * slide < 0 then
                 -- Can't slide anywhere near the direction of movement, so we
                 -- have to stop here
