@@ -343,11 +343,11 @@ function WorldScene:draw()
         end
 
         if debug_hits then
-            for hit, touchtype in pairs(debug_hits) do
-                if touchtype > 0 then
+            for hit, collision in pairs(debug_hits) do
+                if collision.touchtype > 0 then
                     -- Collision: red
                     love.graphics.setColor(255, 0, 0, 128)
-                elseif touchtype < 0 then
+                elseif collision.touchtype < 0 then
                     -- Overlap: blue
                     love.graphics.setColor(0, 64, 255, 128)
                 else

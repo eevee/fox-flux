@@ -51,6 +51,12 @@ end
 -- used by LÖVE and most other graphics engines.  On a regular Cartesian plane,
 -- everything is backwards.
 
+-- FIXME i really wish this were in terms of normals, sigh
+-- FIXME this has no way to express a single angle, because of the way it
+-- splits sections at zero; it relies on the idea that any edge appearing twice
+-- isn't part of the clock
+-- FIXME clocks for "all" versus "none" are extremely poorly defined
+
 -- A range of angles, represented by pairs of vectors going clockwise
 local ClockRange = Object:extend{
     -- The zero angle

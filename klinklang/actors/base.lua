@@ -282,8 +282,8 @@ function MobileActor:update(dt)
         local drop_movement, drop_hits, drop_clock = worldscene.collider:slide(self.shape, 0, 128 * dt, true)
         --print("\\\\\\ end drop")
         local any_hit = false
-        for shape, touchtype in pairs(drop_hits) do
-            if touchtype > 0 then
+        for shape, collision in pairs(drop_hits) do
+            if collision.touchtype > 0 then
                 any_hit = true
                 break
             end
@@ -294,6 +294,23 @@ function MobileActor:update(dt)
         else
             -- Otherwise, we're in the air; ignore the drop
             self.on_ground = false
+        end
+    end
+
+    self.pos = self.pos + movement
+    --print("FINAL POSITION:", self.pos)
+    if self.shape then
+        self.shape:move_to(self.pos:unpack())
+    end
+
+    -- Tell everyone we've hit them
+    -- TODO surely we should announce this in the order we hit!  all the more
+    -- reason to hoist the loop out of whammo and into here
+    for shape, collision in pairs(hits) do
+        local actor = worldscene.collider:get_owner(shape)
+        if actor then
+            -- FIXME this should pass along the side the object is hit from!
+            actor:on_collide(self, movement, collision)
         end
     end
 
@@ -315,7 +332,6 @@ function MobileActor:update(dt)
 
     -- Trim velocity as necessary, based on the last surface we slid against
     --print("velocity is", self.velocity, "and clock is", last_clock)
-    local original_velocity = self.velocity
     if last_clock and self.velocity ~= Vector.zero then
         local axis = last_clock:closest_extreme(self.velocity)
         if not axis then
@@ -332,24 +348,6 @@ function MobileActor:update(dt)
     end
     --print("and now it's", self.velocity)
     --print("movement", movement, "attempted", attempted)
-
-    self.pos = self.pos + movement
-    --print("FINAL POSITION:", self.pos)
-    if self.shape then
-        self.shape:move_to(self.pos:unpack())
-    end
-
-    -- Tell everyone we've hit them
-    -- TODO surely we should announce this in the order we hit!  all the more
-    -- reason to hoist the loop out of whammo and into here
-    for shape in pairs(hits) do
-        local actor = worldscene.collider:get_owner(shape)
-        if actor then
-            -- FIXME this should pass along the side the object is hit from!
-            -- FIXME i'm not so convinced about the velocity either
-            actor:on_collide(self, movement, original_velocity)
-        end
-    end
 
     ----------------------------------------------------------------------------
     -- Passive adjustments

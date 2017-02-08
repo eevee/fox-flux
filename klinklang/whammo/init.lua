@@ -46,7 +46,7 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
     --print()
     local attempted = Vector(dx, dy)
     local successful = Vector(0, 0)
-    local allhits = {}  -- set of objects we ultimately bump into
+    local hits = {}  -- set of objects we ultimately bump into
     local lastclock = util.ClockRange(util.ClockRange.ZERO, util.ClockRange.ZERO)
     local stuckcounter = 0
 
@@ -133,8 +133,8 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
             end
 
             -- Log the first type of contact with each shape
-            if allhits[collision.shape] == nil then
-                allhits[collision.shape] = collision.touchtype
+            if hits[collision.shape] == nil then
+                hits[collision.shape] = collision
             end
         end
 
@@ -169,9 +169,9 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
         -- FIXME this seems like a poor way to get at this logic from outside
         if xxx_no_slide then
             if allowed_amount ~= nil then
-                return allowed_amount * attempted, allhits, lastclock
+                return allowed_amount * attempted, hits, lastclock
             else
-                return attempted, allhits, lastclock
+                return attempted, hits, lastclock
             end
         end
 
@@ -215,7 +215,7 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
     -- rounding whatsoever
 
     --print("TOTAL MOVEMENT:", successful, "OUT OF", dx, dy)
-    return successful, allhits, lastclock
+    return successful, hits, lastclock
 end
 
 function Collider:fire_ray(start, direction, collision_check_func)
