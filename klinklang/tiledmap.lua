@@ -101,6 +101,7 @@ function TiledTileset:init(path, data, resource_manager)
     -- FIXME if the same spriteset name appears in two tilesets, the latter
     -- will silently overwrite the former
     local spritesets = {}
+    local default_anchors = {}
     local grid = anim8.newGrid(tw, th, iw, ih, data.margin, data.margin, data.spacing)
     for id = 0, self.tilecount - 1 do
         -- Tile IDs are keyed as strings, because JSON
@@ -137,8 +138,11 @@ function TiledTileset:init(path, data, resource_manager)
                 quads = {self.quads[id]}
                 durations = 1
             end
-            local shape, anchor = self:get_collision(id)
-            spriteset:add(pose_name, anchor or Vector.zero, shape, quads, durations, onloop, flipped)
+            local shape, anchor = self:get_collision(id, default_anchors[sprite_name])
+            if not default_anchors[sprite_name] then
+                default_anchors[sprite_name] = anchor
+            end
+            spriteset:add(pose_name, anchor or default_anchors[sprite_name] or Vector.zero, shape, quads, durations, onloop, flipped)
         end
     end
 end
@@ -189,7 +193,7 @@ local function _tiled_shape_to_whammo_shape(object, anchor)
     return shape
 end
 
-function TiledTileset:get_collision(tileid)
+function TiledTileset:get_collision(tileid, default_anchor)
     if not self.raw.tiles then
         return
     end
@@ -207,7 +211,7 @@ function TiledTileset:get_collision(tileid)
     end
 
     -- Find an anchor, if any
-    local anchor = Vector()
+    local anchor = (default_anchor or Vector.zero):clone()
     for _, obj in ipairs(objects) do
         if obj.type == "anchor" then
             anchor.x = obj.x
