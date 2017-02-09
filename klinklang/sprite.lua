@@ -74,6 +74,7 @@ function Sprite:init(spriteset)
     self.pose = nil
     self.facing = 'right'
     self._pending_pose = nil
+    self._pending_callback = nil
     self.anim = nil
     -- TODO this doesn't check that the default pose exists
     self:_set_pose(spriteset.default_pose)
@@ -82,16 +83,21 @@ end
 -- Schedule the given pose to replace the current pose on the next update()
 -- call.  (This way, calling set_pose() followed by update() doesn't skip the
 -- first frame of the new pose.)
--- Changing to the current pose is a no-op.
-function Sprite:set_pose(pose)
+-- If given, the callback will be called when the animation loops.
+function Sprite:set_pose(pose, callback)
     if pose == (self._pending_pose or self.pose) then
+        if callback then
+            self:_add_loop_callback(callback)
+        end
     elseif self.spriteset.poses[pose] then
         self._pending_pose = pose
+        self._pending_callback = callback
     else
         local all_poses = {}
         for pose_name in pairs(self.spriteset.poses) do
             table.insert(all_poses, pose_name)
         end
+        table.sort(all_poses)
         error(("No such pose '%s' for %s (available: %s)"):format(pose, self.spriteset.name, table.concat(all_poses, ", ")))
     end
 end
@@ -105,6 +111,21 @@ function Sprite:_set_pose(pose)
     self.anchor = data.anchor
     self.shape = data.shape
     self._pending_pose = nil
+end
+
+-- Set a function to be called whenever the current pose reaches its end.
+-- If the pose is changed before that happens, the callback is abandoned.
+function Sprite:_add_loop_callback(callback)
+    local oldonloop = self.anim.onLoop
+    self.anim.onLoop = function(anim, ...)
+        callback(anim, ...)
+
+        if type(oldonloop) == 'function' then
+            oldonloop(anim, ...)
+        elseif oldonloop then
+            anim[oldonloop](anim, ...)
+        end
+    end
 end
 
 function Sprite:set_facing_right(facing_right)
@@ -136,6 +157,10 @@ end
 function Sprite:update(dt)
     if self._pending_pose then
         self:_set_pose(self._pending_pose)
+        if self._pending_callback then
+            self:_add_loop_callback(self._pending_callback)
+            self._pending_callback = nil
+        end
     else
         self.anim:update(dt)
     end
