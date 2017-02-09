@@ -19,6 +19,12 @@ game = {
     },
 
     debug = false,
+    debug_twiddles = {
+        show_blockmap = true,
+        show_collision = true,
+        show_shapes = true,
+    },
+    debug_hits = {},
     resource_manager = nil,
     -- FIXME this seems ugly, but the alternative is to have sprite.lua implicitly depend here
     sprites = SpriteSet._all_sprites,

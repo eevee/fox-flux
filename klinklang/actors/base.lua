@@ -262,6 +262,15 @@ function MobileActor:update(dt)
     local attempted = movement
     local movement, hits, last_clock = worldscene.collider:slide(self.shape, movement:unpack())
 
+    -- Debugging
+    if game.debug and game.debug_twiddles.show_collision then
+        for shape, collision in pairs(hits) do
+            if not game.debug_hits[shape] then
+                game.debug_hits[shape] = collision
+            end
+        end
+    end
+
     -- Ground sticking
     -- If we walk up off the top of a slope, our momentum will carry us into
     -- the air, which looks very silly.  A conscious actor would step off the

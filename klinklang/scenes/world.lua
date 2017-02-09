@@ -78,6 +78,10 @@ function WorldScene:_refresh_canvas()
 end
 
 function WorldScene:update(dt)
+    -- FIXME could get rid of this entirely if actors had to go through me to
+    -- collide
+    game.debug_hits = {}
+
     -- Handle movement input.
     -- Input comes in two flavors: "instant" actions that happen once when a
     -- button is pressed, and "continuous" actions that happen as long as a
@@ -329,21 +333,23 @@ function WorldScene:draw()
             shape:draw('line')
         end
         ]]
-        for _, actor in ipairs(self.actors) do
-            if actor.shape then
-                love.graphics.setColor(255, 255, 0, 192)
-                actor.shape:draw('line')
-            end
-            if actor.pos then
-                love.graphics.setColor(255, 0, 0)
-                love.graphics.circle('fill', actor.pos.x, actor.pos.y, 2)
-                love.graphics.setColor(255, 255, 255)
-                love.graphics.circle('line', actor.pos.x, actor.pos.y, 2)
+        if game.debug_twiddles.show_shapes then
+            for _, actor in ipairs(self.actors) do
+                if actor.shape then
+                    love.graphics.setColor(255, 255, 0, 192)
+                    actor.shape:draw('line')
+                end
+                if actor.pos then
+                    love.graphics.setColor(255, 0, 0)
+                    love.graphics.circle('fill', actor.pos.x, actor.pos.y, 2)
+                    love.graphics.setColor(255, 255, 255)
+                    love.graphics.circle('line', actor.pos.x, actor.pos.y, 2)
+                end
             end
         end
 
-        if debug_hits then
-            for hit, collision in pairs(debug_hits) do
+        if game.debug_twiddles.show_collision then
+            for hit, collision in pairs(game.debug_hits) do
                 if collision.touchtype > 0 then
                     -- Collision: red
                     love.graphics.setColor(255, 0, 0, 128)
@@ -367,7 +373,7 @@ function WorldScene:draw()
     love.graphics.setCanvas()
     love.graphics.draw(self.canvas, 0, 0, 0, game.scale, game.scale)
 
-    if game.debug then
+    if game.debug and game.debug_twiddles.show_blockmap then
         self:_draw_blockmap()
     end
 

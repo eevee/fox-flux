@@ -244,8 +244,6 @@ function Collider:fire_ray(start, direction, collision_check_func)
         end
     end
 
-    debug_hits = _hits
-
     return nearestpt, nearest - startdot
 end
 

@@ -107,7 +107,6 @@ function Player:update(dt)
     local hits = self._stupid_hits_hack
     -- FIXME this should really really be a ptr
     self.touching_mechanism = nil
-    debug_hits = hits
     for shape in pairs(hits) do
         local actor = worldscene.collider:get_owner(shape)
         if actor and actor.is_usable then

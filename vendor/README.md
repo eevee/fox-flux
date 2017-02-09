@@ -50,7 +50,17 @@ Original source: https://github.com/vrld/hump
 
 License: MIT
 
-## SDL_GameControllerDB
+## SUIT
+
+Commit 549693d from Aug 28, 2016
+
+Vendored on Feb 9, 2017
+
+Original source: https://github.com/vrld/SUIT
+
+License: MIT
+
+## SDL\_GameControllerDB
 
 Commit aad1132b from January 14, 2017
 
