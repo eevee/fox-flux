@@ -563,7 +563,7 @@ end
 function SentientActor:update_pose()
     local pose = 'stand'
     if self.is_dead then
-        pose = 'dead'
+        pose = 'die'
     elseif self.is_floating then
         pose = 'fall'
     elseif self.on_ground then
