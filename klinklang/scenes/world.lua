@@ -336,8 +336,8 @@ function WorldScene:draw()
         if game.debug_twiddles.show_shapes then
             for _, actor in ipairs(self.actors) do
                 if actor.shape then
-                    love.graphics.setColor(255, 255, 0, 192)
-                    actor.shape:draw('line')
+                    love.graphics.setColor(255, 255, 0, 128)
+                    actor.shape:draw('fill')
                 end
                 if actor.pos then
                     love.graphics.setColor(255, 0, 0)
@@ -364,6 +364,20 @@ function WorldScene:draw()
                 --love.graphics.setColor(255, 255, 0)
                 --local x, y = hit:bbox()
                 --love.graphics.print(("%0.2f"):format(d), x, y)
+
+                love.graphics.setColor(255, 0, 255)
+                local x0, y0, x1, y1 = collision.shape:bbox()
+                local x, y = math.floor((x0 + x1) / 2), math.floor((y0 + y1) / 2)
+                for normal, normal1 in pairs(collision.normals) do
+                    local startpt = Vector(x, y)
+                    local endpt = startpt + normal1 * 8
+                    local perp = normal1:perpendicular()
+                    local arrowpt1 = endpt + perp * 3
+                    local arrowpt2 = endpt - perp * 3
+                    local arrowpt3 = endpt + normal1 * 3
+                    love.graphics.line(x, y, endpt.x, endpt.y)
+                    love.graphics.polygon('fill', arrowpt1.x, arrowpt1.y, arrowpt2.x, arrowpt2.y, arrowpt3.x, arrowpt3.y)
+                end
             end
         end
     end
