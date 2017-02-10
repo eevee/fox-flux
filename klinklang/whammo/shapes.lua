@@ -303,9 +303,9 @@ function Polygon:slide_towards(other, movement)
             -- axis, negative if we're moving away
             local dot = axis * movement
             if dist == 0 and math.abs(dot) < PRECISION then
-                -- Zero dot and zero distance mean the movement is parallel and
-                -- the shapes can slide against each other.  But we still need
-                -- to check other axes to know if they'll actually touch.
+                -- Zero dot and negative distance mean the movement is parallel
+                -- and the shapes can slide against each other.  But we still
+                -- need to check other axes to know if they'll actually touch.
                 is_slide = true
             elseif dist >= 0 and dot <= 0 then
                 -- Even if the shapes are already touching, they're not moving
@@ -318,7 +318,11 @@ function Polygon:slide_towards(other, movement)
             local perp = fullaxis:perpendicular()
             clock:union(perp, -perp)
 
-            possible_hits[fullaxis] = { dot = dot, dist = dist, axis = axis }
+            -- Track possible normals for later (but not for the movement
+            -- vector, since that's not normal to either shape)
+            if fullaxis ~= movenormal then
+                possible_hits[fullaxis] = { dot = dot, dist = dist, axis = axis }
+            end
         end
         if dist > maxdist then
             maxdist = dist
@@ -361,17 +365,36 @@ function Polygon:slide_towards(other, movement)
         amount = 0
     end
 
-    -- Figure out which surfaces we actually hit, expressed as normals
-    -- FIXME this can spit out duplicates, because we look at duplicate axes
+    -- Figure out a normal or two for the surface we're going to hit.
+    -- A recurring, tricky problem is distinguishing touching at a corner from
+    -- touching at an edge.  If we hit two non-parallel edges simultaneously,
+    -- that's a corner.  (More than two is impossible.)
+    local normal_test
     local normals = {}
     for fullaxis, data in pairs(possible_hits) do
         if
             -- Touches count, of course
             data.dist == 0 or
-            -- Is dist / dot == amount?  Rearranged to avoid division:
+            -- dist / dot is the same calculation that produced amount above,
+            -- so we want to know if it's equal, but rearrange to avoid
+            -- division since dot can be zero:
             math.abs(data.dist - data.dot * amount) < PRECISION
         then
-            normals[-fullaxis] = -data.axis
+            if normal_test then
+                if (normal_test.x < 0) ~= (data.axis.x < 0) then
+                    normal_test = -normal_test
+                end
+                if math.abs(normal_test.x - data.axis.x) > PRECISION and
+                    math.abs(normal_test.y - data.axis.y) > PRECISION
+                then
+                    -- This is a corner!  Stop here; there can't be any more
+                    normals[-fullaxis] = -data.axis
+                    break
+                end
+            else
+                normals[-fullaxis] = -data.axis
+                normal_test = data.axis
+            end
         end
     end
 

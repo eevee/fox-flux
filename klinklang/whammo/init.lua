@@ -44,6 +44,7 @@ end
 -- resulting clock will only block one direction, sigh
 function Collider:slide(shape, dx, dy, xxx_no_slide)
     --print()
+    --print("=== BEGIN SLIDE ===")
     local attempted = Vector(dx, dy)
     local successful = Vector(0, 0)
     local hits = {}  -- set of objects we ultimately bump into
@@ -128,10 +129,9 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
                 --print("< found first collision:", collision.movement, "amount:", collision.amount)
             end
 
-            -- Log the first contact with each shape
-            if hits[collision.shape] == nil then
-                hits[collision.shape] = collision
-            end
+            -- Log the last contact with each shape
+            -- FIXME this ends up returning normals that may no longer apply...
+            hits[collision.shape] = collision
         end
 
         -- Automatically break if we don't move for three iterations -- not

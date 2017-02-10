@@ -329,7 +329,7 @@ function MobileActor:update(dt)
     -- FIXME this is actually wrong!  it doesn't have the same logic as the
     -- clocks, resetting if we move in a second pass
     for _, collision in pairs(hits) do
-        if collision.touchtype >= 0 then
+        if collision.touchtype >= 0 and not collision.clock:includes(gravity) then
             for normal, normal1 in pairs(collision.normals) do
                 local dot = normal1 * gravity
                 if dot < mindot then
@@ -382,11 +382,20 @@ function MobileActor:update(dt)
     -- deliberate movement and momentum, not gravity.
     local vellen = self.velocity:len()
     if vellen > 1e-8 then
-        local vel1 = self.velocity / vellen
-        local friction_vector = Vector(self.friction, 0)
-        local deceleration = friction_vector * vel1 * dt
-        local decel_vector = -deceleration * friction_vector:normalized()
-        decel_vector:trimInplace(vellen)
+        local friction_vector
+        if self.ground_normal then
+            decel_vector = self.ground_normal:perpendicular() * (self.friction * dt)
+            if decel_vector * self.velocity > 0 then
+                decel_vector = -decel_vector
+            end
+            decel_vector = decel_vector:projectOn(self.velocity)
+            decel_vector:trimInplace(vellen)
+        else
+            local vel1 = self.velocity / vellen
+            decel_vector = -self.friction * dt * vel1
+            -- FIXME need some real air resistance; as written, this also reverses gravity, oops
+            decel_vector = Vector.zero
+        end
         self.velocity = self.velocity + decel_vector
         --print("velocity after deceleration:", self.velocity)
     end
@@ -436,7 +445,7 @@ local SentientActor = MobileActor:extend{
     aircontrol = 0.75,
     -- Maximum slope that can be walked up or jumped off of
     max_slope = Vector(1, -1),
-    max_slope_slowdown = 0.5,
+    max_slope_slowdown = 0.7,
 }
 
 -- Decide to start walking in the given direction.  -1 for left, 1 for right,
