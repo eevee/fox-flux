@@ -32,7 +32,9 @@ function PauseScene:update(dt)
     suit.layout:reset(32, 32)
     suit.layout:padding(16, 16)
 
-    suit.Button('Whats up', suit.layout:row(300, 30))
+    if suit.Button('Advance 1 frame', suit.layout:row(300, 30)).hit then
+        self.wrapped:update(dt)
+    end
     for _, state in ipairs(self.twiddle_states) do
         local checked = game.debug_twiddles[state._twiddle]
         state.checked = checked
