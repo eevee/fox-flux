@@ -151,16 +151,7 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
 
         -- Track the last clock, so we can tell the caller which directions
         -- they're still blocked in after moving
-        -- TODO wow this is bad naming
-        -- TODO this can be an empty clock, which is really an entire clock
-        if lastclock and allowed_amount == 0 then
-            -- If we don't actually move, previous blocks are still valid
-            --print("intersecting last clock with combined clock", lastclock, combined_clock)
-            lastclock:intersect(combined_clock)
-        else
-            --print("setting last clock", lastclock, combined_clock)
-            lastclock = combined_clock
-        end
+        lastclock = combined_clock
 
         -- FIXME this seems like a poor way to get at this logic from outside
         if xxx_no_slide then
@@ -177,6 +168,7 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
             --print("moving by leftovers", attempted)
             shape:move(attempted:unpack())
             successful = successful + attempted
+            lastclock = util.ClockRange(util.ClockRange.ZERO, util.ClockRange.ZERO)
             break
         end
 
