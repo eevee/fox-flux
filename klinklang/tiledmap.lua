@@ -117,32 +117,41 @@ function TiledTileset:init(path, data, resource_manager)
             end
 
             -- Collect the frames, as a list of quads
-            local quads, durations, onloop, flipped
+            local args = { name = pose_name }
             if data.tiles and data.tiles[id] and data.tiles[id].animation then
-                quads = {}
-                durations = {}
+                args.frames = {}
+                args.durations = {}
                 for _, animation_frame in ipairs(data.tiles[id].animation) do
-                    table.insert(quads, self.quads[animation_frame.tileid])
-                    table.insert(durations, animation_frame.duration / 1000)
+                    table.insert(args.frames, self.quads[animation_frame.tileid])
+                    table.insert(args.durations, animation_frame.duration / 1000)
                 end
                 if data.tileproperties[id]['animation stops'] then
-                    onloop = 'pauseAtEnd'
+                    args.onloop = 'pauseAtEnd'
                 elseif data.tileproperties[id]['animation loops to'] then
                     local f = data.tileproperties[id]['animation loops to']
-                    onloop = function(anim) anim:gotoFrame(f) end
-                end
-                if data.tileproperties[id]['animation flipped'] then
-                    flipped = true
+                    args.onloop = function(anim) anim:gotoFrame(f) end
                 end
             else
-                quads = {self.quads[id]}
-                durations = 1
+                args.frames = {self.quads[id]}
+                args.durations = 1
             end
+
+            -- Other misc properties
+            -- FIXME this is a bad name, since it doesn't have to be an animation
+            if data.tileproperties[id]['animation flipped'] then
+                args.flipped = true
+            end
+            if data.tileproperties[id]['sprite left view'] then
+                args.leftwards = true
+            end
+
             local shape, anchor = self:get_collision(id, default_anchors[sprite_name])
             if not default_anchors[sprite_name] then
                 default_anchors[sprite_name] = anchor
             end
-            spriteset:add(pose_name, anchor or default_anchors[sprite_name] or Vector.zero, shape, quads, durations, onloop, flipped)
+            args.shape = shape
+            args.anchor = anchor or default_anchors[sprite_name] or Vector.zero
+            spriteset:add_pose(args)
         end
     end
 end

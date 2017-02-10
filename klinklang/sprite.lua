@@ -22,8 +22,47 @@ function SpriteSet:init(name, image)
     SpriteSet._all_sprites[name] = self
 end
 
-function SpriteSet:add(pose_name, anchor, shape, frames, durations, onloop, flipped)
-    assert(not self.poses[pose_name], ("Pose %s already exists for sprite %s"):format(pose_name, self.name))
+-- Adds a new pose, which may be animated.  All frames are presumed to be the
+-- same size, and all frames of all poses must be part of the same image.
+-- Adding a new pose with the same name is an error, EXCEPT in the case of
+-- adding a left view to a pose that only has a right view defined (or vice
+-- versa).
+-- Arguments:
+--   name: The name of the pose, used with Sprite:set_pose.
+--   anchor: When Sprite:draw_at is called, the sprite will be positioned such
+--      that this point (a Vector) on the sprite appears at the desired
+--      position.
+--   shape: An optional collision shape.  Somewhat clumsy at the moment.
+--   frames: A list of Quads defining how to cut out each frame.
+--   durations: Frame durations, in seconds.  Passed directly to anim8.
+--   onloop: Behavior for the end of the loop.  Passed directly to anim8.
+--   flipped: If true, the frames face to the left, and will be flipped when
+--      the sprite faces right (rather than the other way around).
+--   leftwards: If true, the pose is taken to be asymmetrical, and the given
+--      frames are used as the left-facing view.  To create a fully
+--      asymmetrical pose, call add_pose twice: once with leftwards false, once
+--      with it true.  Note that the actual frames are still assumed to face
+--      right, unless flipped is true.
+function SpriteSet:add_pose(args)
+    local pose_name = args.name
+    local anchor = args.anchor
+    local shape = args.shape
+    local frames = args.frames
+    local durations = args.durations
+    local onloop = args.onloop
+    local flipped = args.flipped
+    local leftwards = args.leftwards
+
+    local pose
+    if self.poses[pose_name] then
+        pose = self.poses[pose_name]
+        if pose[leftwards and 'left' or 'right'].explicit then
+            error(("Pose %s already exists for sprite %s"):format(pose_name, self.name))
+        end
+    else
+        pose = {}
+        self.poses[pose_name] = pose
+    end
 
     -- FIXME this is pretty hokey and seems really specific to platformers
     local anim = anim8.newAnimation(frames, durations, onloop)
@@ -44,17 +83,30 @@ function SpriteSet:add(pose_name, anchor, shape, frames, durations, onloop, flip
         shape = flipped_shape,
         anchor = Vector(w - anchor.x, anchor.y),
     }
+
+    -- Handle flippedness
+    local left_data, right_data
     if flipped then
-        self.poses[pose_name] = {
-            left = normal_data,
-            right = flipped_data,
-        }
+        left_data, right_data = normal_data, flipped_data
     else
-        self.poses[pose_name] = {
-            left = flipped_data,
-            right = normal_data,
-        }
+        left_data, right_data = flipped_data, normal_data
     end
+
+    -- Handle asymmetry
+    if leftwards then
+        left_data.explicit = true
+    else
+        right_data.explicit = true
+    end
+
+    -- Assign the pose facings
+    if not pose.left or not pose.left.explicit then
+        pose.left = left_data
+    end
+    if not pose.right or not pose.right.explicit then
+        pose.right = right_data
+    end
+
     if not self.default_pose then
         self.default_pose = pose_name
     end
