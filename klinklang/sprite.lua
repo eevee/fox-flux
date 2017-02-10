@@ -223,8 +223,8 @@ function Sprite:draw_at(point)
     -- built in?  seems an obvious thing
     self.anim:draw(
         self.spriteset.image,
-        math.floor(point.x - self.anchor.x),
-        math.floor(point.y - self.anchor.y),
+        math.floor(point.x - self.anchor.x + 0.5),
+        math.floor(point.y - self.anchor.y + 0.5),
         0, self.scale, self.scale)
 end
 
