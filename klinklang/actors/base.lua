@@ -196,8 +196,8 @@ local TILE_SIZE = 32
 
 -- TODO these are a property of the world and should go on the world object
 -- once one exists
-local gravity = Vector(0, 675)
-local terminal_velocity = 840
+local gravity = Vector(0, 768)
+local terminal_velocity = 1536
 
 local MobileActor = Actor:extend{
     __name = 'MobileActor',
@@ -209,7 +209,7 @@ local MobileActor = Actor:extend{
     min_speed = 1,
     -- FIXME i feel like this is not done well.  floating should feel floatier
     -- FIXME friction should probably be separate from deliberate deceleration?
-    friction_decel = 1800,
+    friction_decel = 512,
     ground_friction = 1,
     gravity_multiplier = 1,
     gravity_multiplier_down = 1,
@@ -433,9 +433,9 @@ local SentientActor = MobileActor:extend{
     -- Active physics parameters
     -- TODO these are a little goofy because friction works differently; may be
     -- worth looking at that again.
-    xaccel = 2700,
+    xaccel = 1536,
     deceleration = 0.5,
-    max_speed = 240,
+    max_speed = 256,
     -- Max height of a projectile = vy² / (2g), so vy = √2gh
     -- Pick a jump velocity that gets us up 2 tiles, plus a margin of error
     jumpvel = math.sqrt(2 * gravity.y * (TILE_SIZE * 2.25)),
