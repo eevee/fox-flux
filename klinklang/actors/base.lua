@@ -209,7 +209,7 @@ local MobileActor = Actor:extend{
     min_speed = 1,
     -- FIXME i feel like this is not done well.  floating should feel floatier
     -- FIXME friction should probably be separate from deliberate deceleration?
-    friction = 1800,
+    friction_decel = 1800,
     ground_friction = 1,
     gravity_multiplier = 1,
     gravity_multiplier_down = 1,
@@ -372,7 +372,6 @@ function MobileActor:update(dt)
         self.velocity.x = 0
     end
 
-    -- FIXME friction is separate from an actor's deliberate deceleration
     -- Friction -- the general tendency for everything to decelerate.
     -- It always pushes against the direction of motion, but never so much that
     -- it would reverse the motion.  Note that taking the dot product with the
@@ -384,7 +383,7 @@ function MobileActor:update(dt)
     if vellen > 1e-8 then
         local friction_vector
         if self.ground_normal then
-            decel_vector = self.ground_normal:perpendicular() * (self.friction * dt)
+            decel_vector = self.ground_normal:perpendicular() * (self.friction_decel * dt)
             if decel_vector * self.velocity > 0 then
                 decel_vector = -decel_vector
             end
@@ -392,7 +391,7 @@ function MobileActor:update(dt)
             decel_vector:trimInplace(vellen)
         else
             local vel1 = self.velocity / vellen
-            decel_vector = -self.friction * dt * vel1
+            decel_vector = -self.friction_decel * dt * vel1
             -- FIXME need some real air resistance; as written, this also reverses gravity, oops
             decel_vector = Vector.zero
         end
@@ -435,6 +434,7 @@ local SentientActor = MobileActor:extend{
     -- TODO these are a little goofy because friction works differently; may be
     -- worth looking at that again.
     xaccel = 2700,
+    deceleration = 0.5,
     max_speed = 240,
     -- Max height of a projectile = vy² / (2g), so vy = √2gh
     -- Pick a jump velocity that gets us up 2 tiles, plus a margin of error
@@ -523,6 +523,15 @@ function SentientActor:update(dt)
             self.velocity = self.velocity - dx * xdir
         end
         self.facing_left = true
+    else
+        -- Not walking means we're trying to stop, albeit leisurely
+        local dx = math.min(math.abs(self.velocity * xdir), self.xaccel * self.deceleration * dt)
+        local dv = dx * xdir
+        if dv * self.velocity < 0 then
+            self.velocity = self.velocity + dv
+        else
+            self.velocity = self.velocity - dv
+        end
     end
 
     -- Jumping
