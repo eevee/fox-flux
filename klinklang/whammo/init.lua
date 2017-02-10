@@ -168,7 +168,6 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
             --print("moving by leftovers", attempted)
             shape:move(attempted:unpack())
             successful = successful + attempted
-            lastclock = util.ClockRange(util.ClockRange.ZERO, util.ClockRange.ZERO)
             break
         end
 
