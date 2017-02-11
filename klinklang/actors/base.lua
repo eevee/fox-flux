@@ -222,6 +222,47 @@ function MobileActor:blocks(actor, d)
     return true
 end
 
+-- Lower-level function passed to the collider to determine whether another
+-- object blocks us
+-- FIXME now that they're next to each other, these two methods look positively silly!  and have a bit of a symmetry problem: the other object can override via the simple blocks(), but we have this weird thing
+function MobileActor:is_blocked_by(collision)
+    if collision.touchtype < 0 then
+        -- Objects we're overlapping are always passable
+        return false
+    end
+
+    -- One-way platforms only block us when we collide with an
+    -- upwards-facing surface.  Expressing that correctly is hard.
+    -- FIXME un-xxx this
+    if collision.shape._xxx_is_one_way_platform then
+        local faces_up = false
+        for normal in pairs(collision.normals) do
+            if normal * gravity < 0 then
+                faces_up = true
+                break
+            end
+        end
+        if not faces_up then
+            return false
+        end
+    end
+
+    -- Otherwise, fall back to trying blocks(), if the other thing is an actor
+    local otheractor = worldscene.collider:get_owner(collision.shape)
+    if
+        otheractor and
+        type(otheractor) == 'table' and
+        otheractor:isa(BareActor) and
+        not otheractor:blocks(self, collision.movement)
+    then
+        return false
+    end
+
+    -- Otherwise, we're blocked!
+    return true
+end
+
+
 function MobileActor:update(dt)
     MobileActor.__super.update(self, dt)
 
@@ -260,7 +301,8 @@ function MobileActor:update(dt)
     end
 
     local attempted = movement
-    local movement, hits, last_clock = worldscene.collider:slide(self.shape, movement:unpack())
+    local pass_callback = function(...) return not self:is_blocked_by(...) end
+    local movement, hits, last_clock = worldscene.collider:slide(self.shape, movement, pass_callback)
 
     -- Debugging
     if game.debug and game.debug_twiddles.show_collision then
@@ -287,7 +329,7 @@ function MobileActor:update(dt)
         -- to 2 pixels at 60fps, which...  i don't know what that means
         -- FIXME again, don't do this off the edges of the map...  depending on map behavior...  sigh
         --print("/// doing drop")
-        local drop_movement, drop_hits, drop_clock = worldscene.collider:slide(self.shape, 0, 128 * dt, true)
+        local drop_movement, drop_hits, drop_clock = worldscene.collider:slide(self.shape, Vector(0, 128) * dt, pass_callback, true)
         --print("\\\\\\ end drop")
         local any_hit = false
         for shape, collision in pairs(drop_hits) do

@@ -42,10 +42,9 @@ end
 
 -- FIXME if you're exactly in a corner and try to move diagonally, the
 -- resulting clock will only block one direction, sigh
-function Collider:slide(shape, dx, dy, xxx_no_slide)
+function Collider:slide(shape, attempted, pass_callback, xxx_no_slide)
     --print()
-    --print("=== BEGIN SLIDE ===")
-    local attempted = Vector(dx, dy)
+    --print(("=== SLIDE: %s ==="):format(attempted))
     local successful = Vector(0, 0)
     local hits = {}  -- set of objects we ultimately bump into
     local lastclock = util.ClockRange(util.ClockRange.ZERO, util.ClockRange.ZERO)
@@ -86,47 +85,15 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
                 break
             end
 
-            -- Check whether we can move through this object
-            local is_passable = false
-            -- One-way platforms only block us when we collide with an
-            -- upwards-facing surface.  Expressing that correctly is hard.
-            -- FIXME un-xxx this
-            -- FIXME this assumes the direction of gravity
-            local gravity = Vector(0, 1)
-            if collision.shape._xxx_is_one_way_platform then
-                local faces_up = false
-                for normal in pairs(collision.normals) do
-                    if normal * gravity < 0 then
-                        faces_up = true
-                        break
-                    end
-                end
-                if not faces_up then
-                    is_passable = true
-                end
-            end
-            if collision.touchtype < 0 then
-                -- Objects we're overlapping are always passable
-                is_passable = true
-            else
-                -- FIXME this is better than using worldscene but still assumes
-                -- knowledge of the actor api
-                local otheractor = self:get_owner(collision.shape)
-                local thisactor = self:get_owner(shape)
-                if otheractor and not otheractor:blocks(thisactor, collision.movement) then
-                    is_passable = true
-                end
-            end
-
             -- Restrict our slide angle if the object blocks us
-            if not is_passable then
+            if not pass_callback or not pass_callback(collision) then
                 combined_clock:intersect(collision.clock)
-            end
 
-            -- If we're hitting the object and it's not passable, stop here
-            if allowed_amount == nil and not is_passable and collision.touchtype > 0 then
-                allowed_amount = collision.amount
-                --print("< found first collision:", collision.movement, "amount:", collision.amount)
+                -- If we're hitting the object and it's not passable, stop here
+                if allowed_amount == nil and collision.touchtype > 0 then
+                    allowed_amount = collision.amount
+                    --print("< found first collision:", collision.movement, "amount:", collision.amount)
+                end
             end
 
             -- Log the last contact with each shape
@@ -201,7 +168,7 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
     -- blocked, and at the moment i seem to have much better luck doing no
     -- rounding whatsoever
 
-    --print("TOTAL MOVEMENT:", successful, "OUT OF", dx, dy)
+    --print("TOTAL MOVEMENT:", successful)
     return successful, hits, lastclock
 end
 
