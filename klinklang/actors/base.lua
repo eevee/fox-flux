@@ -225,7 +225,7 @@ end
 -- Lower-level function passed to the collider to determine whether another
 -- object blocks us
 -- FIXME now that they're next to each other, these two methods look positively silly!  and have a bit of a symmetry problem: the other object can override via the simple blocks(), but we have this weird thing
-function MobileActor:on_collide_with(collision)
+function MobileActor:on_collide_with(actor, collision)
     if collision.touchtype < 0 then
         -- Objects we're overlapping are always passable
         return true
@@ -248,13 +248,7 @@ function MobileActor:on_collide_with(collision)
     end
 
     -- Otherwise, fall back to trying blocks(), if the other thing is an actor
-    local otheractor = worldscene.collider:get_owner(collision.shape)
-    if
-        otheractor and
-        type(otheractor) == 'table' and
-        otheractor:isa(BareActor) and
-        not otheractor:blocks(self, collision.movement)
-    then
+    if actor and not actor:blocks(self, collision) then
         return true
     end
 
@@ -300,8 +294,28 @@ function MobileActor:update(dt)
         movement.y = util.clamp(movement.y, mt - t, mb - b)
     end
 
+    -- Set up the hit callback, which also tells other actors that we hit them
+    local already_hit = {}
+    local pass_callback = function(collision)
+        local actor = worldscene.collider:get_owner(collision.shape)
+        if type(actor) ~= 'table' or not Object.isa(actor, BareActor) then
+            actor = nil
+        end
+
+        -- Only announce a hit once per frame
+        if actor and not already_hit[actor] then
+            -- FIXME movement is fairly misleading and i'm not sure i want to
+            -- provide it, at least not in this order
+            actor:on_collide(self, movement, collision)
+            already_hit[actor] = true
+        end
+
+        -- FIXME again, i would love a better way to expose a normal here.
+        -- also maybe the direction of movement is useful?
+        return self:on_collide_with(actor, collision)
+    end
+
     local attempted = movement
-    local pass_callback = function(...) return self:on_collide_with(...) end
     local movement, hits, last_clock = worldscene.collider:slide(self.shape, movement, pass_callback)
 
     -- Debugging
@@ -352,17 +366,6 @@ function MobileActor:update(dt)
     --print("FINAL POSITION:", self.pos)
     if self.shape then
         self.shape:move_to(self.pos:unpack())
-    end
-
-    -- Tell everyone we've hit them
-    -- TODO surely we should announce this in the order we hit!  all the more
-    -- reason to hoist the loop out of whammo and into here
-    for shape, collision in pairs(hits) do
-        local actor = worldscene.collider:get_owner(shape)
-        if actor then
-            -- FIXME this should pass along the side the object is hit from!
-            actor:on_collide(self, movement, collision)
-        end
     end
 
     -- Ground test: did we collide with something facing upwards?

@@ -71,14 +71,13 @@ function Player:blocks(actor, ...)
     return Player.__super.blocks(self, actor, ...)
 end
 
-function Player:on_collide_with(collision)
-    local actor = worldscene.collider:get_owner(collision.shape)
+function Player:on_collide_with(actor, collision)
     if actor and actor.is_usable then
         -- FIXME this should really really be a ptr
         self.touching_mechanism = actor
     end
 
-    return Player.__super.on_collide_with(self, collision)
+    return Player.__super.on_collide_with(self, actor, collision)
 end
 
 function Player:update(dt)
