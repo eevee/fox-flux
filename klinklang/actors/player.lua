@@ -71,6 +71,16 @@ function Player:blocks(actor, ...)
     return Player.__super.blocks(self, actor, ...)
 end
 
+function Player:on_collide_with(collision)
+    local actor = worldscene.collider:get_owner(collision.shape)
+    if actor and actor.is_usable then
+        -- FIXME this should really really be a ptr
+        self.touching_mechanism = actor
+    end
+
+    return Player.__super.on_collide_with(self, collision)
+end
+
 function Player:update(dt)
     -- FIXME testing purposes only!!
     if not self.is_stone and love.keyboard.isDown('s') then
@@ -88,6 +98,7 @@ function Player:update(dt)
     -- Run the base logic to perform movement, collision, sprite updating, etc.
     local was_on_ground = self.on_ground
     local original_velocity = self.velocity
+    self.touching_mechanism = nil
     Player.__super.update(self, dt)
 
     if self.sprite_name == 'lexy: glass' and not was_on_ground and self.on_ground then
@@ -99,20 +110,6 @@ function Player:update(dt)
         self.is_locked = true
         self:set_sprite('lexy: glass revert')
         self.sprite:set_facing_right(not self.facing_left)
-    end
-
-    -- TODO ugh, this whole block should probably be elsewhere; i need a way to
-    -- check current touches anyway.  would be nice if it could hook into the
-    -- physics system so i don't have to ask twice
-    local hits = self._stupid_hits_hack
-    -- FIXME this should really really be a ptr
-    self.touching_mechanism = nil
-    for shape in pairs(hits) do
-        local actor = worldscene.collider:get_owner(shape)
-        if actor and actor.is_usable then
-            self.touching_mechanism = actor
-            break
-        end
     end
 
     -- TODO this is stupid but i want a real exit door anyway

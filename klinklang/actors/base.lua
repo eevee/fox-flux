@@ -225,10 +225,10 @@ end
 -- Lower-level function passed to the collider to determine whether another
 -- object blocks us
 -- FIXME now that they're next to each other, these two methods look positively silly!  and have a bit of a symmetry problem: the other object can override via the simple blocks(), but we have this weird thing
-function MobileActor:is_blocked_by(collision)
+function MobileActor:on_collide_with(collision)
     if collision.touchtype < 0 then
         -- Objects we're overlapping are always passable
-        return false
+        return true
     end
 
     -- One-way platforms only block us when we collide with an
@@ -243,7 +243,7 @@ function MobileActor:is_blocked_by(collision)
             end
         end
         if not faces_up then
-            return false
+            return true
         end
     end
 
@@ -255,11 +255,11 @@ function MobileActor:is_blocked_by(collision)
         otheractor:isa(BareActor) and
         not otheractor:blocks(self, collision.movement)
     then
-        return false
+        return true
     end
 
     -- Otherwise, we're blocked!
-    return true
+    return false
 end
 
 
@@ -301,7 +301,7 @@ function MobileActor:update(dt)
     end
 
     local attempted = movement
-    local pass_callback = function(...) return not self:is_blocked_by(...) end
+    local pass_callback = function(...) return self:on_collide_with(...) end
     local movement, hits, last_clock = worldscene.collider:slide(self.shape, movement, pass_callback)
 
     -- Debugging
@@ -341,6 +341,7 @@ function MobileActor:update(dt)
         if any_hit then
             -- If we hit something, then commit the movement and stick us to the ground
             movement.y = movement.y + drop_movement.y
+            last_clock = drop_clock
         else
             -- Otherwise, we're in the air; ignore the drop
             self.on_ground = false
@@ -453,9 +454,6 @@ function MobileActor:update(dt)
         self.velocity.y = math.min(self.velocity.y, terminal_velocity)
         --print("velocity after gravity:", self.velocity)
     end
-
-    -- FIXME this sucks
-    self._stupid_hits_hack = hits
 end
 
 
