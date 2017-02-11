@@ -1,0 +1,37 @@
+{ "columns":2,
+ "image":"..\/..\/assets\/images\/doors.png",
+ "imageheight":128,
+ "imagewidth":128,
+ "margin":0,
+ "name":"doors",
+ "spacing":0,
+ "tilecount":2,
+ "tileheight":96,
+ "tileproperties":
+    {
+     "0":
+        {
+         "actor":"boss door",
+         "sprite name":"boss door\/default"
+        },
+     "1":
+        {
+         "actor":"level door",
+         "sprite name":"level door\/default"
+        }
+    },
+ "tilepropertytypes":
+    {
+     "0":
+        {
+         "actor":"string",
+         "sprite name":"string"
+        },
+     "1":
+        {
+         "actor":"string",
+         "sprite name":"string"
+        }
+    },
+ "tilewidth":64
+}

@@ -113,6 +113,7 @@ function love.load(args)
     love.joystick.loadGamepadMappings("vendor/gamecontrollerdb.txt")
 
     game.maps = {
+        'forest-overworld.tmx.json',
         'playground.tmx.json',
     }
     -- TODO should maps instead hardcode their next maps?  or should they just
