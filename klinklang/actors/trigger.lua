@@ -52,13 +52,10 @@ function TriggerZone:execute_trigger(activator)
         local tiledmap = require 'klinklang.tiledmap'
         local map = tiledmap.TiledMap(self.props.map, game.resource_manager)
         worldscene:load_map(map)
-    elseif self.action == 'submap' then
-        -- FIXME my map has props for this stuff, which i should probably be using here
-        if worldscene.submap then
-            worldscene:leave_submap()
-        else
-            worldscene:enter_submap('inside house 1')
-        end
+    elseif self.action == 'enter submap' then
+        worldscene:enter_submap(self.props.submap)
+    elseif self.action == 'leave submap' then
+        worldscene:leave_submap()
     end
 end
 
