@@ -466,12 +466,15 @@ end
 -- player's own behavior, but can be used for other things as well.
 -- Note that, unlike the classes above, this class changes the actor's pose.  A
 -- sentient actor should have stand, walk, and fall poses at a minimum.
-local SentientActor = MobileActor:extend{
-    decision_jump_mode = 0,
-    decision_walk = 0,
 
-    is_dead = false,
-    is_locked = false,
+local function get_jump_velocity(height)
+    -- Max height of a projectile = vy² / (2g), so vy = √2gh
+    -- Throw in a little margin of error too
+    return math.sqrt(2 * gravity.y * height * 1.125)
+end
+
+local SentientActor = MobileActor:extend{
+    __name = 'SentientActor',
 
     -- Active physics parameters
     -- TODO these are a little goofy because friction works differently; may be
@@ -479,9 +482,8 @@ local SentientActor = MobileActor:extend{
     xaccel = 1536,
     deceleration = 0.5,
     max_speed = 192,
-    -- Max height of a projectile = vy² / (2g), so vy = √2gh
     -- Pick a jump velocity that gets us up 2 tiles, plus a margin of error
-    jumpvel = math.sqrt(2 * gravity.y * (TILE_SIZE * 2.25)),
+    jumpvel = get_jump_velocity(TILE_SIZE * 2),
     jumpcap = 0.25,
     -- Multiplier for xaccel while airborne.  MUST be greater than the ratio of
     -- friction to xaccel, or the player won't be able to move while floating!
@@ -489,6 +491,12 @@ local SentientActor = MobileActor:extend{
     -- Maximum slope that can be walked up or jumped off of
     max_slope = Vector(1, -1),
     max_slope_slowdown = 0.7,
+
+    -- State
+    decision_jump_mode = 0,
+    decision_walk = 0,
+    is_dead = false,
+    is_locked = false,
 }
 
 -- Decide to start walking in the given direction.  -1 for left, 1 for right,
@@ -656,4 +664,5 @@ return {
     Actor = Actor,
     MobileActor = MobileActor,
     SentientActor = SentientActor,
+    get_jump_velocity = get_jump_velocity,
 }
