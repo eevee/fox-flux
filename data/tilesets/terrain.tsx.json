@@ -13,6 +13,28 @@
         {
          "sprite name":"strawberry heart\/collected"
         },
+     "114":
+        {
+         "actor":"lock screen",
+         "sprite name":"lock screen\/locked"
+        },
+     "115":
+        {
+         "sprite name":"lock screen\/unlocked"
+        },
+     "127":
+        {
+         "actor":"blast door shutter",
+         "sprite name":"blast door shutter\/default"
+        },
+     "143":
+        {
+         "sprite name":"blast door\/middle"
+        },
+     "159":
+        {
+         "sprite name":"blast door\/end"
+        },
      "164":
         {
          "actor":"force field",
@@ -67,6 +89,28 @@
  "tilepropertytypes":
     {
      "11":
+        {
+         "sprite name":"string"
+        },
+     "114":
+        {
+         "actor":"string",
+         "sprite name":"string"
+        },
+     "115":
+        {
+         "sprite name":"string"
+        },
+     "127":
+        {
+         "actor":"string",
+         "sprite name":"string"
+        },
+     "143":
+        {
+         "sprite name":"string"
+        },
+     "159":
         {
          "sprite name":"string"
         },
@@ -168,6 +212,61 @@
                      "width":32,
                      "x":0,
                      "y":0
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "114":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":32,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":32,
+                     "x":0,
+                     "y":0
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "127":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":32
                     }],
              "opacity":1,
              "type":"objectgroup",
@@ -345,6 +444,62 @@
              "y":0
             }
         },
+     "143":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":0
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "159":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":0
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
      "160":
         {
          "objectgroup":
@@ -377,19 +532,19 @@
          "animation":[
                 {
                  "duration":100,
-                 "tileid":84
+                 "tileid":164
                 }, 
                 {
                  "duration":100,
-                 "tileid":85
+                 "tileid":165
                 }, 
                 {
                  "duration":100,
-                 "tileid":86
+                 "tileid":166
                 }, 
                 {
                  "duration":100,
-                 "tileid":87
+                 "tileid":167
                 }],
          "objectgroup":
             {
@@ -634,6 +789,73 @@
                      "width":0,
                      "x":10,
                      "y":32
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "192":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "polygon":[
+                            {
+                             "x":0,
+                             "y":0
+                            }, 
+                            {
+                             "x":32,
+                             "y":-32
+                            }, 
+                            {
+                             "x":32,
+                             "y":0
+                            }],
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":0,
+                     "x":0,
+                     "y":32
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "208":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":32,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":32,
+                     "x":0,
+                     "y":0
                     }],
              "opacity":1,
              "type":"objectgroup",

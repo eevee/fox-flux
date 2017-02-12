@@ -7,6 +7,35 @@ local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 
 
+local Gecko = actors_base.SentientActor:extend{
+    name = 'gecko',
+    sprite_name = 'gecko',
+
+    max_speed = 256,
+}
+
+function Gecko:blocks()
+    return false
+end
+
+function Gecko:update(dt)
+    -- FIXME would be nice to not walk off ledges
+    if not self.move_event then
+        print("gecko deciding to move")
+        self.move_event = worldscene.tick:delay(function()
+            -- FIXME don't move in directions we already know we're blocked
+            self:decide_walk(love.math.random(3) - 2)
+        end, love.math.random(0.5, 2))
+        self.move_event:after(function()
+            self:decide_walk(0)
+            self.move_event = nil
+        end, love.math.random(0.5, 2.0))
+    end
+
+    Gecko.__super.update(self, dt)
+end
+
+
 local Slime = actors_base.SentientActor:extend{
     name = 'slime',
     sprite_name = 'slime',
@@ -15,10 +44,6 @@ local Slime = actors_base.SentientActor:extend{
     xaccel = 600,
     jumpvel = actors_base.get_jump_velocity(12),
 }
-
-function Slime:on_enter()
-    Slime.__super.on_enter(self)
-end
 
 function Slime:update(dt)
     local player_dist = worldscene.player.pos - self.pos
