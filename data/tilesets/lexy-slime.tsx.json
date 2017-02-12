@@ -29,15 +29,15 @@
         {
          "animation":[
                 {
-                 "duration":75,
+                 "duration":50,
                  "tileid":2
                 }, 
                 {
-                 "duration":100,
+                 "duration":50,
                  "tileid":3
                 }, 
                 {
-                 "duration":150,
+                 "duration":100,
                  "tileid":4
                 }, 
                 {
@@ -61,11 +61,11 @@
                  "tileid":9
                 }, 
                 {
-                 "duration":75,
+                 "duration":50,
                  "tileid":10
                 }, 
                 {
-                 "duration":75,
+                 "duration":50,
                  "tileid":11
                 }],
          "objectgroup":

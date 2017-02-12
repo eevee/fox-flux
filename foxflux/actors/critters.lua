@@ -13,22 +13,34 @@ local Slime = actors_base.SentientActor:extend{
 
     max_speed = 128,
     xaccel = 600,
-    -- FIXME gravity is hardcoded here
-    jumpvel = math.sqrt(2 * 675 * 12),
+    jumpvel = actors_base.get_jump_velocity(12),
 }
+
+function Slime:on_enter()
+    Slime.__super.on_enter(self)
+end
 
 function Slime:update(dt)
     local player_dist = worldscene.player.pos - self.pos
-    if math.abs(player_dist.x) < 64 and math.abs(player_dist.y) < 16 then
-        -- If the player is close enough, launch ourselves at them
-        self.velocity.x = player_dist.x / 0.25
-        self:decide_jump()
+    if math.abs(player_dist.x) < 96 and -32 < player_dist.y and player_dist.y < 12 then
+        local launch_speed = player_dist.x / 0.25
+        if self.on_ground then
+            -- If the player is close enough, launch ourselves at them
+            self.velocity.x = launch_speed
+            local yoff = 12 - player_dist.y
+            self.jumpvel = actors_base.get_jump_velocity(yoff)
+            self:decide_jump()
+        elseif math.abs(self.velocity.x) < math.abs(launch_speed) then
+            -- If we're already in the air, try to move in their direction
+            self:decide_walk(player_dist.x < 0 and -1 or 1)
+        end
         if self.move_event then
             self.move_event:stop()
             self.move_event = nil
         end
     elseif self.decision_walk == 0 then
         -- Otherwise, shuffle around a bit
+        -- TODO would be nice to detect hanging over a ledge and not fall off of it
         if love.math.random() < dt * 0.5 then
             self:decide_walk(love.math.random(3) - 2)
             self.move_event = worldscene.tick:delay(function()
