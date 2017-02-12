@@ -43,6 +43,8 @@ local Slime = actors_base.SentientActor:extend{
     max_speed = 128,
     xaccel = 600,
     jumpvel = actors_base.get_jump_velocity(12),
+
+    jump_sound = 'assets/sounds/jump-slime.ogg',
 }
 
 function Slime:update(dt)

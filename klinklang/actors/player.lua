@@ -18,9 +18,7 @@ local Player = actors_base.SentientActor:extend{
 
     inventory_cursor = 1,
 
-    -- Conscious movement decisions
-    decision_walk = 0,
-    decision_jump_mode = 0,
+    jump_sound = 'assets/sounds/jump.ogg',
 }
 
 function Player:init(...)
@@ -154,6 +152,8 @@ function Player:on_collide(actor, direction)
         self.is_locked = true
         self:set_sprite('lexy: slime tf')
         self.sprite:set_facing_right(not self.facing_left)
+        -- FIXME revert for everything else
+        self.jump_sound = 'assets/sounds/jump-slime.ogg'
         -- FIXME DO AT END OF ANIMATION
         worldscene.tick:delay(function()
             self.is_locked = false

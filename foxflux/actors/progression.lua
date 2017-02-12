@@ -19,6 +19,7 @@ function StrawberryHeart:on_collide(actor)
         return
     end
     if actor.is_player then
+        game.resource_manager:get('assets/sounds/get-heart.ogg'):clone():play()
         self.is_collected = true
         actor.inventory.strawberry_hearts = (actor.inventory.strawberry_hearts or 0) + 1
         self.sprite:set_pose('collect', function()
@@ -64,6 +65,7 @@ end
 
 function LockScreen:on_use(activator)
     if activator.is_player and self.sprite.pose == 'locked' then
+        game.resource_manager:get('assets/sounds/boopbeep.ogg'):play()
         self.sprite:set_pose('unlocked')
         self.is_usable = false
         -- FIXME blah, blah, do this better
