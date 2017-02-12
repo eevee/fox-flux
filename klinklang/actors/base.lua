@@ -562,7 +562,7 @@ function SentientActor:update(dt)
         self.facing_left = false
     elseif self.decision_walk < 0 then
         if self.velocity.x > -max_speed then
-            local dx = math.max(-max_speed - self.velocity.x, self.xaccel * xmult * dt)
+            local dx = math.min(max_speed + self.velocity.x, self.xaccel * xmult * dt)
             self.velocity = self.velocity - dx * xdir
         end
         self.facing_left = true
