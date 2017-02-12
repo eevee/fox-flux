@@ -456,11 +456,11 @@ function TiledMap:add_to_collider(collider, submap_name)
 end
 
 -- Draw the whole map
-function TiledMap:draw(layer_name, origin, width, height)
+function TiledMap:draw(layer_name, submap_name, origin, width, height)
     -- TODO origin unused.  is it in tiles or pixels?
     local tw, th = self.raw.tilewidth, self.raw.tileheight
     for _, layer in pairs(self.layers) do
-        if layer.name == layer_name then
+        if layer.name == layer_name and layer.submap == submap_name then
             if layer.type == 'tilelayer' then
                 local width, height = layer.width, layer.height
                 local data = layer.data

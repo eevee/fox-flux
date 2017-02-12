@@ -304,8 +304,8 @@ function WorldScene:draw()
     -- FIXME don't really like hardcoding layer names here; they /have/ an
     -- order, the main problem is just that there's no way to specify where the
     -- actors should be drawn
-    self.map:draw('background', self.camera, w, h)
-    self.map:draw('main terrain', self.camera, w, h)
+    self.map:draw('background', nil, self.camera, w, h)
+    self.map:draw('main terrain', nil, self.camera, w, h)
 
     local actors_faucet
     if self.pushed_actors then
@@ -314,17 +314,22 @@ function WorldScene:draw()
         self:_draw_actors(self.actors)
     end
 
-    self.map:draw('objects', self.camera, w, h)
-    self.map:draw('foreground', self.camera, w, h)
-    self.map:draw('wiring', self.camera, w, h)
+    self.map:draw('objects', nil, self.camera, w, h)
+    self.map:draw('foreground', nil, self.camera, w, h)
+    self.map:draw('wiring', nil, self.camera, w, h)
 
     if self.pushed_actors then
         love.graphics.setColor(0, 0, 0, 192)
         love.graphics.rectangle('fill', self.camera.x, self.camera.y, w, h)
         love.graphics.setColor(255, 255, 255)
         -- FIXME stop hardcoding fuckin layer names
+        self.map:draw('background', self.submap, self.camera, w, h)
+        self.map:draw('main terrain', self.submap, self.camera, w, h)
         self.map:draw(self.submap, self.camera, w, h)
         self:_draw_actors(self.actors)
+        self.map:draw('objects', self.submap, self.camera, w, h)
+        self.map:draw('foreground', self.submap, self.camera, w, h)
+        self.map:draw('wiring', self.submap, self.camera, w, h)
     end
 
     if game.debug then
