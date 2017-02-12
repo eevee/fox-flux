@@ -492,6 +492,9 @@ local SentientActor = MobileActor:extend{
     max_slope = Vector(1, -1),
     max_slope_slowdown = 0.7,
 
+    -- Other configuration
+    jump_sound = nil,  -- Path!
+
     -- State
     decision_jump_mode = 0,
     decision_walk = 0,
@@ -597,6 +600,10 @@ function SentientActor:update(dt)
             if self.velocity.y > -self.jumpvel then
                 self.velocity.y = -self.jumpvel
                 self.on_ground = false
+
+                if self.jump_sound then
+                    game.resource_manager:get(self.jump_sound):clone():play()
+                end
             end
         end
     elseif self.decision_jump_mode == 0 then
