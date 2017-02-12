@@ -16,15 +16,19 @@ function TriggerZone:init(pos, size, props)
     self.pos = pos
     self.shape = whammo_shapes.Box(pos.x, pos.y, size.x, size.y)
 
+    self.props = props or {}
     if props then
         self.action = props.action
+        self.activation = props.activation
     end
     if not self.action then
         self.action = 'submap'
     end
+    if not self.activation then
+        self.activation = 'use'
+    end
 
-    -- FIXME should probably have a trigger...  mode
-    if self.action == 'submap' then
+    if self.activation == 'use' then
         self.is_usable = true
     end
 
@@ -37,8 +41,19 @@ function TriggerZone:blocks(other, direction)
 end
 
 function TriggerZone:on_use(activator)
-    -- FIXME my map has props for this stuff, which i should probably be using here
-    if self.action == 'submap' then
+    if activator.is_player and self.activation == 'use' then
+        self:execute_trigger(activator)
+    end
+end
+
+function TriggerZone:execute_trigger(activator)
+    -- TODO turn these into, idk, closures or something interesting?
+    if self.action == 'change map' then
+        local tiledmap = require 'klinklang.tiledmap'
+        local map = tiledmap.TiledMap(self.props.map, game.resource_manager)
+        worldscene:load_map(map)
+    elseif self.action == 'submap' then
+        -- FIXME my map has props for this stuff, which i should probably be using here
         if worldscene.submap then
             worldscene:leave_submap()
         else

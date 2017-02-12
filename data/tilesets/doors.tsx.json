@@ -1,11 +1,11 @@
-{ "columns":2,
+{ "columns":8,
  "image":"..\/..\/assets\/images\/doors.png",
- "imageheight":128,
- "imagewidth":128,
+ "imageheight":192,
+ "imagewidth":512,
  "margin":0,
  "name":"doors",
  "spacing":0,
- "tilecount":2,
+ "tilecount":16,
  "tileheight":96,
  "tileproperties":
     {

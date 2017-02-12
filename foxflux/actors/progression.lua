@@ -8,14 +8,21 @@ local whammo_shapes = require 'klinklang.whammo.shapes'
 local StrawberryHeart = actors_base.Actor:extend{
     name = 'strawberry heart',
     sprite_name = 'strawberry heart',
-
     z = 1000,
+
+    is_collected = false,
 }
 
 function StrawberryHeart:on_collide(actor)
+    if self.is_collected then
+        return
+    end
     if actor.is_player then
+        self.is_collected = true
         actor.inventory.strawberry_hearts = (actor.inventory.strawberry_hearts or 0) + 1
-        worldscene:remove_actor(self)
+        self.sprite:set_pose('collect', function()
+            worldscene:remove_actor(self)
+        end)
     end
 end
 
