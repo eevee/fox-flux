@@ -499,7 +499,7 @@ function TiledMap:draw_parallax_background(camera, sw, sh)
             local iw, ih = layer.image:getDimensions()
             iw = iw * scale
             ih = ih * scale
-            local x = camera.x * x_rate
+            local x0 = camera.x * x_rate
             local y_amount = 0
             if mh > sh then
                 y_amount = camera.y / (mh - sh)
@@ -507,8 +507,13 @@ function TiledMap:draw_parallax_background(camera, sw, sh)
             local y_camera_offset = y_rate * (y_amount - y_anchor)
             local y = (mh - ih) * y_anchor + (mh - sh) * y_camera_offset
 
+            -- x0 is the offset from the left edge of the map; find the
+            -- rightmost x position before the camera area
+            local x1 = x0 + math.floor((camera.x - x0) / iw) * iw
             -- TODO this ignores the layer's own offsets?  do they make sense here?
-            love.graphics.draw(layer.image, x, y, 0, scale)
+            for x = x1, x1 + sw + iw, iw do
+                love.graphics.draw(layer.image, x, y, 0, scale)
+            end
         end
     end
 end
