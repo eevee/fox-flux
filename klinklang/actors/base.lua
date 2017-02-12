@@ -478,7 +478,7 @@ local SentientActor = MobileActor:extend{
     -- worth looking at that again.
     xaccel = 1536,
     deceleration = 0.5,
-    max_speed = 256,
+    max_speed = 192,
     -- Max height of a projectile = vy² / (2g), so vy = √2gh
     -- Pick a jump velocity that gets us up 2 tiles, plus a margin of error
     jumpvel = math.sqrt(2 * gravity.y * (TILE_SIZE * 2.25)),
