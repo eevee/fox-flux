@@ -253,7 +253,9 @@ function WorldScene:update_camera()
     -- FIXME would like some more interesting features here like smoothly
     -- catching up with the player, platform snapping?
     if self.player then
-        local focus = self.player.pos
+        -- TODO this focuses on the player's feet!  should be middle of body?  eyes?
+        local focusx = math.floor(self.player.pos.x + 0.5)
+        local focusy = math.floor(self.player.pos.y + 0.5)
         local w, h = game:getDimensions()
         local mapx, mapy = 0, 0
 
@@ -263,10 +265,10 @@ function WorldScene:update_camera()
         local minx = self.map.camera_margin_left
         local maxx = self.map.width - self.map.camera_margin_right - w
         local newx = self.camera.x
-        if focus.x - newx < x0 then
-            newx = focus.x - x0
-        elseif focus.x - newx > x1 then
-            newx = focus.x - x1
+        if focusx - newx < x0 then
+            newx = focusx - x0
+        elseif focusx - newx > x1 then
+            newx = focusx - x1
         end
         newx = math.max(minx, math.min(maxx, newx))
         self.camera.x = math.floor(newx)
@@ -277,10 +279,10 @@ function WorldScene:update_camera()
         local miny = self.map.camera_margin_top
         local maxy = self.map.height - self.map.camera_margin_bottom - h
         local newy = self.camera.y
-        if focus.y - newy < y0 then
-            newy = focus.y - y0
-        elseif focus.y - newy > y1 then
-            newy = focus.y - y1
+        if focusy - newy < y0 then
+            newy = focusy - y0
+        elseif focusy - newy > y1 then
+            newy = focusy - y1
         end
         newy = math.max(miny, math.min(maxy, newy))
         self.camera.y = math.floor(newy)
