@@ -315,7 +315,7 @@ function TiledMap:init(path, resource_manager)
     self.width = self.raw.width * self.tilewidth
     self.height = self.raw.height * self.tileheight
 
-    local props = self.raw.properties or props
+    local props = self.raw.properties or {}
     self.camera_margin_left = props['camera margin'] or props['camera margin left'] or 0
     self.camera_margin_right = props['camera margin'] or props['camera margin right'] or 0
     self.camera_margin_top = props['camera margin'] or props['camera margin top'] or 0
