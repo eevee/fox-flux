@@ -260,8 +260,8 @@ function WorldScene:update_camera()
         local marginx = CAMERA_MARGIN * w
         local x0 = marginx
         local x1 = w - marginx
-        local minx = 0
-        local maxx = self.map.width - w
+        local minx = self.map.camera_margin_left
+        local maxx = self.map.width - self.map.camera_margin_right - w
         local newx = self.camera.x
         if focus.x - newx < x0 then
             newx = focus.x - x0
@@ -274,8 +274,8 @@ function WorldScene:update_camera()
         local marginy = CAMERA_MARGIN * h
         local y0 = marginy
         local y1 = h - marginy
-        local miny = 0
-        local maxy = self.map.height - h
+        local miny = self.map.camera_margin_top
+        local maxy = self.map.height - self.map.camera_margin_bottom - h
         local newy = self.camera.y
         if focus.y - newy < y0 then
             newy = focus.y - y0

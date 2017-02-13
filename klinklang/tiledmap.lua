@@ -315,6 +315,12 @@ function TiledMap:init(path, resource_manager)
     self.width = self.raw.width * self.tilewidth
     self.height = self.raw.height * self.tileheight
 
+    local props = self.raw.properties or props
+    self.camera_margin_left = props['camera margin'] or props['camera margin left'] or 0
+    self.camera_margin_right = props['camera margin'] or props['camera margin right'] or 0
+    self.camera_margin_top = props['camera margin'] or props['camera margin top'] or 0
+    self.camera_margin_bottom = props['camera margin'] or props['camera margin bottom'] or 0
+
     -- Load tilesets
     self.tiles = {}
     for _, tilesetdef in pairs(self.raw.tilesets) do
@@ -357,7 +363,6 @@ function TiledMap:init(path, resource_manager)
     end
 
     -- Detach any automatic actor tiles
-    -- TODO also more explicit actors via object layers probably
     self.actor_templates = {}
     self.music_zones = {}
     for _, layer in ipairs(self.layers) do
@@ -387,6 +392,7 @@ function TiledMap:init(path, resource_manager)
                 end
             end
         elseif layer.type == 'objectgroup' then
+            -- FIXME should detect triggers here too
             for _, object in ipairs(layer.objects) do
                 if object.gid then
                     -- This is a "tile" object

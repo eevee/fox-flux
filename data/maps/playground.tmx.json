@@ -134,8 +134,16 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":37,
+ "nextobjectid":39,
  "orientation":"orthogonal",
+ "properties":
+    {
+     "camera margin left":64
+    },
+ "propertytypes":
+    {
+     "camera margin left":"int"
+    },
  "renderorder":"right-down",
  "tileheight":32,
  "tilesets":[
