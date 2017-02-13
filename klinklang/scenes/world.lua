@@ -580,6 +580,7 @@ function WorldScene:mousepressed(x, y, button, istouch)
         self.player:move_to(Vector(
             x / game.scale + self.camera.x,
             y / game.scale + self.camera.y))
+        self.player.velocity = Vector()
     end
 end
 
