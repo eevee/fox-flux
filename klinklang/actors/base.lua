@@ -284,16 +284,6 @@ function MobileActor:update(dt)
     --print()
     --print("Collision time!  position", self.pos, "velocity", self.velocity, "movement", movement)
 
-    -- First things first: restrict movement to within the current map
-    -- TODO ARGH, worldscene is a global!
-    -- FIXME hitting the bottom of the map should count as landing on solid ground
-    do
-        local l, t, r, b = self.shape:bbox()
-        local ml, mt, mr, mb = 0, 0, worldscene.map.width, worldscene.map.height
-        movement.x = util.clamp(movement.x, ml - l, mr - r)
-        movement.y = util.clamp(movement.y, mt - t, mb - b)
-    end
-
     -- Set up the hit callback, which also tells other actors that we hit them
     local already_hit = {}
     local pass_callback = function(collision)

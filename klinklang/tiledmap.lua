@@ -423,6 +423,27 @@ function TiledMap:add_to_collider(collider, submap_name)
     if not self.shapes then
         self.shapes = {}
     end
+
+    -- Add borders around the map itself, so nothing can leave it
+    local border
+    local margin = 16
+    -- Top
+    border = whammo_shapes.Box(0, -margin, self.width, margin)
+    self.shapes[border] = true
+    collider:add(border)
+    -- Bottom
+    border = whammo_shapes.Box(0, self.height, self.width, margin)
+    self.shapes[border] = true
+    collider:add(border)
+    -- Left
+    border = whammo_shapes.Box(-margin, 0, margin, self.height)
+    self.shapes[border] = true
+    collider:add(border)
+    -- Right
+    border = whammo_shapes.Box(self.width, 0, margin, self.height)
+    self.shapes[border] = true
+    collider:add(border)
+
     for _, layer in ipairs(self.layers) do
         if layer.type == 'tilelayer' and layer.submap == submap_name then
             local width, height = layer.width, layer.height
