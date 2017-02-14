@@ -199,6 +199,10 @@ local TILE_SIZE = 32
 local gravity = Vector(0, 768)
 local terminal_velocity = 1536
 
+local function _is_vector_almost_zero(v)
+    return math.abs(v.x) < 1e-8 and math.abs(v.y) < 1e-8
+end
+
 local MobileActor = Actor:extend{
     __name = 'MobileActor',
     -- TODO separate code from twiddles
@@ -213,13 +217,30 @@ local MobileActor = Actor:extend{
     ground_friction = 1,
     gravity_multiplier = 1,
     gravity_multiplier_down = 1,
+    -- If this is false, then other objects will never stop this actor's
+    -- movement; however, it can still push and carry them
+    is_blockable = true,
+    -- Pushing and platform behavior
+    is_pushable = false,
+    can_push = true,
+    is_portable = true,  -- Can this be carried?
+    can_carry = false,  -- Can this carry?
+    mass = 1,  -- Pushing a heavier object will slow you down
+    cargo = nil,  -- Set of currently-carried objects
 
     -- Physics state
     on_ground = false,
 }
 
+function MobileActor:on_enter()
+    self.cargo = setmetatable({}, { __mode = 'k' })
+end
+
 function MobileActor:blocks(actor, d)
     return true
+end
+
+function MobileActor:on_collide(actor, movement, collision)
 end
 
 -- Lower-level function passed to the collider to determine whether another
@@ -248,6 +269,7 @@ function MobileActor:on_collide_with(actor, collision)
     end
 
     -- Otherwise, fall back to trying blocks(), if the other thing is an actor
+    -- TODO is there any reason not to just merge blocks() with on_collide()?
     if actor and not actor:blocks(self, collision) then
         return true
     end
@@ -256,8 +278,150 @@ function MobileActor:on_collide_with(actor, collision)
     return false
 end
 
+-- This is just split out so the SentientActor can add in its ground sticking.
+-- TODO this feels kind of ugly, though
+function MobileActor:do_nudge(movement, pass_callback)
+    return worldscene.collider:slide(self.shape, movement, pass_callback)
+end
+
+-- Move some distance, respecting collision.
+-- No other physics like gravity or friction happen here; only the actual movement.
+-- FIXME a couple remaining bugs:
+-- - possible infinite recursion?
+-- - delete a bunch of prints and add some more comments
+-- - i need to have a serious think about what can push/carry what!
+-- - i had to disable ground sticking
+-- - player briefly falls when standing on a crate moving downwards -- one frame?
+-- - what's the difference between carry and push, if a carrier can push?
+function MobileActor:nudge(movement, pusher)
+    -- Set up the hit callback, which also tells other actors that we hit them
+    local already_hit = {}
+    local pass_callback = function(collision)
+        local actor = worldscene.collider:get_owner(collision.shape)
+        if type(actor) ~= 'table' or not Object.isa(actor, BareActor) then
+            actor = nil
+        end
+
+        -- Only announce a hit once per frame
+        local hit_this_actor = already_hit[actor]
+        if actor and not hit_this_actor then
+            -- FIXME movement is fairly misleading and i'm not sure i want to
+            -- provide it, at least not in this order
+            actor:on_collide(self, movement, collision)
+            already_hit[actor] = true
+        end
+
+        -- Debugging
+        if game.debug and game.debug_twiddles.show_collision then
+            game.debug_hits[collision.shape] = collision
+        end
+
+        -- FIXME again, i would love a better way to expose a normal here.
+        -- also maybe the direction of movement is useful?
+        local passable = self:on_collide_with(actor, collision)
+
+        -- Pushing
+        if actor and actor ~= pusher and collision.touchtype >= 0 and not passable and (
+            (actor.is_pushable and self.can_push) or
+            -- FIXME and pushed upwards?
+            (actor.is_portable and self.can_carry and not self.cargo[actor]))
+        then
+            local nudge = collision.attempted - collision.movement
+            -- Only push in the direction the collision occurred!  This is a
+            -- bit tricky since there might be one /or two/; if two, we want to
+            -- average them
+            local axis
+            for normal in pairs(collision.normals) do
+                if axis then
+                    axis = (axis + normal) / 2
+                else
+                    axis = normal
+                end
+            end
+            if axis then
+                nudge = nudge:projectOn(axis)
+            else
+                nudge = Vector.zero
+            end
+            print(("%s: nudging obstacle %s by %s"):format(self, actor, nudge))
+            if already_hit[actor] == 'nudged' or _is_vector_almost_zero(nudge) then
+                -- If we've already pushed this object once, OR if we're not
+                -- actually trying to push it at all, return a special value
+                -- that means to trim our movement but pretend we're not
+                -- blocked in that direction, so the caller doesn't cut our
+                -- velocity
+                print("- trim")
+                passable = 'trim'
+            else
+                -- TODO the mass thing is pretty cute, but it doesn't chain --
+                -- the player moves the same speed pushing one crate as pushing
+                -- five of them
+                local actual = actor:nudge(nudge * math.min(1, self.mass / actor.mass), self)
+                print(("- actual movement: %s of %s"):format(actual, nudge * math.min(1, self.mass / actor.mass)))
+                if _is_vector_almost_zero(actual) then
+                    already_hit[actor] = 'blocked'
+                    -- Cargo is blocked, so we can't move either
+                    print("- so counting as blocking and stopping here")
+                    passable = false
+                else
+                    already_hit[actor] = 'nudged'
+                    print("- so retrying")
+                    passable = 'retry'
+                end
+            end
+        end
+
+        if not self.is_blockable and not passable then
+            return true
+        else
+            if not passable then
+                print(("%s: blocked by %s"):format(self, actor))
+            end
+            return passable
+        end
+    end
+
+    local movement, hits, last_clock = self:do_nudge(movement, pass_callback)
+
+    self.pos = self.pos + movement
+    --print("FINAL POSITION:", self.pos)
+    if self.shape then
+        self.shape:move_to(self.pos:unpack())
+    end
+
+    -- Move our cargo along with us, independently of their own movement
+    -- FIXME this means our momentum isn't part of theirs.  is that bad?
+    if self.can_carry and self.cargo and not _is_vector_almost_zero(movement) then
+        for actor in pairs(self.cargo) do
+            -- If we're no longer touching them, disconnect them
+            -- FIXME this feels like a really heavy-handed way to check if
+            -- we're still touching, but if we've moving /away/ from them (say,
+            -- downwards) then that won't register as a hit, oops!  maybe i should rely 100% on the ground carrying thing, even if it seems invasive?
+            if --[[not actor.is_portable or not self.shape:slide_towards(actor.shape, Vector.zero) then
+                self.cargo[actor] = nil
+                print(("%s: dropping cargo %s because"):format(self, actor), actor.is_portable, actor.shape, hits[actor.shape])
+            elseif]] actor == pusher then
+                -- Don't try to carry the actor that caused this movement!
+                -- FIXME i imagine there are more elaborate ways to cause an
+                -- infinite loop here, ugh.  "pusher" might need to be a set of
+                -- everyone involved in this round of pushing?
+            elseif already_hit[actor] == 'nudged' then
+                -- Skip any we already pushed
+                -- FIXME unsure if that's correct
+            else
+                -- FIXME THIS CAN INFINITE LOOP FAIRLY EASILY.
+                print(("%s: carrying cargo %s by %s"):format(self, actor, movement))
+                actor:nudge(movement, self)
+            end
+        end
+    end
+
+    return movement, hits, last_clock
+end
 
 function MobileActor:update(dt)
+    --print()
+    print("# update for", self, "carried by", self.ptrs.cargo_of)
     MobileActor.__super.update(self, dt)
 
     -- Fudge the movement to try ending up aligned to the pixel grid.
@@ -283,102 +447,54 @@ function MobileActor:update(dt)
     --print()
     --print()
     --print("Collision time!  position", self.pos, "velocity", self.velocity, "movement", movement)
-
-    -- Set up the hit callback, which also tells other actors that we hit them
-    local already_hit = {}
-    local pass_callback = function(collision)
-        local actor = worldscene.collider:get_owner(collision.shape)
-        if type(actor) ~= 'table' or not Object.isa(actor, BareActor) then
-            actor = nil
-        end
-
-        -- Only announce a hit once per frame
-        if actor and not already_hit[actor] then
-            -- FIXME movement is fairly misleading and i'm not sure i want to
-            -- provide it, at least not in this order
-            actor:on_collide(self, movement, collision)
-            already_hit[actor] = true
-        end
-
-        -- FIXME again, i would love a better way to expose a normal here.
-        -- also maybe the direction of movement is useful?
-        return self:on_collide_with(actor, collision)
-    end
-
     local attempted = movement
-    local movement, hits, last_clock = worldscene.collider:slide(self.shape, movement, pass_callback)
+    print("# trying to move by", movement)
 
-    -- Debugging
-    if game.debug and game.debug_twiddles.show_collision then
-        for shape, collision in pairs(hits) do
-            if not game.debug_hits[shape] then
-                game.debug_hits[shape] = collision
-            end
-        end
-    end
-
-    -- Ground sticking
-    -- If we walk up off the top of a slope, our momentum will carry us into
-    -- the air, which looks very silly.  A conscious actor would step off the
-    -- ramp.  So if we're only a very short distance above the ground, we were
-    -- on the ground before moving, and we're not trying to jump, then stick us
-    -- to the floor.
-    -- FIXME move this to SentientActor, somehow (difficulty is that i want it
-    -- to add to the movement before all this other stuff happens -- although
-    -- we should merge in collisions too...)
-    -- XXX note that this is the only place on_ground is set to /false/, so it
-    -- shouldn't only be run when not jumping or whatever
-    if self.on_ground then
-        -- FIXME how far should we try this?  128 is arbitrary, but works out
-        -- to 2 pixels at 60fps, which...  i don't know what that means
-        -- FIXME again, don't do this off the edges of the map...  depending on map behavior...  sigh
-        --print("/// doing drop")
-        local drop_movement, drop_hits, drop_clock = worldscene.collider:slide(self.shape, Vector(0, 128) * dt, pass_callback, true)
-        --print("\\\\\\ end drop")
-        local any_hit = false
-        for shape, collision in pairs(drop_hits) do
-            hits[shape] = collision
-            if collision.touchtype > 0 then
-                any_hit = true
-            end
-        end
-        if any_hit then
-            -- If we hit something, then commit the movement and stick us to the ground
-            movement.y = movement.y + drop_movement.y
-            last_clock = drop_clock
-        else
-            -- Otherwise, we're in the air; ignore the drop
-            self.on_ground = false
-        end
-    end
-
-    self.pos = self.pos + movement
-    --print("FINAL POSITION:", self.pos)
-    if self.shape then
-        self.shape:move_to(self.pos:unpack())
-    end
+    local movement, hits, last_clock = self:nudge(movement)
+    --print("# got clock", last_clock)
 
     -- Ground test: did we collide with something facing upwards?
     -- Find the normal that faces /most/ upwards, i.e. most away from gravity
     local mindot = 0  -- 0 is vertical, which we don't want
-    local ground
+    local ground, ground_collision
     -- FIXME this is actually wrong!  it doesn't have the same logic as the
-    -- clocks, resetting if we move in a second pass
+    -- clocks, resetting if we move in a second pass -- passable and touchtype
+    -- >= 0 /almost/ replicates the logic in collider, except that that uses >
+    -- 0, but we can't because the last thing we usually do is slide against
+    -- the ground
     for _, collision in pairs(hits) do
-        if collision.touchtype >= 0 and not collision.clock:includes(gravity) then
+        if collision.touchtype >= 0 and not collision.passable and not collision.clock:includes(gravity) then
             for normal, normal1 in pairs(collision.normals) do
                 local dot = normal1 * gravity
                 if dot < mindot then
                     mindot = dot
                     ground = normal1
+                    ground_collision = collision
                 end
             end
         end
     end
     self.ground_normal = ground
-    if ground then
-        -- FIXME is this now redundant with ground_normal?
-        self.on_ground = true
+    -- FIXME this is redundant, i **think**
+    self.on_ground = not not ground
+
+    -- Figure out what we're riding on, if anything
+    local ground_actor
+    if ground_collision and self.is_portable then
+        ground_actor = worldscene.collider:get_owner(ground_collision.shape)
+        if ground_actor and not ground_actor.can_carry then
+            ground_actor = nil
+        end
+    end
+    if self.ptrs.cargo_of ~= ground_actor then
+        if self.ptrs.cargo_of then
+            self.ptrs.cargo_of.cargo[self] = nil
+            self.ptrs.cargo_of = nil
+        end
+        if ground_actor then
+            ground_actor.cargo[self] = true
+            self.ptrs.cargo_of = ground_actor
+        end
     end
 
     -- Trim velocity as necessary, based on the last surface we slid against
@@ -447,6 +563,8 @@ function MobileActor:update(dt)
         self.velocity.y = math.min(self.velocity.y, terminal_velocity)
         --print("velocity after gravity:", self.velocity)
     end
+
+    return movement, hits, last_clock
 end
 
 
@@ -467,6 +585,9 @@ local SentientActor = MobileActor:extend{
     __name = 'SentientActor',
 
     -- Active physics parameters
+    can_carry = true,
+    can_push = true,
+    is_pushable = true,
     -- TODO these are a little goofy because friction works differently; may be
     -- worth looking at that again.
     xaccel = 1536,
@@ -515,6 +636,45 @@ end
 function SentientActor:decide_abandon_jump()
     self.decision_jump_mode = 0
 end
+
+function SentientActor:__do_nudge(movement, pass_callback)
+    local movement, hits, last_clock = SentientActor.__super.do_nudge(self, movement, pass_callback)
+
+    -- Ground sticking
+    -- If we walk up off the top of a slope, our momentum will carry us into
+    -- the air, which looks very silly.  A conscious actor would step off the
+    -- ramp.  So if we're only a very short distance above the ground, we were
+    -- on the ground before moving, and we're not trying to jump, then stick us
+    -- to the floor.
+    if self.on_ground and self.decision_jump_mode == 0 then
+        -- FIXME how far should we try this?  128 is arbitrary, but works out
+        -- to 2 pixels at 60fps, which...  i don't know what that means
+        -- FIXME again, don't do this off the edges of the map...  depending on map behavior...  sigh
+        --print("/// doing drop")
+        -- FIXME i don't have access to dt here!  maybe this should be relative to how much overall movement i'm doing??
+        local dt = 1/60
+        local drop_movement, drop_hits, drop_clock = worldscene.collider:slide(self.shape, Vector(0, 128) * dt, pass_callback, self)
+        --print("\\\\\\ end drop")
+        local any_hit = false
+        for shape, collision in pairs(drop_hits) do
+            hits[shape] = collision
+            if collision.touchtype > 0 then
+                any_hit = true
+            end
+        end
+        if any_hit then
+            -- If we hit something, then commit the movement and stick us to the ground
+            movement.y = movement.y + drop_movement.y
+            last_clock = drop_clock
+        else
+            -- Otherwise, we're in the air; ignore the drop
+            self.on_ground = false
+        end
+    end
+
+    return movement, hits, last_clock
+end
+
 
 function SentientActor:update(dt)
     if self.is_dead or self.is_locked then
@@ -603,7 +763,7 @@ function SentientActor:update(dt)
     end
 
     -- Apply physics
-    SentientActor.__super.update(self, dt)
+    local movement, hits, last_clock = SentientActor.__super.update(self, dt)
 
     -- Handle our own passive physics
     if self.on_ground then
@@ -631,6 +791,8 @@ function SentientActor:update(dt)
 
     -- Update the pose
     self:update_pose()
+
+    return movement, hits, last_clock
 end
 
 -- Figure out a new pose and switch to it.  Default behavior is based on player

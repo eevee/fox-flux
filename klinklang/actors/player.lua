@@ -62,23 +62,18 @@ function Player:move_to(...)
     self.touching_mechanism = nil
 end
 
-function Player:blocks(actor, ...)
-    if actor.name == 'draclear' then
-        return false
-    end
-    return Player.__super.blocks(self, actor, ...)
-end
-
-function Player:on_collide_with(actor, collision)
+function Player:on_collide_with(actor, ...)
     if actor and actor.is_usable then
         -- FIXME this should really really be a ptr
         self.touching_mechanism = actor
     end
 
-    return Player.__super.on_collide_with(self, actor, collision)
+    return Player.__super.on_collide_with(self, actor, ...)
 end
 
 function Player:update(dt)
+    print()
+    print("*** player velocity", self.velocity)
     -- FIXME testing purposes only!!
     if not self.is_stone and love.keyboard.isDown('s') then
         self.is_stone = true
