@@ -69,6 +69,18 @@
         {
          "sprite name":"lexy: pooltoy\/stand"
         },
+     "65":
+        {
+         "sprite name":"lexy: pooltoy\/walk"
+        },
+     "73":
+        {
+         "sprite name":"lexy: pooltoy\/fall"
+        },
+     "75":
+        {
+         "sprite name":"lexy: pooltoy\/jump"
+        },
      "9":
         {
          "sprite name":"lexy\/fall"
@@ -141,6 +153,18 @@
          "sprite name":"string"
         },
      "64":
+        {
+         "sprite name":"string"
+        },
+     "65":
+        {
+         "sprite name":"string"
+        },
+     "73":
+        {
+         "sprite name":"string"
+        },
+     "75":
         {
          "sprite name":"string"
         },
@@ -759,6 +783,152 @@
         },
      "64":
         {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":52,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":24,
+                     "x":8,
+                     "y":8
+                    }, 
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":3,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":20,
+                     "y":60
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "65":
+        {
+         "animation":[
+                {
+                 "duration":100,
+                 "tileid":65
+                }, 
+                {
+                 "duration":100,
+                 "tileid":66
+                }, 
+                {
+                 "duration":100,
+                 "tileid":67
+                }, 
+                {
+                 "duration":100,
+                 "tileid":68
+                }, 
+                {
+                 "duration":100,
+                 "tileid":69
+                }, 
+                {
+                 "duration":100,
+                 "tileid":70
+                }, 
+                {
+                 "duration":100,
+                 "tileid":71
+                }, 
+                {
+                 "duration":100,
+                 "tileid":72
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":20,
+                     "y":60
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "73":
+        {
+         "animation":[
+                {
+                 "duration":150,
+                 "tileid":73
+                }, 
+                {
+                 "duration":200,
+                 "tileid":74
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":20,
+                     "y":60
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "75":
+        {
+         "animation":[
+                {
+                 "duration":50,
+                 "tileid":75
+                }, 
+                {
+                 "duration":1000,
+                 "tileid":76
+                }],
          "objectgroup":
             {
              "draworder":"index",
