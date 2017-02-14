@@ -691,7 +691,7 @@ function SentientActor:update(dt)
             self.velocity = self.velocity - dx * xdir
         end
         self.facing_left = true
-    else
+    elseif not self.too_steep then
         -- Not walking means we're trying to stop, albeit leisurely
         local dx = math.min(math.abs(self.velocity * xdir), self.xaccel * self.deceleration * dt)
         local dv = dx * xdir
