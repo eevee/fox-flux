@@ -631,7 +631,7 @@ local SentientActor = MobileActor:extend{
     jumpcap = 0.25,
     -- Multiplier for xaccel while airborne.  MUST be greater than the ratio of
     -- friction to xaccel, or the player won't be able to move while floating!
-    aircontrol = 0.75,
+    aircontrol = 0.5,
     -- Maximum slope that can be walked up or jumped off of
     max_slope = Vector(1, -1),
     max_slope_slowdown = 0.7,
@@ -725,7 +725,7 @@ function SentientActor:update(dt)
         self.facing_left = true
     elseif not self.too_steep then
         -- Not walking means we're trying to stop, albeit leisurely
-        local dx = math.min(math.abs(self.velocity * xdir), self.xaccel * self.deceleration * dt)
+        local dx = math.min(math.abs(self.velocity * xdir), self.xaccel * self.deceleration * xmult * dt)
         local dv = dx * xdir
         if dv * self.velocity < 0 then
             self.velocity = self.velocity + dv
@@ -740,16 +740,20 @@ function SentientActor:update(dt)
     -- velocity to a threshold
     if self.decision_jump_mode == 2 then
         self.decision_jump_mode = 1
-        if self.on_ground and not self.too_steep then
+        if self.on_ground then
             -- TODO maybe jump away from the ground, not always up?  then could
             -- allow jumping off of steep slopes
-            if self.velocity.y > -self.jumpvel then
+            local jumped
+            if self.too_steep then
+                self.velocity = self.jumpvel * self.ground_normal
+                jumped = true
+            elseif self.velocity.y > -self.jumpvel then
                 self.velocity.y = -self.jumpvel
-                self.on_ground = false
+                jumped = true
+            end
 
-                if self.jump_sound then
-                    game.resource_manager:get(self.jump_sound):clone():play()
-                end
+            if jumped and self.jump_sound then
+                game.resource_manager:get(self.jump_sound):clone():play()
             end
         end
     elseif self.decision_jump_mode == 0 then
