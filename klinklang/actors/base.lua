@@ -430,8 +430,12 @@ function MobileActor:update(dt)
     -- forth between pixels.  i would really like to get rid of the "slope
     -- cancelling" force somehow, i think it's fucking me up
     local goalpos = self.pos + self.velocity * dt
-    goalpos.x = math.floor(goalpos.x * 8 + 0.5) / 8
-    goalpos.y = math.floor(goalpos.y * 8 + 0.5) / 8
+    if self.velocity.x ~= 0 then
+        goalpos.x = math.floor(goalpos.x * 8 + 0.5) / 8
+    end
+    if self.velocity.y ~= 0 then
+        goalpos.y = math.floor(goalpos.y * 8 + 0.5) / 8
+    end
     local movement = goalpos - self.pos
 
     -- Collision time!
