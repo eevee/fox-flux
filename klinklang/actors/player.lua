@@ -72,8 +72,6 @@ function Player:on_collide_with(actor, ...)
 end
 
 function Player:update(dt)
-    print()
-    print("*** player velocity", self.velocity)
     -- FIXME testing purposes only!!
     if not self.is_stone and love.keyboard.isDown('s') then
         self.is_stone = true

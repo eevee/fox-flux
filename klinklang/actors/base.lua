@@ -273,12 +273,6 @@ function MobileActor:on_collide_with(actor, collision)
     return false
 end
 
--- This is just split out so the SentientActor can add in its ground sticking.
--- TODO this feels kind of ugly, though
-function MobileActor:do_nudge(movement, pass_callback)
-    return worldscene.collider:slide(self.shape, movement, pass_callback)
-end
-
 -- Move some distance, respecting collision.
 -- No other physics like gravity or friction happen here; only the actual movement.
 -- FIXME a couple remaining bugs:
@@ -287,7 +281,7 @@ end
 -- - i had to disable ground sticking
 -- - player briefly falls when standing on a crate moving downwards -- one frame?
 -- - what's the difference between carry and push, if a carrier can push?
-function MobileActor:nudge(movement, pushers)
+function MobileActor:nudge(movement, pushers, xxx_no_slide)
     pushers = pushers or {}
     pushers[self] = true
 
@@ -369,7 +363,7 @@ function MobileActor:nudge(movement, pushers)
         end
     end
 
-    local movement, hits, last_clock = self:do_nudge(movement, pass_callback)
+    local movement, hits, last_clock = worldscene.collider:slide(self.shape, movement, pass_callback, xxx_no_slide)
 
     self.pos = self.pos + movement
     --print("FINAL POSITION:", self.pos)
@@ -391,36 +385,9 @@ function MobileActor:nudge(movement, pushers)
     return movement, hits, last_clock
 end
 
-function MobileActor:update(dt)
-    MobileActor.__super.update(self, dt)
-
-    -- Fudge the movement to try ending up aligned to the pixel grid.
-    -- This helps compensate for the physics engine's love of gross float
-    -- coordinates, and should allow the player to position themselves
-    -- pixel-perfectly when standing on pixel-perfect (i.e. flat) ground.
-    -- FIXME i had to make this round to the nearest eighth because i found a
-    -- place where standing on a gentle slope would make you vibrate back and
-    -- forth between pixels.  i would really like to get rid of the "slope
-    -- cancelling" force somehow, i think it's fucking me up
-    local goalpos = self.pos + self.velocity * dt
-    if self.velocity.x ~= 0 then
-        goalpos.x = math.floor(goalpos.x * 8 + 0.5) / 8
-    end
-    if self.velocity.y ~= 0 then
-        goalpos.y = math.floor(goalpos.y * 8 + 0.5) / 8
-    end
-    local movement = goalpos - self.pos
-
-    -- Collision time!
-    --print()
-    --print()
-    --print()
-    --print("Collision time!  position", self.pos, "velocity", self.velocity, "movement", movement)
-    local attempted = movement
-
-    local movement, hits, last_clock = self:nudge(movement)
-    --print("# got clock", last_clock)
-
+-- Given a list of hits from the collider, check whether we're standing on the
+-- ground.  Broken out so SentientActor can use it for shenanigans.
+function MobileActor:check_for_ground(hits)
     -- Ground test: did we collide with something facing upwards?
     -- Find the normal that faces /most/ upwards, i.e. most away from gravity
     local mindot = 0  -- 0 is vertical, which we don't want
@@ -459,6 +426,40 @@ function MobileActor:update(dt)
             self.ptrs.cargo_of = ground_actor
         end
     end
+
+end
+
+function MobileActor:update(dt)
+    MobileActor.__super.update(self, dt)
+
+    -- Fudge the movement to try ending up aligned to the pixel grid.
+    -- This helps compensate for the physics engine's love of gross float
+    -- coordinates, and should allow the player to position themselves
+    -- pixel-perfectly when standing on pixel-perfect (i.e. flat) ground.
+    -- FIXME i had to make this round to the nearest eighth because i found a
+    -- place where standing on a gentle slope would make you vibrate back and
+    -- forth between pixels.  i would really like to get rid of the "slope
+    -- cancelling" force somehow, i think it's fucking me up
+    local goalpos = self.pos + self.velocity * dt
+    if self.velocity.x ~= 0 then
+        goalpos.x = math.floor(goalpos.x * 8 + 0.5) / 8
+    end
+    if self.velocity.y ~= 0 then
+        goalpos.y = math.floor(goalpos.y * 8 + 0.5) / 8
+    end
+    local movement = goalpos - self.pos
+
+    -- Collision time!
+    --print()
+    --print()
+    --print()
+    --print("Collision time!  position", self.pos, "velocity", self.velocity, "movement", movement)
+    local attempted = movement
+
+    local movement, hits, last_clock = self:nudge(movement)
+    --print("# got clock", last_clock)
+
+    self:check_for_ground(hits)
 
     -- Trim velocity as necessary, based on the last surface we slid against
     -- TODO this is the only place we use last_clock!
@@ -601,51 +602,11 @@ function SentientActor:decide_abandon_jump()
     self.decision_jump_mode = 0
 end
 
-function SentientActor:__do_nudge(movement, pass_callback)
-    local movement, hits, last_clock = SentientActor.__super.do_nudge(self, movement, pass_callback)
-
-    -- Ground sticking
-    -- If we walk up off the top of a slope, our momentum will carry us into
-    -- the air, which looks very silly.  A conscious actor would step off the
-    -- ramp.  So if we're only a very short distance above the ground, we were
-    -- on the ground before moving, and we're not trying to jump, then stick us
-    -- to the floor.
-    if self.on_ground and self.decision_jump_mode == 0 then
-        -- FIXME how far should we try this?  128 is arbitrary, but works out
-        -- to 2 pixels at 60fps, which...  i don't know what that means
-        -- FIXME again, don't do this off the edges of the map...  depending on map behavior...  sigh
-        --print("/// doing drop")
-        -- FIXME i don't have access to dt here!  maybe this should be relative to how much overall movement i'm doing??
-        local dt = 1/60
-        local drop_movement, drop_hits, drop_clock = worldscene.collider:slide(self.shape, Vector(0, 128) * dt, pass_callback, self)
-        --print("\\\\\\ end drop")
-        local any_hit = false
-        for shape, collision in pairs(drop_hits) do
-            hits[shape] = collision
-            if collision.touchtype > 0 then
-                any_hit = true
-            end
-        end
-        if any_hit then
-            -- If we hit something, then commit the movement and stick us to the ground
-            movement.y = movement.y + drop_movement.y
-            last_clock = drop_clock
-        else
-            -- Otherwise, we're in the air; ignore the drop
-            self.on_ground = false
-        end
-    end
-
-    return movement, hits, last_clock
-end
-
-
 function SentientActor:update(dt)
     if self.is_dead or self.is_locked then
         -- Ignore conscious decisions; just apply physics
         -- FIXME i think "locked" only makes sense for the player?
-        SentientActor.__super.update(self, dt)
-        return
+        return SentientActor.__super.update(self, dt)
     end
 
     local xmult
@@ -653,6 +614,9 @@ function SentientActor:update(dt)
     local xdir = Vector(1, 0)
     if self.on_ground then
         local uphill = self.decision_walk * self.ground_normal.x < 0
+        -- This looks a bit more convoluted than just moving the player right
+        -- and letting sliding take care of it, but it means that walking
+        -- /down/ a slope will actually walk us along it
         xdir = self.ground_normal:perpendicular()
         xmult = self.ground_friction
         if uphill then
@@ -727,7 +691,39 @@ function SentientActor:update(dt)
     end
 
     -- Apply physics
+    local was_on_ground = self.on_ground
     local movement, hits, last_clock = SentientActor.__super.update(self, dt)
+
+    -- Ground sticking
+    -- If we walk up off the top of a slope, our momentum will carry us into
+    -- the air, which looks very silly.  A conscious actor would step off the
+    -- ramp.  So if we're only a very short distance above the ground, we were
+    -- on the ground before moving, and we're not trying to jump, then stick us
+    -- to the floor.
+    -- Note that we commit to the short drop even if we don't actually hit the
+    -- ground!  Since a nudge can cause both pushes and callbacks, there's no
+    -- easy way to do a hypothetical slide without just doing it twice.  This
+    -- should be fine, though, since it ought to only happen for a single
+    -- frame, and is only a short distance.
+    -- TODO this doesn't do velocity sliding afterwards, though that's not such
+    -- a big deal since it'll happen the next frame
+    -- TODO i suspect this could be avoided with the same (not yet written)
+    -- logic that would keep critters from walking off of ledges?  or if
+    -- the loop were taken out of collider.slide and put in here, so i could
+    -- just explicitly slide in a custom direction
+    if was_on_ground and not self.on_ground and self.decision_jump_mode == 0 then
+        -- If we run uphill along our steepest uphill slope and it immediately
+        -- becomes our steepest downhill slope, we'll need to drop the
+        -- x-coordinate of the normal, twice
+        -- FIXME take max_speed into account here too so you can still be
+        -- launched -- though i think that will look mighty funny since the
+        -- drop will still happen
+        local drop = Vector(0, movement:len() * math.abs(self.max_slope.x) * 2)
+        local drop_movement
+        drop_movement, hits, last_clock = self:nudge(drop, nil, true)
+        movement = movement + drop_movement
+        self:check_for_ground(hits)
+    end
 
     -- Handle our own passive physics
     if self.on_ground then
