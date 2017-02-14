@@ -255,6 +255,7 @@ function Polygon:slide_towards(other, movement)
     -- Mapping of normal vectors (i.e. projection axes) to their normalized
     -- versions (needed for comparing the results of the projection)
     local movenormal = movement:perpendicular()
+    movenormal._is_move_normal = true
     local axes = {}
     if movenormal ~= Vector.zero then
         axes[movenormal] = movenormal:normalized()
@@ -320,7 +321,7 @@ function Polygon:slide_towards(other, movement)
 
             -- Track possible normals for later (but not for the movement
             -- vector, since that's not normal to either shape)
-            if fullaxis ~= movenormal then
+            if not fullaxis._is_move_normal then
                 possible_hits[fullaxis] = { dot = dot, dist = dist, axis = axis }
             end
         end
