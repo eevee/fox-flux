@@ -12,7 +12,7 @@ local whammo = require 'klinklang.whammo'
 
 local tiledmap = require 'klinklang.tiledmap'
 
-local CAMERA_MARGIN = 0.4
+local CAMERA_MARGIN = 0.33
 -- Sets the maximum length of an actor update.
 -- 50~60 fps should only do one update, of course; 30fps should do two.
 local MIN_FRAMERATE = 45
@@ -678,6 +678,7 @@ function WorldScene:load_map(map)
     end
 
     self.camera = self.player.pos:clone()
+    self.camera.y = self.camera.y - self.map.height
 
     self:update_camera()
 end
