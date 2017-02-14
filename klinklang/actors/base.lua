@@ -287,13 +287,15 @@ end
 -- Move some distance, respecting collision.
 -- No other physics like gravity or friction happen here; only the actual movement.
 -- FIXME a couple remaining bugs:
--- - possible infinite recursion?
 -- - delete a bunch of prints and add some more comments
 -- - i need to have a serious think about what can push/carry what!
 -- - i had to disable ground sticking
 -- - player briefly falls when standing on a crate moving downwards -- one frame?
 -- - what's the difference between carry and push, if a carrier can push?
-function MobileActor:nudge(movement, pusher)
+function MobileActor:nudge(movement, pushers)
+    pushers = pushers or {}
+    pushers[self] = true
+
     -- Set up the hit callback, which also tells other actors that we hit them
     local already_hit = {}
     local pass_callback = function(collision)
@@ -321,7 +323,7 @@ function MobileActor:nudge(movement, pusher)
         local passable = self:on_collide_with(actor, collision)
 
         -- Pushing
-        if actor and actor ~= pusher and collision.touchtype >= 0 and not passable and (
+        if actor and not pushers[actor] and collision.touchtype >= 0 and not passable and (
             (actor.is_pushable and self.can_push) or
             -- FIXME and pushed upwards?
             (actor.is_portable and self.can_carry and not self.cargo[actor]))
@@ -356,7 +358,7 @@ function MobileActor:nudge(movement, pusher)
                 -- TODO the mass thing is pretty cute, but it doesn't chain --
                 -- the player moves the same speed pushing one crate as pushing
                 -- five of them
-                local actual = actor:nudge(nudge * math.min(1, self.mass / actor.mass), self)
+                local actual = actor:nudge(nudge * math.min(1, self.mass / actor.mass), pushers)
                 print(("- actual movement: %s of %s"):format(actual, nudge * math.min(1, self.mass / actor.mass)))
                 if _is_vector_almost_zero(actual) then
                     already_hit[actor] = 'blocked'
@@ -393,26 +395,19 @@ function MobileActor:nudge(movement, pusher)
     -- FIXME this means our momentum isn't part of theirs.  is that bad?
     if self.can_carry and self.cargo and not _is_vector_almost_zero(movement) then
         for actor in pairs(self.cargo) do
-            -- If we're no longer touching them, disconnect them
-            -- FIXME this feels like a really heavy-handed way to check if
-            -- we're still touching, but if we've moving /away/ from them (say,
-            -- downwards) then that won't register as a hit, oops!  maybe i should rely 100% on the ground carrying thing, even if it seems invasive?
-            if actor == pusher then
+            if pushers[actor] then
                 -- Don't try to carry the actor that caused this movement!
-                -- FIXME i imagine there are more elaborate ways to cause an
-                -- infinite loop here, ugh.  "pusher" might need to be a set of
-                -- everyone involved in this round of pushing?
             elseif already_hit[actor] == 'nudged' then
                 -- Skip any we already pushed
                 -- FIXME unsure if that's correct
             else
-                -- FIXME THIS CAN INFINITE LOOP FAIRLY EASILY.
                 print(("%s: carrying cargo %s by %s"):format(self, actor, movement))
-                actor:nudge(movement, self)
+                actor:nudge(movement, pushers)
             end
         end
     end
 
+    pushers[self] = nil
     return movement, hits, last_clock
 end
 
