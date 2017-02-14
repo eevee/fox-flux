@@ -397,10 +397,7 @@ function MobileActor:nudge(movement, pusher)
             -- FIXME this feels like a really heavy-handed way to check if
             -- we're still touching, but if we've moving /away/ from them (say,
             -- downwards) then that won't register as a hit, oops!  maybe i should rely 100% on the ground carrying thing, even if it seems invasive?
-            if --[[not actor.is_portable or not self.shape:slide_towards(actor.shape, Vector.zero) then
-                self.cargo[actor] = nil
-                print(("%s: dropping cargo %s because"):format(self, actor), actor.is_portable, actor.shape, hits[actor.shape])
-            elseif]] actor == pusher then
+            if actor == pusher then
                 -- Don't try to carry the actor that caused this movement!
                 -- FIXME i imagine there are more elaborate ways to cause an
                 -- infinite loop here, ugh.  "pusher" might need to be a set of
@@ -457,11 +454,6 @@ function MobileActor:update(dt)
     -- Find the normal that faces /most/ upwards, i.e. most away from gravity
     local mindot = 0  -- 0 is vertical, which we don't want
     local ground, ground_collision
-    -- FIXME this is actually wrong!  it doesn't have the same logic as the
-    -- clocks, resetting if we move in a second pass -- passable and touchtype
-    -- >= 0 /almost/ replicates the logic in collider, except that that uses >
-    -- 0, but we can't because the last thing we usually do is slide against
-    -- the ground
     for _, collision in pairs(hits) do
         if collision.touchtype >= 0 and not collision.passable and not collision.clock:includes(gravity) then
             for normal, normal1 in pairs(collision.normals) do
@@ -498,6 +490,7 @@ function MobileActor:update(dt)
     end
 
     -- Trim velocity as necessary, based on the last surface we slid against
+    -- TODO this is the only place we use last_clock!
     --print("velocity is", self.velocity, "and clock is", last_clock)
     if last_clock and self.velocity ~= Vector.zero then
         local axis = last_clock:closest_extreme(self.velocity)

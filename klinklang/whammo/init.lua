@@ -55,7 +55,7 @@ function Collider:slide(shape, attempted, pass_callback, xxx_no_slide)
     --print()
     --print(("=== SLIDE: %s ==="):format(attempted))
     local successful = Vector(0, 0)
-    local hits = {}  -- set of objects we ultimately bump into
+    local hits  -- set of objects we ultimately bump into
     local lastclock = util.ClockRange(util.ClockRange.ZERO, util.ClockRange.ZERO)
     local stuckcounter = 0
 
@@ -63,6 +63,7 @@ function Collider:slide(shape, attempted, pass_callback, xxx_no_slide)
     -- and looping up to the caller?
     while true do
         --print("--- STARTING ROUND; ATTEMPTING TO MOVE", attempted)
+        hits = {}
         local collisions = {}
         local neighbors = self.blockmap:neighbors(shape, attempted:unpack())
         for neighbor in pairs(neighbors) do
@@ -70,7 +71,6 @@ function Collider:slide(shape, attempted, pass_callback, xxx_no_slide)
             if collision then
                 --print(("< got move %f = %s, touchtype %d, clock %s"):format(collision.amount, collision.movement, collision.touchtype, collision.clock))
                 collision.shape = neighbor
-                collision.attempted = attempted
                 table.insert(collisions, collision)
             end
         end
@@ -83,6 +83,8 @@ function Collider:slide(shape, attempted, pass_callback, xxx_no_slide)
         local combined_clock = util.ClockRange(util.ClockRange.ZERO, util.ClockRange.ZERO)
         local combined_clock2 = util.ClockRange(util.ClockRange.ZERO, util.ClockRange.ZERO)
         for i, collision in ipairs(collisions) do
+            collision.attempted = attempted
+
             --print("checking collision...", collision.movement, collision.amount, "at", collision.shape:bbox())
             -- If we've already found something that blocks us, and this
             -- collision requires moving further, then stop here.  This allows
@@ -97,11 +99,13 @@ function Collider:slide(shape, attempted, pass_callback, xxx_no_slide)
             if passable == 'retry' then
                 -- Special case: the other object just moved, so keep moving
                 -- and re-evaluate when we hit it again.  Useful for pushing.
-                if hits[collision.shape] == nil then
+                if i > 1 and collisions[i - 1].shape == collision.shape then
+                    -- To avoid loops, don't retry a shape twice in a row
+                    passable = false
+                else
                     local new_collision = shape:slide_towards(collision.shape, attempted)
                     if new_collision then
                         new_collision.shape = collision.shape
-                        new_collision.attempted = attempted
                         for j = i + 1, #collisions + 1 do
                             if j > #collisions or not _collision_sort(collisions[j], new_collision) then
                                 table.insert(collisions, j, new_collision)
@@ -109,12 +113,6 @@ function Collider:slide(shape, attempted, pass_callback, xxx_no_slide)
                             end
                         end
                     end
-                else
-                    -- We're only willing to try once!  If we're asked to try a
-                    -- second time, assume the object is stuck, and we in turn
-                    -- are stuck on it.
-                    print("!!! OH NO !!! GOT RETRY TWICE")
-                    passable = false
                 end
             -- Extra special case: we're blocked, but we still want to be able
             -- to /try/ to move in this direction, so we still do a slide but
