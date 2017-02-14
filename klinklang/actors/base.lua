@@ -62,9 +62,7 @@ end
 
 -- Called every frame that another actor is touching this one
 -- TODO that seems excessive?
--- FIXME that's not true, anyway; this fires on a slide, but NOT if you just
--- sit next to it.  maybe this just shouldn't fire for slides?
-function BareActor:on_collide(actor, direction)
+function BareActor:on_collide(actor, movement, collision)
 end
 
 -- Called when this actor is used (only possible if is_usable is true)
@@ -240,9 +238,6 @@ function MobileActor:blocks(actor, d)
     return true
 end
 
-function MobileActor:on_collide(actor, movement, collision)
-end
-
 -- Lower-level function passed to the collider to determine whether another
 -- object blocks us
 -- FIXME now that they're next to each other, these two methods look positively silly!  and have a bit of a symmetry problem: the other object can override via the simple blocks(), but we have this weird thing
@@ -325,49 +320,43 @@ function MobileActor:nudge(movement, pushers)
         -- Pushing
         if actor and not pushers[actor] and collision.touchtype >= 0 and not passable and (
             (actor.is_pushable and self.can_push) or
-            -- FIXME and pushed upwards?
+            -- This allows a carrier to pick up something by rising into it
+            -- FIXME check that it's pushed upwards?
+            -- FIXME this is such a weird fucking case though
             (actor.is_portable and self.can_carry and not self.cargo[actor]))
         then
             local nudge = collision.attempted - collision.movement
-            -- Only push in the direction the collision occurred!  This is a
-            -- bit tricky since there might be one /or two/; if two, we want to
-            -- average them
-            local axis
+            -- Only push in the direction the collision occurred!  If several
+            -- directions, well, just average them
+            local axis = Vector()
+            local normalct = 0
             for normal in pairs(collision.normals) do
-                if axis then
-                    axis = (axis + normal) / 2
-                else
-                    axis = normal
-                end
+                normalct = normalct + 1
+                axis = axis + normal
             end
-            if axis then
-                nudge = nudge:projectOn(axis)
+            if normalct > 0 then
+                nudge = nudge:projectOn(axis / normalct)
             else
                 nudge = Vector.zero
             end
-            print(("%s: nudging obstacle %s by %s"):format(self, actor, nudge))
             if already_hit[actor] == 'nudged' or _is_vector_almost_zero(nudge) then
                 -- If we've already pushed this object once, OR if we're not
                 -- actually trying to push it at all, return a special value
                 -- that means to trim our movement but pretend we're not
                 -- blocked in that direction, so the caller doesn't cut our
                 -- velocity
-                print("- trim")
                 passable = 'trim'
             else
                 -- TODO the mass thing is pretty cute, but it doesn't chain --
                 -- the player moves the same speed pushing one crate as pushing
                 -- five of them
                 local actual = actor:nudge(nudge * math.min(1, self.mass / actor.mass), pushers)
-                print(("- actual movement: %s of %s"):format(actual, nudge * math.min(1, self.mass / actor.mass)))
                 if _is_vector_almost_zero(actual) then
-                    already_hit[actor] = 'blocked'
                     -- Cargo is blocked, so we can't move either
-                    print("- so counting as blocking and stopping here")
+                    already_hit[actor] = 'blocked'
                     passable = false
                 else
                     already_hit[actor] = 'nudged'
-                    print("- so retrying")
                     passable = 'retry'
                 end
             end
@@ -376,9 +365,6 @@ function MobileActor:nudge(movement, pushers)
         if not self.is_blockable and not passable then
             return true
         else
-            if not passable then
-                print(("%s: blocked by %s"):format(self, actor))
-            end
             return passable
         end
     end
@@ -395,13 +381,7 @@ function MobileActor:nudge(movement, pushers)
     -- FIXME this means our momentum isn't part of theirs.  is that bad?
     if self.can_carry and self.cargo and not _is_vector_almost_zero(movement) then
         for actor in pairs(self.cargo) do
-            if pushers[actor] then
-                -- Don't try to carry the actor that caused this movement!
-            elseif already_hit[actor] == 'nudged' then
-                -- Skip any we already pushed
-                -- FIXME unsure if that's correct
-            else
-                print(("%s: carrying cargo %s by %s"):format(self, actor, movement))
+            if not pushers[actor] and already_hit[actor] ~= 'nudged' then
                 actor:nudge(movement, pushers)
             end
         end
@@ -412,19 +392,12 @@ function MobileActor:nudge(movement, pushers)
 end
 
 function MobileActor:update(dt)
-    --print()
-    print("# update for", self, "carried by", self.ptrs.cargo_of)
     MobileActor.__super.update(self, dt)
 
     -- Fudge the movement to try ending up aligned to the pixel grid.
     -- This helps compensate for the physics engine's love of gross float
     -- coordinates, and should allow the player to position themselves
     -- pixel-perfectly when standing on pixel-perfect (i.e. flat) ground.
-    -- FIXME this causes us to not actually /collide/ with the ground most of
-    -- the time, because initial gravity only pulls us down a little bit and
-    -- then gets rounded to zero, but i guess my recent fixes to ground
-    -- detection work pretty well because it doesn't seem to have any ill
-    -- effects!  it makes me a little wary though so i should examine later
     -- FIXME i had to make this round to the nearest eighth because i found a
     -- place where standing on a gentle slope would make you vibrate back and
     -- forth between pixels.  i would really like to get rid of the "slope
@@ -444,7 +417,6 @@ function MobileActor:update(dt)
     --print()
     --print("Collision time!  position", self.pos, "velocity", self.velocity, "movement", movement)
     local attempted = movement
-    print("# trying to move by", movement)
 
     local movement, hits, last_clock = self:nudge(movement)
     --print("# got clock", last_clock)

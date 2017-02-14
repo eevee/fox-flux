@@ -133,9 +133,7 @@ function Collider:slide(shape, attempted, pass_callback, xxx_no_slide)
                 -- If we're hitting the object and it's not passable, stop here
                 if allowed_amount == nil and collision.touchtype > 0 then
                     allowed_amount = collision.amount
-                    print("< found first collision:", collision.movement, "amount:", collision.amount, self:get_owner(collision.shape))
-                    for k, v in pairs(collision) do print(k, v) end
-                    for normal in pairs(collision.normals) do print("normal:", normal) end
+                    --print("< found first collision:", collision.movement, "amount:", collision.amount, self:get_owner(collision.shape))
                 end
             end
 
@@ -148,8 +146,6 @@ function Collider:slide(shape, attempted, pass_callback, xxx_no_slide)
         -- Automatically break if we don't move for three iterations -- not
         -- moving once is okay because we might slide, but three indicates a
         -- bad loop somewhere
-        -- TODO would be nice to avoid this entirely!  it happens, e.g., at the
-        -- bottom of the slopetest ramp: position       (606.5,638.5)   velocity        (61.736288265774419415,121.03382860727833759)   movement        (1.5,2.5)
         if allowed_amount == 0 then
             stuckcounter = stuckcounter + 1
             if stuckcounter >= 3 then
