@@ -182,6 +182,13 @@ function Player:on_collide(actor, direction)
     end
 end
 
+function Player:toast()
+    if self.sprite_name == 'lexy: slime' then
+        self:set_sprite('lexy: rubber')
+        self.dialogue_sprite_name = 'lexy portrait: rubber'
+    end
+end
+
 function Player:damage(source, amount)
     -- Apply a force that shoves the player away from the source
     -- FIXME this should maybe be using the direction vector passed to

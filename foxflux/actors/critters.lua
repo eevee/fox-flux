@@ -81,6 +81,48 @@ function Slime:update(dt)
 end
 
 
+-- Inflicts a little fire damage to the player's toes
+local Campfire = actors_base.Actor:extend{
+    name = 'campfire',
+    sprite_name = 'campfire',
+    z = 2000,
+}
+
+function Campfire:on_enter()
+    self:schedule_particle()
+end
+
+function Campfire:on_leave()
+    if self.particle_event then
+        self.particle_event:stop()
+        self.particle_event = nil
+    end
+end
+
+function Campfire:schedule_particle()
+    self.particle_event = worldscene.tick:delay(function()
+        local pos = Vector(
+            self.pos.x + love.math.random(-8, 8),
+            self.pos.y + love.math.random(-8, 0))
+        local color
+        if love.math.random() < 0.5 then
+            color = {255, 187, 49}
+        else
+            color = {246, 143, 55}
+        end
+        worldscene:add_actor(actors_misc.Particle(
+            pos, Vector(0, love.math.random(-160, -64)), Vector.zero, color, love.math.random(1, 3)))
+        self:schedule_particle()
+    end, love.math.random(0.125, 0.75))
+end
+
+function Campfire:on_collide(actor)
+    if actor.is_player then
+        actor:toast()
+    end
+end
+
+
 -- Fluffy rainbow bat that feeds on color, and takes a bit too much from you
 local Draclear = actors_base.MobileActor:extend{
     name = 'draclear',

@@ -9,7 +9,7 @@ local whammo_shapes = require 'klinklang.whammo.shapes'
 local StrawberryHeart = actors_base.Actor:extend{
     name = 'strawberry heart',
     sprite_name = 'strawberry heart',
-    z = 1000,
+    z = 9999,
 
     is_collected = false,
 }
@@ -18,7 +18,7 @@ function StrawberryHeart:on_collide(actor)
     if self.is_collected then
         return
     end
-    if actor.is_player then
+    if actor.is_player and actor.sprite_name == 'lexy: rubber' then
         game.resource_manager:get('assets/sounds/get-heart.ogg'):clone():play()
         self.is_collected = true
         actor.inventory.strawberry_hearts = (actor.inventory.strawberry_hearts or 0) + 1
@@ -29,16 +29,27 @@ function StrawberryHeart:on_collide(actor)
 end
 
 
-local BossDoor = actors_base.Actor:extend{
-    name = 'boss door',
-    sprite_name = 'boss door',
+local SlimeHeart = actors_base.Actor:extend{
+    name = 'slime heart',
+    sprite_name = 'slime heart',
+    z = 9999,
+
+    is_collected = false,
 }
 
-
-local LevelDoor = actors_base.Actor:extend{
-    name = 'level door',
-    sprite_name = 'level door',
-}
+function SlimeHeart:on_collide(actor)
+    if self.is_collected then
+        return
+    end
+    if actor.is_player and actor.sprite_name == 'lexy: slime' then
+        game.resource_manager:get('assets/sounds/get-heart-slime.ogg'):clone():play()
+        self.is_collected = true
+        actor.inventory.strawberry_hearts = (actor.inventory.strawberry_hearts or 0) + 1
+        self.sprite:set_pose('collect', function()
+            worldscene:remove_actor(self)
+        end)
+    end
+end
 
 
 local BlastDoor = actors_generic.GenericSlidingDoor:extend{
