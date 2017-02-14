@@ -49,167 +49,74 @@ local function _collision_sort(a, b)
     return a.touchdist < b.touchdist
 end
 
--- FIXME if you're exactly in a corner and try to move diagonally, the
--- resulting clock will only block one direction, sigh
-function Collider:slide(shape, attempted, pass_callback, xxx_no_slide)
-    --print()
-    --print(("=== SLIDE: %s ==="):format(attempted))
-    local successful = Vector(0, 0)
-    local hits  -- set of objects we ultimately bump into
-    local lastclock = util.ClockRange(util.ClockRange.ZERO, util.ClockRange.ZERO)
-    local stuckcounter = 0
-
-    -- TODO i wonder if this should just do a single move and leave the sliding
-    -- and looping up to the caller?
-    while true do
-        --print("--- STARTING ROUND; ATTEMPTING TO MOVE", attempted)
-        hits = {}
-        local collisions = {}
-        local neighbors = self.blockmap:neighbors(shape, attempted:unpack())
-        for neighbor in pairs(neighbors) do
-            local collision = shape:slide_towards(neighbor, attempted)
-            if collision then
-                --print(("< got move %f = %s, touchtype %d, clock %s"):format(collision.amount, collision.movement, collision.touchtype, collision.clock))
-                collision.shape = neighbor
-                table.insert(collisions, collision)
-            end
-        end
-
-        -- Look through the objects we'll hit, in the order we'll /touch/ them,
-        -- and stop at the first that blocks us
-        table.sort(collisions, _collision_sort)
-        local allowed_amount
-        -- Intersection of all the "clocks" (sets of allowable slide angles) we find
-        local combined_clock = util.ClockRange(util.ClockRange.ZERO, util.ClockRange.ZERO)
-        local combined_clock2 = util.ClockRange(util.ClockRange.ZERO, util.ClockRange.ZERO)
-        for i, collision in ipairs(collisions) do
-            collision.attempted = attempted
-
-            --print("checking collision...", collision.movement, collision.amount, "at", collision.shape:bbox())
-            -- If we've already found something that blocks us, and this
-            -- collision requires moving further, then stop here.  This allows
-            -- for ties
-            if allowed_amount ~= nil and allowed_amount < collision.amount then
-                break
-            end
-
-            -- Check if the other shape actually blocks us
-            local passable = pass_callback and pass_callback(collision)
-            local update_lastclock = true
-            if passable == 'retry' then
-                -- Special case: the other object just moved, so keep moving
-                -- and re-evaluate when we hit it again.  Useful for pushing.
-                if i > 1 and collisions[i - 1].shape == collision.shape then
-                    -- To avoid loops, don't retry a shape twice in a row
-                    passable = false
-                else
-                    local new_collision = shape:slide_towards(collision.shape, attempted)
-                    if new_collision then
-                        new_collision.shape = collision.shape
-                        for j = i + 1, #collisions + 1 do
-                            if j > #collisions or not _collision_sort(collisions[j], new_collision) then
-                                table.insert(collisions, j, new_collision)
-                                break
-                            end
-                        end
-                    end
-                end
-            -- Extra special case: we're blocked, but we still want to be able
-            -- to /try/ to move in this direction, so we still do a slide but
-            -- don't tell the caller about it.  Used /after/ pushing a heavy
-            -- object, so the pusher's velocity isn't cut.
-            elseif passable == 'trim' then
-                passable = false
-                update_lastclock = false
-            end
-
-            if not passable then
-                -- We're blocked, so restrict our slide angle
-                combined_clock:intersect(collision.clock)
-                if update_lastclock then
-                    combined_clock2:intersect(collision.clock)
-                end
-
-                -- If we're hitting the object and it's not passable, stop here
-                if allowed_amount == nil and collision.touchtype > 0 then
-                    allowed_amount = collision.amount
-                    --print("< found first collision:", collision.movement, "amount:", collision.amount, self:get_owner(collision.shape))
-                end
-            end
-
-            -- Log the last contact with each shape
-            collision.passable = passable
-            -- FIXME this ends up returning normals that may no longer apply...
-            hits[collision.shape] = collision
-        end
-
-        -- Automatically break if we don't move for three iterations -- not
-        -- moving once is okay because we might slide, but three indicates a
-        -- bad loop somewhere
-        if allowed_amount == 0 then
-            stuckcounter = stuckcounter + 1
-            if stuckcounter >= 3 then
-                print("!!!  BREAKING OUT OF LOOP BECAUSE WE'RE STUCK, OOPS")
-                break
-            end
-        else
-            stuckcounter = 0
-        end
-
-        -- Track the last clock, so we can tell the caller which directions
-        -- they're still blocked in after moving
-        lastclock = combined_clock2
-
-        -- FIXME this seems like a poor way to get at this logic from outside
-        if xxx_no_slide then
-            if allowed_amount ~= nil then
-                return allowed_amount * attempted, hits, lastclock
-            else
-                return attempted, hits, lastclock
-            end
-        end
-
-        if allowed_amount == nil or allowed_amount >= 1 then
-            -- We don't hit anything this time!  Apply the remaining unopposed
-            -- movement and stop looping
-            --print("moving by leftovers", attempted)
-            shape:move(attempted:unpack())
-            successful = successful + attempted
-            break
-        end
-
-        -- Perform the actual move; we have to move ourselves so we can correctly handle the next iteration
-        local allowed_movement = allowed_amount * attempted
-        --print("moving by", allowed_movement)
-        shape:move(allowed_movement:unpack())
-        successful = successful + allowed_movement
-
-        -- Slide along the extreme that's closest to the direction of movement
-        local slide = combined_clock:closest_extreme(attempted)
-        if not slide then
-            break
-        end
-        local remaining = attempted - allowed_movement
-        if remaining * slide < 0 then
-            -- Can't slide anywhere near the direction of movement, so we
-            -- have to stop here
-            break
-        end
-        attempted = remaining:projectOn(slide)
-
-        -- FIXME these values are completely arbitrary and i cannot justify them
-        if math.abs(attempted.x) < 1/16 and math.abs(attempted.y) < 1/16 then
-            break
+function Collider:slide(shape, attempted, pass_callback)
+    local hits = {}
+    local collisions = {}
+    local neighbors = self.blockmap:neighbors(shape, attempted:unpack())
+    for neighbor in pairs(neighbors) do
+        local collision = shape:slide_towards(neighbor, attempted)
+        if collision then
+            --print(("< got move %f = %s, touchtype %d, clock %s"):format(collision.amount, collision.movement, collision.touchtype, collision.clock))
+            collision.shape = neighbor
+            table.insert(collisions, collision)
         end
     end
 
-    -- FIXME i would very much like to round movement to the nearest pixel, but
-    -- doing so requires finding a rounding direction that's not already
-    -- blocked, and at the moment i seem to have much better luck doing no
-    -- rounding whatsoever
+    -- Look through the objects we'll hit, in the order we'll /touch/ them,
+    -- and stop at the first that blocks us
+    table.sort(collisions, _collision_sort)
+    local allowed_amount
+    for i, collision in ipairs(collisions) do
+        collision.attempted = attempted
 
-    --print("TOTAL MOVEMENT:", successful)
-    return successful, hits, lastclock
+        --print("checking collision...", collision.movement, collision.amount, "at", collision.shape:bbox())
+        -- If we've already found something that blocks us, and this
+        -- collision requires moving further, then stop here.  This allows
+        -- for ties
+        if allowed_amount ~= nil and allowed_amount < collision.amount then
+            break
+        end
+
+        -- Check if the other shape actually blocks us
+        local passable = pass_callback and pass_callback(collision)
+        if passable == 'retry' then
+            -- Special case: the other object just moved, so keep moving
+            -- and re-evaluate when we hit it again.  Useful for pushing.
+            if i > 1 and collisions[i - 1].shape == collision.shape then
+                -- To avoid loops, don't retry a shape twice in a row
+                passable = false
+            else
+                local new_collision = shape:slide_towards(collision.shape, attempted)
+                if new_collision then
+                    new_collision.shape = collision.shape
+                    for j = i + 1, #collisions + 1 do
+                        if j > #collisions or not _collision_sort(collisions[j], new_collision) then
+                            table.insert(collisions, j, new_collision)
+                            break
+                        end
+                    end
+                end
+            end
+        end
+
+        -- If we're hitting the object and it's not passable, stop here
+        if allowed_amount == nil and not passable and collision.touchtype > 0 then
+            allowed_amount = collision.amount
+            --print("< found first collision:", collision.movement, "amount:", collision.amount, self:get_owner(collision.shape))
+        end
+
+        -- Log the last contact with each shape
+        collision.passable = passable
+        hits[collision.shape] = collision
+    end
+
+    if allowed_amount == nil or allowed_amount >= 1 then
+        -- We don't hit anything this time!  Apply the remaining unopposed
+        -- movement
+        return attempted, hits
+    else
+        return attempted * allowed_amount, hits
+    end
 end
 
 function Collider:fire_ray(start, direction, collision_check_func)

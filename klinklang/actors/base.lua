@@ -273,6 +273,84 @@ function MobileActor:on_collide_with(actor, collision)
     return false
 end
 
+
+function MobileActor:_collision_callback(collision, pushers, already_hit)
+    local actor = worldscene.collider:get_owner(collision.shape)
+    if type(actor) ~= 'table' or not Object.isa(actor, BareActor) then
+        actor = nil
+    end
+
+    -- Only announce a hit once per frame
+    local hit_this_actor = already_hit[actor]
+    if actor and not hit_this_actor then
+        -- FIXME movement is fairly misleading and i'm not sure i want to
+        -- provide it, at least not in this order
+        actor:on_collide(self, movement, collision)
+        already_hit[actor] = true
+    end
+
+    -- Debugging
+    if game.debug and game.debug_twiddles.show_collision then
+        game.debug_hits[collision.shape] = collision
+    end
+
+    -- FIXME again, i would love a better way to expose a normal here.
+    -- also maybe the direction of movement is useful?
+    local passable = self:on_collide_with(actor, collision)
+
+    -- Pushing
+    if actor and not pushers[actor] and collision.touchtype >= 0 and not passable and (
+        (actor.is_pushable and self.can_push) or
+        -- This allows a carrier to pick up something by rising into it
+        -- FIXME check that it's pushed upwards?
+        -- FIXME this is such a weird fucking case though
+        (actor.is_portable and self.can_carry and not self.cargo[actor]))
+    then
+        local nudge = collision.attempted - collision.movement
+        -- Only push in the direction the collision occurred!  If several
+        -- directions, well, just average them
+        local axis = Vector()
+        local normalct = 0
+        for normal in pairs(collision.normals) do
+            normalct = normalct + 1
+            axis = axis + normal
+        end
+        if normalct > 0 then
+            nudge = nudge:projectOn(axis / normalct)
+        else
+            nudge = Vector.zero
+        end
+        if already_hit[actor] == 'nudged' or _is_vector_almost_zero(nudge) then
+            -- If we've already pushed this object once, OR if we're not
+            -- actually trying to push it at all, return a special value
+            -- that means to trim our movement but pretend we're not
+            -- blocked in that direction, so the caller doesn't cut our
+            -- velocity
+            already_hit[actor] = 'nudged'
+            passable = false
+        else
+            -- TODO the mass thing is pretty cute, but it doesn't chain --
+            -- the player moves the same speed pushing one crate as pushing
+            -- five of them
+            local actual = actor:nudge(nudge * math.min(1, self.mass / actor.mass), pushers)
+            if _is_vector_almost_zero(actual) then
+                -- Cargo is blocked, so we can't move either
+                already_hit[actor] = 'blocked'
+                passable = false
+            else
+                already_hit[actor] = 'nudged'
+                passable = 'retry'
+            end
+        end
+    end
+
+    if not self.is_blockable and not passable then
+        return true
+    else
+        return passable
+    end
+end
+
 -- Move some distance, respecting collision.
 -- No other physics like gravity or friction happen here; only the actual movement.
 -- FIXME a couple remaining bugs:
@@ -288,101 +366,91 @@ function MobileActor:nudge(movement, pushers, xxx_no_slide)
     -- Set up the hit callback, which also tells other actors that we hit them
     local already_hit = {}
     local pass_callback = function(collision)
-        local actor = worldscene.collider:get_owner(collision.shape)
-        if type(actor) ~= 'table' or not Object.isa(actor, BareActor) then
-            actor = nil
+        return self:_collision_callback(collision, pushers, already_hit)
+    end
+
+    -- Main movement loop!  Try to slide in the direction of movement; if that
+    -- fails, then try to project our movement along a surface we hit and
+    -- continue, until we hit something head-on or run out of movement.
+    local total_movement = Vector.zero
+    local hits, last_clock
+    local stuck_counter = 0
+    while true do
+        local successful
+        successful, hits = worldscene.collider:slide(self.shape, movement, pass_callback)
+        self.shape:move(successful:unpack())
+        self.pos = self.pos + successful
+        total_movement = total_movement + successful
+
+        if xxx_no_slide then
+            break
+        end
+        local remaining = movement - successful
+        -- FIXME these values are completely arbitrary and i cannot justify them
+        if math.abs(remaining.x) < 1/16 and math.abs(remaining.y) < 1/16 then
+            break
         end
 
-        -- Only announce a hit once per frame
-        local hit_this_actor = already_hit[actor]
-        if actor and not hit_this_actor then
-            -- FIXME movement is fairly misleading and i'm not sure i want to
-            -- provide it, at least not in this order
-            actor:on_collide(self, movement, collision)
-            already_hit[actor] = true
-        end
-
-        -- Debugging
-        if game.debug and game.debug_twiddles.show_collision then
-            game.debug_hits[collision.shape] = collision
-        end
-
-        -- FIXME again, i would love a better way to expose a normal here.
-        -- also maybe the direction of movement is useful?
-        local passable = self:on_collide_with(actor, collision)
-
-        -- Pushing
-        if actor and not pushers[actor] and collision.touchtype >= 0 and not passable and (
-            (actor.is_pushable and self.can_push) or
-            -- This allows a carrier to pick up something by rising into it
-            -- FIXME check that it's pushed upwards?
-            -- FIXME this is such a weird fucking case though
-            (actor.is_portable and self.can_carry and not self.cargo[actor]))
-        then
-            local nudge = collision.attempted - collision.movement
-            -- Only push in the direction the collision occurred!  If several
-            -- directions, well, just average them
-            local axis = Vector()
-            local normalct = 0
-            for normal in pairs(collision.normals) do
-                normalct = normalct + 1
-                axis = axis + normal
-            end
-            if normalct > 0 then
-                nudge = nudge:projectOn(axis / normalct)
-            else
-                nudge = Vector.zero
-            end
-            if already_hit[actor] == 'nudged' or _is_vector_almost_zero(nudge) then
-                -- If we've already pushed this object once, OR if we're not
-                -- actually trying to push it at all, return a special value
-                -- that means to trim our movement but pretend we're not
-                -- blocked in that direction, so the caller doesn't cut our
-                -- velocity
-                passable = 'trim'
-            else
-                -- TODO the mass thing is pretty cute, but it doesn't chain --
-                -- the player moves the same speed pushing one crate as pushing
-                -- five of them
-                local actual = actor:nudge(nudge * math.min(1, self.mass / actor.mass), pushers)
-                if _is_vector_almost_zero(actual) then
-                    -- Cargo is blocked, so we can't move either
-                    already_hit[actor] = 'blocked'
-                    passable = false
-                else
-                    already_hit[actor] = 'nudged'
-                    passable = 'retry'
-                end
+        local combined_clock = util.ClockRange(util.ClockRange.ZERO, util.ClockRange.ZERO)
+        for shape, collision in pairs(hits) do
+            if not collision.passable then
+                combined_clock:intersect(collision.clock)
             end
         end
 
-        if not self.is_blockable and not passable then
-            return true
-        else
-            return passable
+        -- Slide along the extreme that's closest to the direction of movement
+        -- TODO combined_clock is ONLY used for this.  removing it is within my
+        -- grasp at last
+        local slide = combined_clock:closest_extreme(movement)
+        if not slide or slide == Vector.zero then
+            break
+        end
+        if remaining * slide < 0 then
+            -- Can't slide anywhere near the direction of movement, so we
+            -- have to stop here
+            break
+        end
+        movement = remaining:projectOn(slide)
+
+        if math.abs(movement.x) < 1/16 and math.abs(movement.y) < 1/16 then
+            break
+        end
+
+        -- Automatically break if we don't move for three iterations -- not
+        -- moving once is okay because we might slide, but three indicates a
+        -- bad loop somewhere
+        if _is_vector_almost_zero(successful) then
+            stuck_counter = stuck_counter + 1
+            if stuck_counter >= 3 then
+                print("!!!  BREAKING OUT OF LOOP BECAUSE WE'RE STUCK, OOPS")
+                break
+            end
         end
     end
 
-    local movement, hits, last_clock = worldscene.collider:slide(self.shape, movement, pass_callback, xxx_no_slide)
+    local last_clock = util.ClockRange(util.ClockRange.ZERO, util.ClockRange.ZERO)
+    for shape, collision in pairs(hits) do
+        -- FIXME this is /slightly/ clumsy...  ehh...
+        local owner = worldscene.collider:get_owner(shape)
+        if not collision.passable and (not owner or already_hit[owner] ~= 'nudged') then
+            last_clock:intersect(collision.clock)
+        end
+    end
 
-    self.pos = self.pos + movement
     --print("FINAL POSITION:", self.pos)
-    if self.shape then
-        self.shape:move_to(self.pos:unpack())
-    end
 
     -- Move our cargo along with us, independently of their own movement
     -- FIXME this means our momentum isn't part of theirs.  is that bad?
-    if self.can_carry and self.cargo and not _is_vector_almost_zero(movement) then
+    if self.can_carry and self.cargo and not _is_vector_almost_zero(total_movement) then
         for actor in pairs(self.cargo) do
             if not pushers[actor] and already_hit[actor] ~= 'nudged' then
-                actor:nudge(movement, pushers)
+                actor:nudge(total_movement, pushers)
             end
         end
     end
 
     pushers[self] = nil
-    return movement, hits, last_clock
+    return total_movement, hits, last_clock
 end
 
 -- Given a list of hits from the collider, check whether we're standing on the
