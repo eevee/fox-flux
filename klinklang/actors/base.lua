@@ -357,9 +357,6 @@ end
 -- Move some distance, respecting collision.
 -- No other physics like gravity or friction happen here; only the actual movement.
 -- FIXME a couple remaining bugs:
--- - delete a bunch of prints and add some more comments
--- - i need to have a serious think about what can push/carry what!
--- - i had to disable ground sticking
 -- - player briefly falls when standing on a crate moving downwards -- one frame?
 -- - what's the difference between carry and push, if a carrier can push?
 function MobileActor:nudge(movement, pushers, xxx_no_slide)
@@ -509,8 +506,10 @@ function MobileActor:update(dt)
     -- pixel-perfectly when standing on pixel-perfect (i.e. flat) ground.
     -- FIXME i had to make this round to the nearest eighth because i found a
     -- place where standing on a gentle slope would make you vibrate back and
-    -- forth between pixels.  i would really like to get rid of the "slope
-    -- cancelling" force somehow, i think it's fucking me up
+    -- forth between pixels.  i don't think that's the case any more, though,
+    -- and it would be nice to make this work for pushing as well, so you can
+    -- push an object down a gap its own size!  the only problem is that it has
+    -- a nontrivial impact on overall speed
     local goalpos = self.pos + self.velocity * dt
     if self.velocity.x ~= 0 then
         goalpos.x = math.floor(goalpos.x * 8 + 0.5) / 8
