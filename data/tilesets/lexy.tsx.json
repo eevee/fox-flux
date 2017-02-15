@@ -1,11 +1,11 @@
-{ "columns":16,
+{ "columns":24,
  "image":"..\/..\/assets\/images\/lexy.png",
  "imageheight":560,
- "imagewidth":512,
+ "imagewidth":768,
  "margin":0,
  "name":"lexy",
  "spacing":0,
- "tilecount":152,
+ "tilecount":168,
  "tileheight":80,
  "tileproperties":
     {
@@ -19,67 +19,83 @@
         },
      "105":
         {
-         "sprite name":"lexy: glass\/fall"
+         "sprite name":"lexy: pooltoy\/fall"
         },
      "107":
         {
-         "animation stops":true,
-         "sprite name":"lexy: glass\/jump"
+         "sprite name":"lexy: pooltoy\/jump"
         },
      "11":
         {
          "animation stops":true,
          "sprite name":"lexy\/jump"
         },
-     "16":
+     "144":
+        {
+         "sprite name":"lexy: glass\/stand"
+        },
+     "145":
+        {
+         "sprite name":"lexy: glass\/walk"
+        },
+     "15":
+        {
+         "sprite name":"lexy\/climb"
+        },
+     "153":
+        {
+         "sprite name":"lexy: glass\/fall"
+        },
+     "155":
+        {
+         "animation stops":true,
+         "sprite name":"lexy: glass\/jump"
+        },
+     "18":
+        {
+         "sprite name":"lexy\/descend"
+        },
+     "24":
         {
          "sprite name":"lexy: rubber\/stand"
         },
-     "17":
+     "25":
         {
          "sprite name":"lexy: rubber\/walk"
         },
-     "25":
+     "33":
         {
          "sprite name":"lexy: rubber\/fall"
         },
-     "27":
+     "35":
         {
          "animation stops":true,
          "sprite name":"lexy: rubber\/jump"
         },
-     "32":
+     "39":
+        {
+         "sprite name":"lexy: rubber\/climb"
+        },
+     "42":
+        {
+         "sprite name":"lexy: rubber\/descend"
+        },
+     "48":
         {
          "sprite name":"lexy: slime\/stand"
         },
-     "33":
+     "49":
         {
          "sprite name":"lexy: slime\/walk"
         },
-     "41":
+     "57":
         {
          "sprite name":"lexy: slime\/fall"
         },
-     "43":
+     "59":
         {
          "animation stops":true,
          "sprite name":"lexy: slime\/jump"
-        },
-     "64":
-        {
-         "sprite name":"lexy: pooltoy\/stand"
-        },
-     "65":
-        {
-         "sprite name":"lexy: pooltoy\/walk"
-        },
-     "73":
-        {
-         "sprite name":"lexy: pooltoy\/fall"
-        },
-     "75":
-        {
-         "sprite name":"lexy: pooltoy\/jump"
         },
      "9":
         {
@@ -87,11 +103,11 @@
         },
      "96":
         {
-         "sprite name":"lexy: glass\/stand"
+         "sprite name":"lexy: pooltoy\/stand"
         },
      "97":
         {
-         "sprite name":"lexy: glass\/walk"
+         "sprite name":"lexy: pooltoy\/walk"
         }
     },
  "tilepropertytypes":
@@ -110,7 +126,6 @@
         },
      "107":
         {
-         "animation stops":"bool",
          "sprite name":"string"
         },
      "11":
@@ -118,11 +133,32 @@
          "animation stops":"bool",
          "sprite name":"string"
         },
-     "16":
+     "144":
         {
          "sprite name":"string"
         },
-     "17":
+     "145":
+        {
+         "sprite name":"string"
+        },
+     "15":
+        {
+         "sprite name":"string"
+        },
+     "153":
+        {
+         "sprite name":"string"
+        },
+     "155":
+        {
+         "animation stops":"bool",
+         "sprite name":"string"
+        },
+     "18":
+        {
+         "sprite name":"string"
+        },
+     "24":
         {
          "sprite name":"string"
         },
@@ -130,42 +166,38 @@
         {
          "sprite name":"string"
         },
-     "27":
-        {
-         "animation stops":"bool",
-         "sprite name":"string"
-        },
-     "32":
-        {
-         "sprite name":"string"
-        },
      "33":
         {
          "sprite name":"string"
         },
-     "41":
-        {
-         "sprite name":"string"
-        },
-     "43":
+     "35":
         {
          "animation stops":"bool",
          "sprite name":"string"
         },
-     "64":
+     "39":
         {
          "sprite name":"string"
         },
-     "65":
+     "42":
         {
          "sprite name":"string"
         },
-     "73":
+     "48":
         {
          "sprite name":"string"
         },
-     "75":
+     "49":
         {
+         "sprite name":"string"
+        },
+     "57":
+        {
+         "sprite name":"string"
+        },
+     "59":
+        {
+         "animation stops":"bool",
          "sprite name":"string"
         },
      "9":
@@ -339,17 +371,6 @@
                      "width":0,
                      "x":20,
                      "y":60
-                    }, 
-                    {
-                     "height":52,
-                     "id":2,
-                     "name":"",
-                     "rotation":0,
-                     "type":"",
-                     "visible":true,
-                     "width":24,
-                     "x":8,
-                     "y":10
                     }],
              "opacity":1,
              "type":"objectgroup",
@@ -387,17 +408,6 @@
                      "width":0,
                      "x":20,
                      "y":60
-                    }, 
-                    {
-                     "height":52,
-                     "id":2,
-                     "name":"",
-                     "rotation":0,
-                     "type":"",
-                     "visible":true,
-                     "width":24,
-                     "x":8,
-                     "y":10
                     }],
              "opacity":1,
              "type":"objectgroup",
@@ -444,7 +454,320 @@
              "y":0
             }
         },
-     "16":
+     "133":
+        {
+         "animation":[
+                {
+                 "duration":100,
+                 "tileid":133
+                }, 
+                {
+                 "duration":500,
+                 "tileid":134
+                }, 
+                {
+                 "duration":250,
+                 "tileid":133
+                }]
+        },
+     "144":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":20,
+                     "y":60
+                    }, 
+                    {
+                     "height":52,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":24,
+                     "x":8,
+                     "y":10
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "145":
+        {
+         "animation":[
+                {
+                 "duration":100,
+                 "tileid":145
+                }, 
+                {
+                 "duration":100,
+                 "tileid":146
+                }, 
+                {
+                 "duration":100,
+                 "tileid":147
+                }, 
+                {
+                 "duration":100,
+                 "tileid":148
+                }, 
+                {
+                 "duration":100,
+                 "tileid":149
+                }, 
+                {
+                 "duration":100,
+                 "tileid":150
+                }, 
+                {
+                 "duration":100,
+                 "tileid":151
+                }, 
+                {
+                 "duration":100,
+                 "tileid":152
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":20,
+                     "y":60
+                    }, 
+                    {
+                     "height":52,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":24,
+                     "x":8,
+                     "y":10
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "15":
+        {
+         "animation":[
+                {
+                 "duration":150,
+                 "tileid":15
+                }, 
+                {
+                 "duration":150,
+                 "tileid":16
+                }, 
+                {
+                 "duration":150,
+                 "tileid":17
+                }, 
+                {
+                 "duration":150,
+                 "tileid":18
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":60
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "153":
+        {
+         "animation":[
+                {
+                 "duration":150,
+                 "tileid":153
+                }, 
+                {
+                 "duration":200,
+                 "tileid":154
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":20,
+                     "y":60
+                    }, 
+                    {
+                     "height":52,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":24,
+                     "x":8,
+                     "y":10
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "155":
+        {
+         "animation":[
+                {
+                 "duration":50,
+                 "tileid":155
+                }, 
+                {
+                 "duration":1000,
+                 "tileid":156
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":20,
+                     "y":60
+                    }, 
+                    {
+                     "height":52,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":24,
+                     "x":8,
+                     "y":10
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "18":
+        {
+         "animation":[
+                {
+                 "duration":150,
+                 "tileid":18
+                }, 
+                {
+                 "duration":150,
+                 "tileid":17
+                }, 
+                {
+                 "duration":150,
+                 "tileid":16
+                }, 
+                {
+                 "duration":150,
+                 "tileid":15
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":60
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "24":
         {
          "objectgroup":
             {
@@ -483,143 +806,41 @@
              "y":0
             }
         },
-     "17":
-        {
-         "animation":[
-                {
-                 "duration":100,
-                 "tileid":17
-                }, 
-                {
-                 "duration":100,
-                 "tileid":18
-                }, 
-                {
-                 "duration":100,
-                 "tileid":19
-                }, 
-                {
-                 "duration":100,
-                 "tileid":20
-                }, 
-                {
-                 "duration":100,
-                 "tileid":21
-                }, 
-                {
-                 "duration":100,
-                 "tileid":22
-                }, 
-                {
-                 "duration":100,
-                 "tileid":23
-                }, 
-                {
-                 "duration":100,
-                 "tileid":24
-                }],
-         "objectgroup":
-            {
-             "draworder":"index",
-             "height":0,
-             "name":"",
-             "objects":[
-                    {
-                     "ellipse":true,
-                     "height":0,
-                     "id":1,
-                     "name":"",
-                     "rotation":0,
-                     "type":"anchor",
-                     "visible":true,
-                     "width":0,
-                     "x":20,
-                     "y":60
-                    }],
-             "opacity":1,
-             "type":"objectgroup",
-             "visible":true,
-             "width":0,
-             "x":0,
-             "y":0
-            }
-        },
      "25":
         {
          "animation":[
                 {
-                 "duration":150,
+                 "duration":100,
                  "tileid":25
                 }, 
                 {
-                 "duration":200,
+                 "duration":100,
                  "tileid":26
-                }],
-         "objectgroup":
-            {
-             "draworder":"index",
-             "height":0,
-             "name":"",
-             "objects":[
-                    {
-                     "ellipse":true,
-                     "height":0,
-                     "id":1,
-                     "name":"",
-                     "rotation":0,
-                     "type":"anchor",
-                     "visible":true,
-                     "width":0,
-                     "x":20,
-                     "y":60
-                    }],
-             "opacity":1,
-             "type":"objectgroup",
-             "visible":true,
-             "width":0,
-             "x":0,
-             "y":0
-            }
-        },
-     "27":
-        {
-         "animation":[
+                }, 
                 {
-                 "duration":50,
+                 "duration":100,
                  "tileid":27
                 }, 
                 {
-                 "duration":1000,
+                 "duration":100,
                  "tileid":28
+                }, 
+                {
+                 "duration":100,
+                 "tileid":29
+                }, 
+                {
+                 "duration":100,
+                 "tileid":30
+                }, 
+                {
+                 "duration":100,
+                 "tileid":31
+                }, 
+                {
+                 "duration":100,
+                 "tileid":32
                 }],
-         "objectgroup":
-            {
-             "draworder":"index",
-             "height":0,
-             "name":"",
-             "objects":[
-                    {
-                     "ellipse":true,
-                     "height":0,
-                     "id":1,
-                     "name":"",
-                     "rotation":0,
-                     "type":"anchor",
-                     "visible":true,
-                     "width":0,
-                     "x":20,
-                     "y":60
-                    }],
-             "opacity":1,
-             "type":"objectgroup",
-             "visible":true,
-             "width":0,
-             "x":0,
-             "y":0
-            }
-        },
-     "32":
-        {
          "objectgroup":
             {
              "draworder":"index",
@@ -650,36 +871,12 @@
         {
          "animation":[
                 {
-                 "duration":100,
+                 "duration":150,
                  "tileid":33
                 }, 
                 {
-                 "duration":100,
+                 "duration":200,
                  "tileid":34
-                }, 
-                {
-                 "duration":100,
-                 "tileid":35
-                }, 
-                {
-                 "duration":100,
-                 "tileid":36
-                }, 
-                {
-                 "duration":100,
-                 "tileid":37
-                }, 
-                {
-                 "duration":100,
-                 "tileid":38
-                }, 
-                {
-                 "duration":100,
-                 "tileid":39
-                }, 
-                {
-                 "duration":100,
-                 "tileid":40
                 }],
          "objectgroup":
             {
@@ -707,15 +904,60 @@
              "y":0
             }
         },
-     "41":
+     "35":
         {
          "animation":[
+                {
+                 "duration":50,
+                 "tileid":35
+                }, 
+                {
+                 "duration":1000,
+                 "tileid":36
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":20,
+                     "y":60
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "39":
+        {
+         "animation":[
+                {
+                 "duration":150,
+                 "tileid":39
+                }, 
+                {
+                 "duration":150,
+                 "tileid":40
+                }, 
                 {
                  "duration":150,
                  "tileid":41
                 }, 
                 {
-                 "duration":200,
+                 "duration":150,
                  "tileid":42
                 }],
          "objectgroup":
@@ -733,7 +975,7 @@
                      "type":"anchor",
                      "visible":true,
                      "width":0,
-                     "x":20,
+                     "x":16,
                      "y":60
                     }],
              "opacity":1,
@@ -744,153 +986,113 @@
              "y":0
             }
         },
-     "43":
-        {
-         "animation":[
-                {
-                 "duration":50,
-                 "tileid":43
-                }, 
-                {
-                 "duration":1000,
-                 "tileid":44
-                }],
-         "objectgroup":
-            {
-             "draworder":"index",
-             "height":0,
-             "name":"",
-             "objects":[
-                    {
-                     "ellipse":true,
-                     "height":0,
-                     "id":1,
-                     "name":"",
-                     "rotation":0,
-                     "type":"anchor",
-                     "visible":true,
-                     "width":0,
-                     "x":20,
-                     "y":60
-                    }],
-             "opacity":1,
-             "type":"objectgroup",
-             "visible":true,
-             "width":0,
-             "x":0,
-             "y":0
-            }
-        },
-     "64":
-        {
-         "objectgroup":
-            {
-             "draworder":"index",
-             "height":0,
-             "name":"",
-             "objects":[
-                    {
-                     "height":52,
-                     "id":2,
-                     "name":"",
-                     "rotation":0,
-                     "type":"",
-                     "visible":true,
-                     "width":24,
-                     "x":8,
-                     "y":8
-                    }, 
-                    {
-                     "ellipse":true,
-                     "height":0,
-                     "id":3,
-                     "name":"",
-                     "rotation":0,
-                     "type":"anchor",
-                     "visible":true,
-                     "width":0,
-                     "x":20,
-                     "y":60
-                    }],
-             "opacity":1,
-             "type":"objectgroup",
-             "visible":true,
-             "width":0,
-             "x":0,
-             "y":0
-            }
-        },
-     "65":
-        {
-         "animation":[
-                {
-                 "duration":100,
-                 "tileid":65
-                }, 
-                {
-                 "duration":100,
-                 "tileid":66
-                }, 
-                {
-                 "duration":100,
-                 "tileid":67
-                }, 
-                {
-                 "duration":100,
-                 "tileid":68
-                }, 
-                {
-                 "duration":100,
-                 "tileid":69
-                }, 
-                {
-                 "duration":100,
-                 "tileid":70
-                }, 
-                {
-                 "duration":100,
-                 "tileid":71
-                }, 
-                {
-                 "duration":100,
-                 "tileid":72
-                }],
-         "objectgroup":
-            {
-             "draworder":"index",
-             "height":0,
-             "name":"",
-             "objects":[
-                    {
-                     "ellipse":true,
-                     "height":0,
-                     "id":1,
-                     "name":"",
-                     "rotation":0,
-                     "type":"anchor",
-                     "visible":true,
-                     "width":0,
-                     "x":20,
-                     "y":60
-                    }],
-             "opacity":1,
-             "type":"objectgroup",
-             "visible":true,
-             "width":0,
-             "x":0,
-             "y":0
-            }
-        },
-     "73":
+     "42":
         {
          "animation":[
                 {
                  "duration":150,
-                 "tileid":73
+                 "tileid":42
                 }, 
                 {
-                 "duration":200,
-                 "tileid":74
+                 "duration":150,
+                 "tileid":41
+                }, 
+                {
+                 "duration":150,
+                 "tileid":40
+                }, 
+                {
+                 "duration":150,
+                 "tileid":39
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":60
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "48":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":20,
+                     "y":60
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "49":
+        {
+         "animation":[
+                {
+                 "duration":100,
+                 "tileid":49
+                }, 
+                {
+                 "duration":100,
+                 "tileid":50
+                }, 
+                {
+                 "duration":100,
+                 "tileid":51
+                }, 
+                {
+                 "duration":100,
+                 "tileid":52
+                }, 
+                {
+                 "duration":100,
+                 "tileid":53
+                }, 
+                {
+                 "duration":100,
+                 "tileid":54
+                }, 
+                {
+                 "duration":100,
+                 "tileid":55
+                }, 
+                {
+                 "duration":100,
+                 "tileid":56
                 }],
          "objectgroup":
             {
@@ -918,16 +1120,53 @@
              "y":0
             }
         },
-     "75":
+     "57":
+        {
+         "animation":[
+                {
+                 "duration":150,
+                 "tileid":57
+                }, 
+                {
+                 "duration":200,
+                 "tileid":58
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":20,
+                     "y":60
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "59":
         {
          "animation":[
                 {
                  "duration":50,
-                 "tileid":75
+                 "tileid":59
                 }, 
                 {
                  "duration":1000,
-                 "tileid":76
+                 "tileid":60
                 }],
          "objectgroup":
             {
@@ -992,22 +1231,6 @@
              "y":0
             }
         },
-     "93":
-        {
-         "animation":[
-                {
-                 "duration":100,
-                 "tileid":93
-                }, 
-                {
-                 "duration":500,
-                 "tileid":94
-                }, 
-                {
-                 "duration":250,
-                 "tileid":93
-                }]
-        },
      "96":
         {
          "objectgroup":
@@ -1017,18 +1240,6 @@
              "name":"",
              "objects":[
                     {
-                     "ellipse":true,
-                     "height":0,
-                     "id":1,
-                     "name":"",
-                     "rotation":0,
-                     "type":"anchor",
-                     "visible":true,
-                     "width":0,
-                     "x":20,
-                     "y":60
-                    }, 
-                    {
                      "height":52,
                      "id":2,
                      "name":"",
@@ -1037,7 +1248,19 @@
                      "visible":true,
                      "width":24,
                      "x":8,
-                     "y":10
+                     "y":8
+                    }, 
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":3,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":20,
+                     "y":60
                     }],
              "opacity":1,
              "type":"objectgroup",
@@ -1099,17 +1322,6 @@
                      "width":0,
                      "x":20,
                      "y":60
-                    }, 
-                    {
-                     "height":52,
-                     "id":2,
-                     "name":"",
-                     "rotation":0,
-                     "type":"",
-                     "visible":true,
-                     "width":24,
-                     "x":8,
-                     "y":10
                     }],
              "opacity":1,
              "type":"objectgroup",
