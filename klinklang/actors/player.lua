@@ -13,6 +13,10 @@ local Player = actors_base.SentientActor:extend{
     dialogue_position = 'left',
     dialogue_sprite_name = 'lexy portrait',
     z = 1000,
+    is_portable = true,
+    can_carry = true,
+    is_pushable = true,
+    can_push = true,
 
     is_player = true,
 

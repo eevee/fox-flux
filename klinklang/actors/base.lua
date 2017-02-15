@@ -230,8 +230,8 @@ local MobileActor = Actor:extend{
     is_blockable = true,
     -- Pushing and platform behavior
     is_pushable = false,
-    can_push = true,
-    is_portable = true,  -- Can this be carried?
+    can_push = false,
+    is_portable = false,  -- Can this be carried?
     can_carry = false,  -- Can this carry?
     mass = 1,  -- Pushing a heavier object will slow you down
     cargo = nil,  -- Set of currently-carried objects
@@ -621,9 +621,6 @@ local SentientActor = MobileActor:extend{
     __name = 'SentientActor',
 
     -- Active physics parameters
-    can_carry = true,
-    can_push = true,
-    is_pushable = true,
     -- TODO these are a little goofy because friction works differently; may be
     -- worth looking at that again.
     xaccel = 1536,
