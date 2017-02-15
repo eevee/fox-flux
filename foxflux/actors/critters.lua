@@ -46,6 +46,10 @@ local Slime = actors_base.SentientActor:extend{
     jump_sound = 'assets/sounds/jump-slime.ogg',
 }
 
+function Slime:blocks()
+    return false
+end
+
 function Slime:update(dt)
     local player_dist = worldscene.player.pos - self.pos
     -- TODO oh it would be fascinating if you could absorb more slime that you encountered

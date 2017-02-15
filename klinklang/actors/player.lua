@@ -57,6 +57,14 @@ function Player:init(...)
     self:transform('rubber')
 end
 
+function Player:on_enter()
+    self.in_spikes = setmetatable({}, { __mode = 'k' })
+end
+
+function Player:on_leave()
+    self.in_spikes = nil
+end
+
 function Player:move_to(...)
     Player.__super.move_to(self, ...)
 
@@ -102,9 +110,28 @@ function Player:update(dt)
         self.decision_climb = nil
     end
 
+    if self.form == 'rubber' then
+        local in_any_spikes = false
+        for poker in pairs(self.in_spikes) do
+            in_any_spikes = true
+            break
+        end
+        if in_any_spikes then
+            self.velocity.x = 0
+            self.decision_walk = 0
+        end
+    end
+
     -- Run the base logic to perform movement, collision, sprite updating, etc.
     self.touching_mechanism = nil
-    Player.__super.update(self, dt)
+    local movement, hits, last_clock = Player.__super.update(self, dt)
+
+    -- Stop tracking spikes we're no longer touching
+    for poker in pairs(self.in_spikes) do
+        if not hits[poker.shape] then
+            self.in_spikes[poker] = nil
+        end
+    end
 
     -- TODO this is stupid but i want a real exit door anyway
     -- TODO also it should fire an event or something
@@ -202,6 +229,10 @@ function Player:toast()
     if self.form == 'slime' then
         self:transform('rubber')
     end
+end
+
+function Player:poke(spikes)
+    self.in_spikes[spikes] = true
 end
 
 function Player:damage(source, amount)

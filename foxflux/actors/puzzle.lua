@@ -5,6 +5,30 @@ local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 
 
+-- A rubber player can walk through spikes, but if they land atop them, they
+-- get poked and stuck.
+-- A slime player is unimpeded regardless.
+-- A glass player can walk on top of them.
+local SpikesUp = actors_base.Actor:extend{
+    name = 'spikes up',
+    sprite_name = 'spikes up',
+    z = 1001,
+}
+
+function SpikesUp:blocks(actor, collision)
+    if actor.is_player and actor.form == 'glass' and collision.touchtype >= 0 and actors_base.any_normal_faces(collision, Vector(0, -1)) then
+        return true
+    end
+    return SpikesUp.__super.blocks(self, actor, collision)
+end
+
+function SpikesUp:on_collide(actor, movement, collision)
+    if actor.is_player and collision.touchtype > 0 and actors_base.any_normal_faces(collision, Vector(0, -1)) then
+        actor:poke(self)
+    end
+end
+
+
 local FloorButton = actors_base.Actor:extend{
     name = 'floor button',
     sprite_name = 'floor button',

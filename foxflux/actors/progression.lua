@@ -11,45 +11,57 @@ local StrawberryHeart = actors_base.Actor:extend{
     sprite_name = 'strawberry heart',
     z = 9999,
 
+    required_form = 'rubber',
+    collect_sound = 'assets/sounds/get-heart.ogg',
     is_collected = false,
+    jiggle = 0,
 }
 
 function StrawberryHeart:on_collide(actor)
     if self.is_collected then
         return
     end
-    if actor.is_player and actor.sprite_name == 'lexy: rubber' then
-        game.resource_manager:get('assets/sounds/get-heart.ogg'):clone():play()
-        self.is_collected = true
-        actor.inventory.strawberry_hearts = (actor.inventory.strawberry_hearts or 0) + 1
-        self.sprite:set_pose('collect', function()
-            worldscene:remove_actor(self)
-        end)
+    if actor.is_player then
+        if actor.form == self.required_form then
+            game.resource_manager:get(self.collect_sound):clone():play()
+            self.is_collected = true
+            actor.inventory.strawberry_hearts = (actor.inventory.strawberry_hearts or 0) + 1
+            self.sprite:set_pose('collect', function()
+                worldscene:remove_actor(self)
+            end)
+        elseif self.jiggle == 0 then
+            worldscene.fluct:to(self, 0.5, { jiggle = 6 })
+                :ease('quartout')
+                :oncomplete(function() self.jiggle = 0 end)
+        end
     end
 end
 
+function StrawberryHeart:draw()
+    local where = self.pos:clone()
+    where.x = where.x + math.sin(self.jiggle * math.pi) * 2
+    self.sprite:draw_at(where)
+end
 
-local SlimeHeart = actors_base.Actor:extend{
+
+local SlimeHeart = StrawberryHeart:extend{
     name = 'slime heart',
     sprite_name = 'slime heart',
     z = 9999,
 
-    is_collected = false,
+    required_form = 'slime',
+    collect_sound = 'assets/sounds/get-heart-slime.ogg',
 }
 
-function SlimeHeart:on_collide(actor)
-    if self.is_collected then
-        return
-    end
-    if actor.is_player and actor.sprite_name == 'lexy: slime' then
-        game.resource_manager:get('assets/sounds/get-heart-slime.ogg'):clone():play()
-        self.is_collected = true
-        actor.inventory.strawberry_hearts = (actor.inventory.strawberry_hearts or 0) + 1
-        self.sprite:set_pose('collect', function()
-            worldscene:remove_actor(self)
-        end)
-    end
-end
+
+local GlassHeart = StrawberryHeart:extend{
+    name = 'glass heart',
+    sprite_name = 'glass heart',
+    z = 9999,
+
+    required_form = 'glass',
+    collect_sound = 'assets/sounds/get-heart-glass.ogg',
+}
 
 
 local BlastDoor = actors_generic.GenericSlidingDoor:extend{
