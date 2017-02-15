@@ -472,7 +472,7 @@ function TiledMap:add_to_collider(collider, submap_name)
                             tx * self.raw.tilewidth,
                             (ty + 1) * self.raw.tileheight - tile.tileset.raw.tileheight)
                         self.shapes[shape] = true
-                        collider:add(shape)
+                        collider:add(shape, tile)
                     end
                 end
             end
