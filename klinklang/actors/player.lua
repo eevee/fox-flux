@@ -174,24 +174,6 @@ function Player:transform(form)
     end
 end
 
-function Player:draw()
-    actors_base.MobileActor.draw(self)
-
-    do return end
-    if self.touching_mechanism then
-        love.graphics.setColor(0, 64, 255, 128)
-        self.touching_mechanism.shape:draw('fill')
-        love.graphics.setColor(255, 255, 255)
-    end
-    if self.on_ground then
-        love.graphics.setColor(255, 0, 0, 128)
-    else
-        love.graphics.setColor(0, 192, 0, 128)
-    end
-    self.shape:draw('fill')
-    love.graphics.setColor(255, 255, 255)
-end
-
 function Player:on_collide(actor, direction)
     if self.form == 'rubber' and actor.name == 'slime' and math.abs(actor.pos.y - (self.pos.y - 12)) < 4 then
         self.facing_left = actor.pos.x < self.pos.x
