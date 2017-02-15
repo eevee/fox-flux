@@ -538,6 +538,29 @@
                  "width":32,
                  "x":192,
                  "y":1216
+                }, 
+                {
+                 "height":64,
+                 "id":27,
+                 "name":"",
+                 "properties":
+                    {
+                     "action":"change map",
+                     "activation":"use",
+                     "map":"data\/maps\/tech-overworld.tmx.json"
+                    },
+                 "propertytypes":
+                    {
+                     "action":"string",
+                     "activation":"string",
+                     "map":"string"
+                    },
+                 "rotation":0,
+                 "type":"trigger",
+                 "visible":true,
+                 "width":32,
+                 "x":48,
+                 "y":1312
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -546,7 +569,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":27,
+ "nextobjectid":28,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tileheight":32,

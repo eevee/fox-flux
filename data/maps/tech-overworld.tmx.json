@@ -61,6 +61,75 @@
                  "width":32,
                  "x":472,
                  "y":1216
+                }, 
+                {
+                 "height":64,
+                 "id":3,
+                 "name":"",
+                 "properties":
+                    {
+                     "action":"change map",
+                     "activation":"use",
+                     "map":"data\/maps\/tech-2.tmx.json"
+                    },
+                 "propertytypes":
+                    {
+                     "action":"string",
+                     "activation":"string",
+                     "map":"string"
+                    },
+                 "rotation":0,
+                 "type":"trigger",
+                 "visible":true,
+                 "width":32,
+                 "x":1048,
+                 "y":1216
+                }, 
+                {
+                 "height":64,
+                 "id":4,
+                 "name":"",
+                 "properties":
+                    {
+                     "action":"change map",
+                     "activation":"use",
+                     "map":"data\/maps\/tech-3.tmx.json"
+                    },
+                 "propertytypes":
+                    {
+                     "action":"string",
+                     "activation":"string",
+                     "map":"string"
+                    },
+                 "rotation":0,
+                 "type":"trigger",
+                 "visible":true,
+                 "width":32,
+                 "x":1048,
+                 "y":832
+                }, 
+                {
+                 "height":64,
+                 "id":5,
+                 "name":"",
+                 "properties":
+                    {
+                     "action":"change map",
+                     "activation":"use",
+                     "map":"data\/maps\/tech-4.tmx.json"
+                    },
+                 "propertytypes":
+                    {
+                     "action":"string",
+                     "activation":"string",
+                     "map":"string"
+                    },
+                 "rotation":0,
+                 "type":"trigger",
+                 "visible":true,
+                 "width":32,
+                 "x":472,
+                 "y":832
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -69,7 +138,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":3,
+ "nextobjectid":6,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tileheight":32,
