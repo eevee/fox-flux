@@ -62,45 +62,29 @@ function Player:move_to(...)
     self.touching_mechanism = nil
 end
 
-function Player:on_collide_with(actor, ...)
+function Player:on_collide_with(actor, collision, ...)
     if actor and actor.is_usable then
         -- FIXME this should really really be a ptr
         self.touching_mechanism = actor
     end
 
-    return Player.__super.on_collide_with(self, actor, ...)
+    local passable = Player.__super.on_collide_with(self, actor, collision, ...)
+
+    -- Shatter if we hit something too fast
+    if self.sprite_name == 'lexy: glass' and not passable and collision.touchtype > 0 and self.velocity.y > 400 then
+        self.is_locked = true
+        self:set_sprite('lexy: glass revert')
+        -- FIXME set_sprite should do this
+        self.sprite:set_facing_right(not self.facing_left)
+    end
+
+    return passable
 end
 
 function Player:update(dt)
-    -- FIXME testing purposes only!!
-    if not self.is_stone and love.keyboard.isDown('s') then
-        self.is_stone = true
-        self.gravity_multiplier = 2
-        self.decision_walk = 0
-        self.aircontrol = 0.5
-    end
-    if self.name == 'lexy' and not self.is_stone and love.keyboard.isDown('d') then
-        self.sprite_name = 'lexy: pooltoy'
-        self.sprite = game.sprites[self.sprite_name]:instantiate()
-        self.dialogue_sprite_name = 'lexy portrait: rubber'
-    end
-
     -- Run the base logic to perform movement, collision, sprite updating, etc.
-    local was_on_ground = self.on_ground
-    local original_velocity = self.velocity
     self.touching_mechanism = nil
     Player.__super.update(self, dt)
-
-    if self.sprite_name == 'lexy: glass' and not was_on_ground and self.on_ground then
-        print('hit!', original_velocity)
-    end
-    -- FIXME i'd like to do this with an "on-hit" callback, actually, which
-    -- also requires knowing the direction of contact...
-    if self.sprite_name == 'lexy: glass' and not was_on_ground and self.on_ground and original_velocity.y > 400 then
-        self.is_locked = true
-        self:set_sprite('lexy: glass revert')
-        self.sprite:set_facing_right(not self.facing_left)
-    end
 
     -- TODO this is stupid but i want a real exit door anyway
     -- TODO also it should fire an event or something
@@ -118,6 +102,16 @@ function Player:update(dt)
             self.pos + Vector(math.random(-16, 16), 0), Vector(0, -32), Vector(0, 0),
             {255, 255, 255}, 1.5, true))
     end
+end
+
+function Player:update_pose()
+    -- FIXME i'm doing this because i change pose and also lock myself in
+    -- mid-collision for cutscene purposes; maybe it should be a general rule?
+    if self.is_locked then
+        return
+    end
+
+    Player.__super.update_pose(self)
 end
 
 function Player:draw()
