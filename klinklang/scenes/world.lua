@@ -680,7 +680,9 @@ function WorldScene:load_map(map)
     self.camera = self.player.pos:clone()
     self.camera.y = self.camera.y - self.map.height
 
-    self:update_camera()
+    -- Advance the world by zero time to put it in a consistent state (e.g.
+    -- figure out what's on the ground, update the camera)
+    self:update(0)
 end
 
 function WorldScene:reload_map()
