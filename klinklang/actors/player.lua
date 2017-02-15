@@ -3,6 +3,7 @@ local Vector = require 'vendor.hump.vector'
 local actors_base = require 'klinklang.actors.base'
 local actors_misc = require 'klinklang.actors.misc'
 local Object = require 'klinklang.object'
+local tiledmap = require 'klinklang.tiledmap'
 local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 
@@ -21,6 +22,7 @@ local Player = actors_base.SentientActor:extend{
     is_player = true,
 
     inventory_cursor = 1,
+    shatter_height = 4,
 
     jump_sound = 'assets/sounds/jump.ogg',
 }
@@ -83,12 +85,27 @@ function Player:on_collide_with(actor, collision, ...)
 
     local passable = Player.__super.on_collide_with(self, actor, collision, ...)
 
-    -- Shatter if we hit something too fast
-    if self.form == 'glass' and not passable and collision.touchtype > 0 and self.velocity.y > 400 then
-        self.is_locked = true
-        self:set_sprite('lexy: glass revert')
-        -- FIXME set_sprite should do this
-        self.sprite:set_facing_right(not self.facing_left)
+    -- Shatter if we hit something too fast, where "too fast" is defined as the
+    -- jump height required to go up N tiles (or, equivalently, the speed we'll
+    -- be moving when we hit the ground after falling N tiles).  If we hit a
+    -- tile, it can have a 'hardness' property, which will modify N.
+    -- FIXME "not is_locked" seems like a chumpy way to avoid interfering with cutscenes, including this one.  or maybe it's the right thing
+    if self.form == 'glass' and not self.is_locked and not passable and collision.touchtype > 0 then
+        local shatter_height = self.shatter_height
+        local owner = worldscene.collider:get_owner(collision.shape)
+        if owner and type(owner) == 'table' and owner.isa and owner:isa(tiledmap.TiledTile) then
+            local hardness = owner:prop('hardness') or 0
+            shatter_height = shatter_height - hardness
+        end
+
+        local max_velocity = actors_base.get_jump_velocity(shatter_height * game.TILE_SIZE)
+        -- FIXME take the collision angle into account here
+        if self.velocity:len2() > max_velocity * max_velocity then
+            self.is_locked = true
+            self:set_sprite('lexy: glass revert')
+            -- FIXME set_sprite should do this
+            self.sprite:set_facing_right(not self.facing_left)
+        end
     end
 
     return passable
