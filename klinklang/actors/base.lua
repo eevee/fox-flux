@@ -107,8 +107,10 @@ local Actor = BareActor:extend{
     -- Indicates this is an object that responds to the use key
     is_usable = false,
 
-    -- Makes an actor immune to gravity and occasionally spawn white particles.
+    -- Makes an actor render floatily and occasionally spawn white particles.
     -- Used for items, as well as the levitation spell
+    -- FIXME this is pretty isaac-specific; get it outta here.  it doesn't even
+    -- disable gravity any more
     is_floating = false,
 
     -- Completely general-purpose timer
@@ -586,18 +588,16 @@ function MobileActor:update(dt)
         --print("velocity after deceleration:", self.velocity)
     end
 
-    if not self.is_floating then
-        -- TODO factor the ground_friction constant into this, and also into
-        -- slope resistance
-        -- Gravity
-        local mult = self.gravity_multiplier
-        if self.velocity.y > 0 then
-            mult = mult * self.gravity_multiplier_down
-        end
-        self.velocity = self.velocity + gravity * mult * dt
-        self.velocity.y = math.min(self.velocity.y, terminal_velocity)
-        --print("velocity after gravity:", self.velocity)
+    -- TODO factor the ground_friction constant into this, and also into slope
+    -- resistance
+    -- Gravity
+    local mult = self.gravity_multiplier
+    if self.velocity.y > 0 then
+        mult = mult * self.gravity_multiplier_down
     end
+    self.velocity = self.velocity + gravity * mult * dt
+    self.velocity.y = math.min(self.velocity.y, terminal_velocity)
+    --print("velocity after gravity:", self.velocity)
 
     return movement, hits, last_clock
 end
@@ -848,7 +848,10 @@ function SentientActor:update(dt)
     -- logic that would keep critters from walking off of ledges?  or if
     -- the loop were taken out of collider.slide and put in here, so i could
     -- just explicitly slide in a custom direction
-    if was_on_ground and not self.on_ground and self.decision_jump_mode == 0 and self.decision_climb == nil then
+    if was_on_ground and not self.on_ground and
+        self.decision_jump_mode == 0 and self.decision_climb == nil and
+        self.gravity_multiplier > 0 and self.gravity_multiplier_down > 0
+    then
         -- If we run uphill along our steepest uphill slope and it immediately
         -- becomes our steepest downhill slope, we'll need to drop the
         -- x-coordinate of the normal, twice
