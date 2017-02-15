@@ -201,6 +201,16 @@ local function _is_vector_almost_zero(v)
     return math.abs(v.x) < 1e-8 and math.abs(v.y) < 1e-8
 end
 
+-- FIXME probably make this a method on a Collision object or something
+local function any_normal_faces(collision, direction)
+    for normal in pairs(collision.normals) do
+        if normal * direction > 0 then
+            return true
+        end
+    end
+    return false
+end
+
 local MobileActor = Actor:extend{
     __name = 'MobileActor',
     -- TODO separate code from twiddles
@@ -251,14 +261,7 @@ function MobileActor:on_collide_with(actor, collision)
     -- upwards-facing surface.  Expressing that correctly is hard.
     -- FIXME un-xxx this
     if collision.shape._xxx_is_one_way_platform then
-        local faces_up = false
-        for normal in pairs(collision.normals) do
-            if normal * gravity < 0 then
-                faces_up = true
-                break
-            end
-        end
-        if not faces_up then
+        if not any_normal_faces(collision, -gravity) then
             return true
         end
     end
@@ -626,6 +629,7 @@ local SentientActor = MobileActor:extend{
     xaccel = 1536,
     deceleration = 0.5,
     max_speed = 192,
+    climb_speed = 128,
     -- Pick a jump velocity that gets us up 2 tiles, plus a margin of error
     jumpvel = get_jump_velocity(TILE_SIZE * 2),
     jumpcap = 0.25,
@@ -670,11 +674,50 @@ function SentientActor:decide_abandon_jump()
     self.decision_jump_mode = 0
 end
 
+-- Decide to climb.  -1 up, 1 down, 0 to stay in place, nil to let go.
+function SentientActor:decide_climb(direction)
+    self.decision_climb = direction
+end
+
+function SentientActor:on_collide_with(actor, collision)
+    -- Check for whether we're touching something climbable
+    -- FIXME we might not still be colliding by the end of the movement!  this
+    -- should use, now that that's only final hits -- though we need them to be
+    -- in order so we can use the last thing touched.  same for mechanisms!
+    if actor and actor.is_climbable then
+        -- The reason for the up/down distinction is that if you're standing at
+        -- the top of a ladder, you should be able to climb down, but not up
+        if collision.touchtype < 0 or any_normal_faces(collision, Vector(0, -1)) then
+            self.ptrs.climbable_up = actor
+        end
+        if collision.touchtype < 0 or any_normal_faces(collision, Vector(0, 1)) then
+            self.ptrs.climbable_down = actor
+        end
+    end
+
+    -- Ignore collision with one-way platforms when climbing ladders, since
+    -- they tend to cross (or themselves be) one-way platforms
+    if self.decision_climb and collision.shape._xxx_is_one_way_platform then
+        return true
+    end
+
+    return SentientActor.__super.on_collide_with(self, actor, collision)
+end
+
 function SentientActor:update(dt)
     if self.is_dead or self.is_locked then
         -- Ignore conscious decisions; just apply physics
         -- FIXME i think "locked" only makes sense for the player?
         return SentientActor.__super.update(self, dt)
+    end
+
+    -- Check whether climbing is possible
+    -- FIXME i'd like to also stop climbing when we hit an object?
+    if self.decision_climb and not (
+        (self.decision_climb <= 0 and self.ptrs.climbable_up) or
+        (self.decision_climb >= 0 and self.ptrs.climbable_down))
+    then
+        self.decision_climb = nil
     end
 
     local xmult
@@ -725,6 +768,10 @@ function SentientActor:update(dt)
         self.facing_left = true
     elseif not self.too_steep then
         -- Not walking means we're trying to stop, albeit leisurely
+        -- Climbing means you're holding onto something sturdy, so give a deceleration bonus
+        if self.decision_climb then
+            xmult = xmult * 3
+        end
         local dx = math.min(math.abs(self.velocity * xdir), self.xaccel * self.deceleration * xmult * dt)
         local dv = dx * xdir
         if dv * self.velocity < 0 then
@@ -739,6 +786,9 @@ function SentientActor:update(dt)
     -- increases!) the player's y velocity, and releasing jump lowers the y
     -- velocity to a threshold
     if self.decision_jump_mode == 2 then
+        -- You cannot climb while jumping, sorry
+        -- TODO but maybe...  you can hold up + jump, and regrab the ladder only at the apex of the jump?
+        self.decision_climb = nil
         self.decision_jump_mode = 1
         if self.on_ground then
             -- TODO maybe jump away from the ground, not always up?  then could
@@ -762,6 +812,25 @@ function SentientActor:update(dt)
         end
     end
 
+    -- Climbing
+    -- Because gravity happens /after/ movement, this completely negates
+    -- gravity, no extra effort required!
+    if self.decision_climb then
+        if self.decision_climb > 0 then
+            self.velocity.y = -self.climb_speed
+        elseif self.decision_climb < 0 then
+            self.velocity.y = self.climb_speed
+        else
+            self.velocity.y = 0
+        end
+        -- FIXME pretty sure this doesn't actually work, since it'll be
+        -- overwritten by update() below and never gets to apply to jumping
+        self.on_ground = true
+        self.ground_normal = Vector(0, -1)
+    end
+    self.ptrs.climbable_up = nil
+    self.ptrs.climbable_down = nil
+
     -- Apply physics
     local was_on_ground = self.on_ground
     local movement, hits, last_clock = SentientActor.__super.update(self, dt)
@@ -783,7 +852,7 @@ function SentientActor:update(dt)
     -- logic that would keep critters from walking off of ledges?  or if
     -- the loop were taken out of collider.slide and put in here, so i could
     -- just explicitly slide in a custom direction
-    if was_on_ground and not self.on_ground and self.decision_jump_mode == 0 then
+    if was_on_ground and not self.on_ground and self.decision_jump_mode == 0 and self.decision_climb == nil then
         -- If we run uphill along our steepest uphill slope and it immediately
         -- becomes our steepest downhill slope, we'll need to drop the
         -- x-coordinate of the normal, twice
@@ -835,6 +904,12 @@ function SentientActor:update_pose()
         pose = 'die'
     elseif self.is_floating then
         pose = 'fall'
+    elseif self.decision_climb then
+        if self.decision_climb < 0 then
+            pose = 'climb'
+        else
+            pose = 'descend'
+        end
     elseif self.on_ground then
         if self.decision_walk ~= 0 then
             pose = 'walk'
@@ -847,6 +922,12 @@ function SentientActor:update_pose()
 
     self.sprite:set_facing_right(not self.facing_left)
     self.sprite:set_pose(pose)
+
+    if self.decision_climb == 0 then
+        self.sprite.anim:pause()
+    elseif self.decision_climb then
+        self.sprite.anim:resume()
+    end
 end
 
 

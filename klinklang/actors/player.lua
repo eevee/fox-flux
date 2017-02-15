@@ -82,6 +82,15 @@ function Player:on_collide_with(actor, collision, ...)
 end
 
 function Player:update(dt)
+    -- FIXME get this outta here
+    if love.keyboard.isScancodeDown('down') then
+        self:decide_climb(-1)
+    elseif love.keyboard.isScancodeDown('up') then
+        self:decide_climb(1)
+    elseif self.decision_climb ~= nil then
+        self:decide_climb(0)
+    end
+
     -- Run the base logic to perform movement, collision, sprite updating, etc.
     self.touching_mechanism = nil
     Player.__super.update(self, dt)

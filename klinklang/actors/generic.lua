@@ -139,6 +139,19 @@ function GenericSlidingDoorShutter:open()
 end
 
 
+local GenericLadder = actors_base.Actor:extend{
+    name = 'ladder',
+    sprite_name = 'ladder',
+
+    is_climbable = true,
+}
+
+function GenericLadder:blocks()
+    -- Be sure to use a one-way platform!
+    return true
+end
+
+
 return {
     GenericSlidingDoor = GenericSlidingDoor,
     GenericSlidingDoorShutter = GenericSlidingDoorShutter,
