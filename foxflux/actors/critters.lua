@@ -21,7 +21,6 @@ end
 function Gecko:update(dt)
     -- FIXME would be nice to not walk off ledges
     if not self.move_event then
-        print("gecko deciding to move")
         self.move_event = worldscene.tick:delay(function()
             -- FIXME don't move in directions we already know we're blocked
             self:decide_walk(love.math.random(3) - 2)
@@ -49,7 +48,8 @@ local Slime = actors_base.SentientActor:extend{
 
 function Slime:update(dt)
     local player_dist = worldscene.player.pos - self.pos
-    if math.abs(player_dist.x) < 96 and -32 < player_dist.y and player_dist.y < 12 then
+    -- TODO oh it would be fascinating if you could absorb more slime that you encountered
+    if worldscene.player.form == 'rubber' and math.abs(player_dist.x) < 96 and -32 < player_dist.y and player_dist.y < 12 then
         local launch_speed = player_dist.x / 0.25
         if self.on_ground then
             -- If the player is close enough, launch ourselves at them
@@ -130,30 +130,75 @@ local Draclear = actors_base.MobileActor:extend{
 
     gravity_multiplier = 0,
 
-    is_pursuing = false,
     pursuit_speed = 128,
+    state = 'idle',
+    perch_pos = nil,
+    player_target_offset = Vector(-6, -37),
 }
 
-function Draclear:update(dt)
-    -- FIXME currently we just float gently upwards when sated
-    -- FIXME become unsated, eventually
-    -- FIXME probably just stop and reset as soon as we hit something above us?
-    if self.state == 'sated' then
-        -- Do nothing; just fly away
-        -- FIXME err, also disable collision checking, i suppose
-    else
-        local player_dist = (worldscene.player.pos + Vector(-6, -37)) - self.pos
-        if math.abs(player_dist.x) < 128 and math.abs(player_dist.y) < 128 then
-            self.is_pursuing = true
-        else
-            self.is_pursuing = false
-        end
+function Draclear:blocks()
+    return false
+end
 
-        if self.is_pursuing then
-            self.velocity = self.pursuit_speed * player_dist:normalized()
+function Draclear:on_collide_with(actor, collision, ...)
+    if actor and actor.is_player then
+        return true
+    end
+
+    local passable = Draclear.__super.on_collide_with(self, actor, collision, ...)
+
+    -- If we hit something while trying to catch the player, give up this time
+    if collision.touchtype > 0 and not passable then
+        if self.state == 'pursuing' then
+            self.state = 'returning'
+        end
+    end
+
+    return passable
+end
+
+function Draclear:update(dt)
+    -- FIXME become unsated, eventually
+    -- FIXME can get stuck when returning; need another state that just rises
+    -- and stops at the first perch
+    -- FIXME i suppose it's possible that the perched object moves?
+    if self.state == 'idle' then
+        self.perch_pos = self.pos
+        if worldscene.player.form == 'rubber' then
+            local player_delta = (worldscene.player.pos + self.player_target_offset) - self.pos
+            if math.abs(player_delta.x) < 128 and math.abs(player_delta.y) < 128 then
+                self.state = 'pursuing'
+            end
+        end
+    elseif self.state == 'pursuing' then
+        if worldscene.player.form ~= 'rubber' then
+            self.state = 'returning'
+        else
+            local player_delta = (worldscene.player.pos + self.player_target_offset) - self.pos
+            if math.abs(player_delta.x) >= 128 or math.abs(player_delta.y) >= 128 then
+                self.state = 'returning'
+            else
+                self.velocity = self.pursuit_speed * player_delta:normalized()
+                self.sprite:set_pose('fly')
+                self.sprite:set_facing_right(self.velocity.x > 0)
+            end
+        end
+    elseif self.state == 'returning' then
+        local perch_delta = self.perch_pos - self.pos
+        local perch_dist = perch_delta:len()
+
+        if perch_dist < 2 then
+            self.pos = self.perch_pos:clone()
+            self.velocity = Vector()
+            self.sprite:set_pose('perch')
+            self.state = 'waiting'
+            worldscene.tick:delay(function()
+                self.state = 'idle'
+            end, love.math.random(3, 7))
+        else
+            self.velocity = perch_delta * math.min(1 / dt, self.pursuit_speed / perch_dist)
             self.sprite:set_pose('fly')
             self.sprite:set_facing_right(self.velocity.x > 0)
-        -- TODO else...
         end
     end
 
@@ -161,9 +206,9 @@ function Draclear:update(dt)
 end
 
 function Draclear:sate()
-    self.state = 'sated'
+    self.state = 'returning'
+    -- FIXME change back eventually
     self:set_sprite('draclear')
-    self.velocity = Vector(120, -60)
 end
 
 

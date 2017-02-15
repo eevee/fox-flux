@@ -9,7 +9,7 @@ local whammo_shapes = require 'klinklang.whammo.shapes'
 
 local Player = actors_base.SentientActor:extend{
     name = 'lexy',
-    sprite_name = 'lexy: rubber',
+    sprite_name = 'lexy',
     dialogue_position = 'left',
     dialogue_sprite_name = 'lexy portrait',
     z = 1000,
@@ -54,6 +54,7 @@ function Player:init(...)
         end,
     })
 
+    self:transform('rubber')
 end
 
 function Player:move_to(...)
@@ -75,7 +76,7 @@ function Player:on_collide_with(actor, collision, ...)
     local passable = Player.__super.on_collide_with(self, actor, collision, ...)
 
     -- Shatter if we hit something too fast
-    if self.sprite_name == 'lexy: glass' and not passable and collision.touchtype > 0 and self.velocity.y > 400 then
+    if self.form == 'glass' and not passable and collision.touchtype > 0 and self.velocity.y > 400 then
         self.is_locked = true
         self:set_sprite('lexy: glass revert')
         -- FIXME set_sprite should do this
@@ -93,6 +94,12 @@ function Player:update(dt)
         self:decide_climb(1)
     elseif self.decision_climb ~= nil then
         self:decide_climb(0)
+    end
+
+    if self.form == 'slime' then
+        -- Slime can't hold onto ladders
+        -- TODO indicate this somehow?  like, have the frames but don't apply the logic?
+        self.decision_climb = nil
     end
 
     -- Run the base logic to perform movement, collision, sprite updating, etc.
@@ -127,6 +134,19 @@ function Player:update_pose()
     Player.__super.update_pose(self)
 end
 
+function Player:transform(form)
+    self.form = form
+    self.inventory_frame_sprite_name = 'inventory frame: ' .. form
+    self:set_sprite('lexy: ' .. form)
+    self.dialogue_sprite_name = 'lexy portrait: ' .. form
+
+    if form == 'slime' then
+        self.jump_sound = 'assets/sounds/jump-slime.ogg'
+    else
+        self.jump_sound = Player.jump_sound
+    end
+end
+
 function Player:draw()
     actors_base.MobileActor.draw(self)
 
@@ -146,21 +166,18 @@ function Player:draw()
 end
 
 function Player:on_collide(actor, direction)
-    if self.sprite_name == 'lexy: rubber' and actor.name == 'slime' and math.abs(actor.pos.y - (self.pos.y - 12)) < 4 then
+    if self.form == 'rubber' and actor.name == 'slime' and math.abs(actor.pos.y - (self.pos.y - 12)) < 4 then
         self.facing_left = actor.pos.x < self.pos.x
         worldscene:remove_actor(actor)
         self.is_locked = true
         self:set_sprite('lexy: slime tf')
         self.sprite:set_facing_right(not self.facing_left)
-        -- FIXME revert for everything else
-        self.jump_sound = 'assets/sounds/jump-slime.ogg'
         -- FIXME DO AT END OF ANIMATION
         worldscene.tick:delay(function()
             self.is_locked = false
-            self:set_sprite('lexy: slime')
-            self.dialogue_sprite_name = 'lexy portrait: slime'
+            self:transform('slime')
         end, 0.85)
-    elseif self.sprite_name == 'lexy: rubber' and actor.name == 'draclear' then
+    elseif self.form == 'rubber' and actor.name == 'draclear' then
         local dist = self.pos + Vector(-6, -37) - actor.pos
         if math.abs(dist.x) < 8 and math.abs(dist.y) < 8 then
         local draclear = actor
@@ -172,8 +189,7 @@ function Player:on_collide(actor, direction)
         -- FIXME DO AT END OF ANIMATION
         worldscene.tick:delay(function()
             self.is_locked = false
-            self:set_sprite('lexy: glass')
-            self.dialogue_sprite_name = 'lexy portrait: glass'
+            self:transform('glass')
 
             draclear:sate()
             worldscene:add_actor(draclear)
@@ -183,9 +199,8 @@ function Player:on_collide(actor, direction)
 end
 
 function Player:toast()
-    if self.sprite_name == 'lexy: slime' then
-        self:set_sprite('lexy: rubber')
-        self.dialogue_sprite_name = 'lexy portrait: rubber'
+    if self.form == 'slime' then
+        self:transform('rubber')
     end
 end
 

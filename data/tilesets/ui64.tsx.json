@@ -1,22 +1,38 @@
 { "columns":2,
  "image":"..\/..\/assets\/images\/ui.png",
- "imageheight":128,
+ "imageheight":192,
  "imagewidth":128,
  "margin":0,
  "name":"ui",
  "spacing":0,
- "tilecount":4,
+ "tilecount":6,
  "tileheight":64,
  "tileproperties":
     {
      "0":
         {
-         "sprite name":"inventory frame\/default"
+         "sprite name":"inventory frame: rubber\/default"
+        },
+     "2":
+        {
+         "sprite name":"inventory frame: slime\/default"
+        },
+     "4":
+        {
+         "sprite name":"inventory frame: glass\/default"
         }
     },
  "tilepropertytypes":
     {
      "0":
+        {
+         "sprite name":"string"
+        },
+     "2":
+        {
+         "sprite name":"string"
+        },
+     "4":
         {
          "sprite name":"string"
         }

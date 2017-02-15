@@ -1,22 +1,46 @@
 { "columns":4,
  "image":"..\/..\/assets\/images\/ui.png",
- "imageheight":128,
+ "imageheight":192,
  "imagewidth":128,
  "margin":0,
  "name":"ui",
  "spacing":0,
- "tilecount":16,
+ "tilecount":24,
  "tileheight":32,
  "tileproperties":
     {
+     "10":
+        {
+         "sprite name":"spoon: drop\/default"
+        },
+     "11":
+        {
+         "sprite name":"spoon: swap\/default"
+        },
      "2":
         {
          "sprite name":"compact\/default"
+        },
+     "7":
+        {
+         "sprite name":"spoon\/default"
         }
     },
  "tilepropertytypes":
     {
+     "10":
+        {
+         "sprite name":"string"
+        },
+     "11":
+        {
+         "sprite name":"string"
+        },
      "2":
+        {
+         "sprite name":"string"
+        },
+     "7":
         {
          "sprite name":"string"
         }

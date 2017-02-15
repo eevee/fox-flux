@@ -40,7 +40,8 @@ local Platform = actors_base.MobileActor:extend{
 
     gravity_multiplier = 0,
     can_carry = true,
-    is_portable = false,
+    is_blockable = false,
+    mass = 1000,
 
     plat_distance = 4 * 32,
     plat_speed = 32,
@@ -61,15 +62,15 @@ function Platform:update(dt)
             self.plat_forwards = false
         end
     else
-        if self.pos.x < self.pos0.x then
+        if self.pos.y > self.pos0.y then
             self.plat_forwards = true
         end
     end
 
     if self.plat_forwards then
-        self.velocity = Vector(self.plat_speed, 0)
+        self.velocity = Vector(0, -self.plat_speed)
     else
-        self.velocity = Vector(-self.plat_speed, 0)
+        self.velocity = Vector(0, self.plat_speed)
     end
 
     Platform.__super.update(self, dt)
@@ -80,9 +81,11 @@ local Crate = actors_base.MobileActor:extend{
     name = 'crate',
     sprite_name = 'crate',
 
-    is_pushable = true,
+    is_portable = true,
     can_carry = true,
-    mass = 1.5,
+    is_pushable = true,
+    can_push = true,
+    mass = 4,
 }
 
 function Crate:on_collide(actor, direction, collision)
