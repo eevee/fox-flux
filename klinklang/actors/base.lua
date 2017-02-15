@@ -933,4 +933,5 @@ return {
     MobileActor = MobileActor,
     SentientActor = SentientActor,
     get_jump_velocity = get_jump_velocity,
+    any_normal_faces = any_normal_faces,
 }
