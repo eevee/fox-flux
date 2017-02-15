@@ -27,15 +27,137 @@ end
 
 
 --------------------------------------------------------------------------------
--- TileProxy
---
--- Not a real tile object, but a little wrapper that can read its properties
--- from the Tiled JSON on the fly.
+-- TiledTile
+-- What a ridiculous name!
 
-local TileProxy = Object:extend{}
+local TiledTile = Object:extend{}
 
-function TileProxy:init()
+function TiledTile:init(tileset, id)
+    self.tileset = tileset
+    self.id = id
 end
+
+function TiledTile:__tostring()
+    return ("<TiledTile #%d from %s>"):format(self.id, self.tileset.path)
+end
+
+function TiledTile:prop(key)
+    -- TODO what about the tilepropertytypes
+    local proptable = self.tileset.raw.tileproperties
+    if not proptable then
+        return
+    end
+
+    local props = proptable[self.id]
+    if not props then
+        return
+    end
+
+    return props[key]
+end
+
+local function _tiled_shape_to_whammo_shape(object, anchor)
+    anchor = anchor or Vector.zero
+    local shape
+    if object.polygon then
+        local points = {}
+        for i, pt in ipairs(object.polygon) do
+            -- Sometimes Tiled repeats the first point as the last point, and
+            -- sometimes it does not.  Duplicate points create zero normals,
+            -- which are REALLY BAD (and turn the player's position into nan),
+            -- so strip them out
+            local j = i + 1
+            if j > #object.polygon then
+                j = 1
+            end
+            local nextpt = object.polygon[j]
+            if pt.x ~= nextpt.x or pt.y ~= nextpt.y then
+                table.insert(points, pt.x + object.x - anchor.x)
+                table.insert(points, pt.y + object.y - anchor.y)
+            end
+        end
+        -- FIXME really this should be in Polygon, somehow?
+        -- FIXME also MultiShape should avoid nesting.  but MultiShape should do a lot of things
+        if love.math.isConvex(points) then
+            shape = whammo_shapes.Polygon(unpack(points))
+        else
+            shape = whammo_shapes.MultiShape()
+            for _, triangle in ipairs(love.math.triangulate(points)) do
+                shape:add_subshape(whammo_shapes.Polygon(unpack(triangle)))
+            end
+        end
+    else
+        -- TODO do the others, once whammo supports them
+        shape = whammo_shapes.Box(
+            object.x - anchor.x, object.y - anchor.y, object.width, object.height)
+    end
+
+    -- FIXME this is pretty bad, right?  the collision system shouldn't
+    -- need to know about this?  unless it should??  (a problem atm is
+    -- that it gets ignored on a subshape
+    if object.properties and object.properties['one-way platform'] then
+        shape._xxx_is_one_way_platform = true
+    end
+
+    return shape
+end
+
+function TiledTile:get_collision(default_anchor)
+    -- FIXME just parse this stuff once, then clone it when asked again
+    -- FIXME get rid of default_anchor jesus christ
+    if not self.tileset.raw.tiles then
+        return
+    end
+
+    local tiledata = self.tileset.raw.tiles[self.id]
+    if not tiledata or not tiledata.objectgroup then
+        return
+    end
+
+    -- TODO extremely hokey -- assumes at least one, doesn't check for more
+    -- than one, doesn't check shape, etc
+    local objects = tiledata.objectgroup.objects
+    if not objects or #objects == 0 then
+        return
+    end
+
+    -- Find an anchor, if any
+    local anchor = (default_anchor or Vector.zero):clone()
+    for _, obj in ipairs(objects) do
+        if obj.type == "anchor" then
+            anchor.x = obj.x
+            anchor.y = obj.y
+            break
+        end
+    end
+
+    local shape
+    for _, obj in ipairs(objects) do
+        if obj.type == "anchor" then
+            -- already taken care of
+        elseif obj.type == "" or obj.type == "collision" then
+            -- collision shape
+            local new_shape = _tiled_shape_to_whammo_shape(obj, anchor)
+
+            if shape then
+                if not shape:isa(whammo_shapes.MultiShape) then
+                    shape = whammo_shapes.MultiShape(shape)
+                end
+                shape:add_subshape(new_shape)
+            else
+                shape = new_shape
+            end
+        else
+            -- FIXME maybe need to return a table somehow, because i want to keep this for wire points?
+            error(
+                ("Don't know how to handle shape type %s on tile %s")
+                :format(obj.type, self))
+        end
+    end
+
+    return shape, anchor
+end
+
 
 --------------------------------------------------------------------------------
 -- TiledTileset
@@ -76,8 +198,12 @@ function TiledTileset:init(path, data, resource_manager)
     -- Create a quad for each tile
     -- NOTE: This is NOT (quite) a Lua array; it's a map from Tiled's tile ids
     -- (which start at zero) to quads
+    -- FIXME create the Tile objects here and let them make their own damn quads
+    self.tiles = {}
     self.quads = {}
     for relid = 0, self.tilecount - 1 do
+        self.tiles[relid] = TiledTile(self, relid)
+
         -- TODO support spacing, margin
         local row, col = util.divmod(relid, self.columns)
         self.quads[relid] = love.graphics.newQuad(
@@ -145,7 +271,7 @@ function TiledTileset:init(path, data, resource_manager)
                 args.leftwards = true
             end
 
-            local shape, anchor = self:get_collision(id, default_anchors[sprite_name])
+            local shape, anchor = self.tiles[id]:get_collision(default_anchors[sprite_name])
             if not default_anchors[sprite_name] then
                 default_anchors[sprite_name] = anchor
             end
@@ -154,120 +280,6 @@ function TiledTileset:init(path, data, resource_manager)
             spriteset:add_pose(args)
         end
     end
-end
-
-local function _tiled_shape_to_whammo_shape(object, anchor)
-    anchor = anchor or Vector.zero
-    local shape
-    if object.polygon then
-        local points = {}
-        for i, pt in ipairs(object.polygon) do
-            -- Sometimes Tiled repeats the first point as the last point, and
-            -- sometimes it does not.  Duplicate points create zero normals,
-            -- which are REALLY BAD (and turn the player's position into nan),
-            -- so strip them out
-            local j = i + 1
-            if j > #object.polygon then
-                j = 1
-            end
-            local nextpt = object.polygon[j]
-            if pt.x ~= nextpt.x or pt.y ~= nextpt.y then
-                table.insert(points, pt.x + object.x - anchor.x)
-                table.insert(points, pt.y + object.y - anchor.y)
-            end
-        end
-        -- FIXME really this should be in Polygon, somehow?
-        -- FIXME also MultiShape should avoid nesting.  but MultiShape should do a lot of things
-        if love.math.isConvex(points) then
-            shape = whammo_shapes.Polygon(unpack(points))
-        else
-            shape = whammo_shapes.MultiShape()
-            for _, triangle in ipairs(love.math.triangulate(points)) do
-                shape:add_subshape(whammo_shapes.Polygon(unpack(triangle)))
-            end
-        end
-    else
-        -- TODO do the others, once whammo supports them
-        shape = whammo_shapes.Box(
-            object.x - anchor.x, object.y - anchor.y, object.width, object.height)
-    end
-
-    -- FIXME this is pretty bad, right?  the collision system shouldn't
-    -- need to know about this?  unless it should??  (a problem atm is
-    -- that it gets ignored on a subshape
-    if object.properties and object.properties['one-way platform'] then
-        shape._xxx_is_one_way_platform = true
-    end
-
-    return shape
-end
-
-function TiledTileset:get_collision(tileid, default_anchor)
-    if not self.raw.tiles then
-        return
-    end
-
-    local tiledata = self.raw.tiles[tileid]
-    if not tiledata or not tiledata.objectgroup then
-        return
-    end
-
-    -- TODO extremely hokey -- assumes at least one, doesn't check for more
-    -- than one, doesn't check shape, etc
-    local objects = tiledata.objectgroup.objects
-    if not objects or #objects == 0 then
-        return
-    end
-
-    -- Find an anchor, if any
-    local anchor = (default_anchor or Vector.zero):clone()
-    for _, obj in ipairs(objects) do
-        if obj.type == "anchor" then
-            anchor.x = obj.x
-            anchor.y = obj.y
-            break
-        end
-    end
-
-    local shape
-    for _, obj in ipairs(objects) do
-        if obj.type == "anchor" then
-            -- already taken care of
-        elseif obj.type == "" or obj.type == "collision" then
-            -- collision shape
-            local new_shape = _tiled_shape_to_whammo_shape(obj, anchor)
-
-            if shape then
-                if not shape:isa(whammo_shapes.MultiShape) then
-                    shape = whammo_shapes.MultiShape(shape)
-                end
-                shape:add_subshape(new_shape)
-            else
-                shape = new_shape
-            end
-        else
-            -- FIXME maybe need to return a table somehow, because i want to keep this for wire points?
-            error(
-                ("Don't know how to handle shape type %s on tile %d from %s")
-                :format(obj.type, tileid, self.path))
-        end
-    end
-
-    return shape, anchor
-end
-
-function TiledTileset:tileprop(tileid, key)
-    local proptable = self.raw.tileproperties
-    if not proptable then
-        return
-    end
-
-    local props = proptable[tileid]
-    if not props then
-        return
-    end
-
-    return props[key]
 end
 
 --------------------------------------------------------------------------------
@@ -343,10 +355,7 @@ function TiledMap:init(path, resource_manager)
             -- TODO gids use the upper three bits for flips, argh!
             -- see: http://doc.mapeditor.org/reference/tmx-map-format/#data
             -- also fix below
-            self.tiles[firstgid + relid] = {
-                tileset = tileset,
-                tilesetid = relid,
-            }
+            self.tiles[firstgid + relid] = tileset.tiles[relid]
         end
     end
 
@@ -374,10 +383,8 @@ function TiledMap:init(path, resource_manager)
             for t = 0, width * height - 1 do
                 local gid = data[t + 1]
                 local tile = self.tiles[gid]
-                -- TODO lol put this in the tileset jesus
-                -- TODO what about the tilepropertytypes
                 if tile then
-                    local class = tile.tileset:tileprop(tile.tilesetid, 'actor')
+                    local class = tile:prop('actor')
                     if class then
                         local ty, tx = util.divmod(t, width)
                         table.insert(self.actor_templates, {
@@ -398,7 +405,7 @@ function TiledMap:init(path, resource_manager)
                     -- This is a "tile" object
                     local tile = self.tiles[object.gid]
                     if tile then
-                        local class = tile.tileset:tileprop(tile.tilesetid, 'actor')
+                        local class = tile:prop('actor')
                         if class then
                             table.insert(self.actor_templates, {
                                 name = class,
@@ -458,8 +465,7 @@ function TiledMap:add_to_collider(collider, submap_name)
                 local gid = data[t + 1]
                 local tile = self.tiles[gid]
                 if tile then
-                    -- TODO could just create this once and then clone it
-                    local shape = tile.tileset:get_collision(tile.tilesetid)
+                    local shape = tile:get_collision()
                     if shape then
                         local ty, tx = util.divmod(t, width)
                         shape:move(
@@ -499,7 +505,7 @@ function TiledMap:draw(layer_name, submap_name, origin, width, height)
                         -- TODO don't draw tiles not on the screen
                         love.graphics.draw(
                             tile.tileset.image,
-                            tile.tileset.quads[tile.tilesetid],
+                            tile.tileset.quads[tile.id],
                             -- convert tile offsets to pixels
                             tx * tw,
                             (ty + 1) * th - tile.tileset.raw.tileheight,
@@ -549,4 +555,5 @@ end
 return {
     TiledMap = TiledMap,
     TiledTileset = TiledTileset,
+    TiledTile = TiledTile,
 }
