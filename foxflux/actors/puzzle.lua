@@ -12,7 +12,7 @@ local whammo_shapes = require 'klinklang.whammo.shapes'
 local SpikesUp = actors_base.Actor:extend{
     name = 'spikes up',
     sprite_name = 'spikes up',
-    z = 1001,
+    z = 999,  -- just below player; player may redraw us if necessary
 }
 
 function SpikesUp:blocks(actor, collision)
@@ -23,8 +23,8 @@ function SpikesUp:blocks(actor, collision)
 end
 
 function SpikesUp:on_collide(actor, movement, collision)
-    if actor.is_player and collision.touchtype > 0 and actors_base.any_normal_faces(collision, Vector(0, -1)) then
-        actor:poke(self)
+    if actor.is_player and collision.touchtype > 0 then
+        actor:poke(self, collision)
     end
 end
 

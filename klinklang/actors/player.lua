@@ -112,9 +112,11 @@ function Player:update(dt)
 
     if self.form == 'rubber' then
         local in_any_spikes = false
-        for poker in pairs(self.in_spikes) do
-            in_any_spikes = true
-            break
+        for poker, impaled in pairs(self.in_spikes) do
+            if impaled then
+                in_any_spikes = true
+                break
+            end
         end
         if in_any_spikes then
             self.velocity.x = 0
@@ -174,6 +176,34 @@ function Player:transform(form)
     end
 end
 
+function Player:draw()
+    Player.__super.draw(self)
+
+    -- This is a /little/ complicated.
+    -- Spikes draw below us.  But for rubber, we want to show them poking
+    -- through us slightly; for slime, we want to show them inside us, even if
+    -- we didn't land on them.
+    if self.form == 'rubber' or self.form == 'slime' then
+        love.graphics.push('all')
+        if self.form == 'slime' then
+            love.graphics.setColor(255, 255, 255, 0.5 * 255)
+        elseif self.form == 'rubber' then
+            -- Draw the spikes, but scissor them and draw them slightly lower,
+            -- so they look like they stick through us.
+            local topleft = self.pos - self.sprite.anchor - worldscene.camera
+            local sw, sh = self.sprite:getDimensions()
+            love.graphics.setScissor(topleft.x, topleft.y, sw, sh * 0.65)
+            love.graphics.translate(0, 2)
+        end
+        for poker, impaled in pairs(self.in_spikes) do
+            if impaled or self.form == 'slime' then
+                poker:draw()
+            end
+        end
+        love.graphics.pop()
+    end
+end
+
 function Player:on_collide(actor, direction)
     if self.form == 'rubber' and actor.name == 'slime' and math.abs(actor.pos.y - (self.pos.y - 12)) < 4 then
         self.facing_left = actor.pos.x < self.pos.x
@@ -213,8 +243,9 @@ function Player:toast()
     end
 end
 
-function Player:poke(spikes)
-    self.in_spikes[spikes] = true
+function Player:poke(spikes, collision)
+    -- Track spikes we're currently touching, and whether we're impaled
+    self.in_spikes[spikes] = actors_base.any_normal_faces(collision, Vector(0, -1))
 end
 
 function Player:damage(source, amount)
