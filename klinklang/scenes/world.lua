@@ -5,6 +5,8 @@ local Vector = require 'vendor.hump.vector'
 
 local actors_base = require 'klinklang.actors.base'
 local Player = require 'klinklang.actors.player'
+local actors_generic = require 'klinklang.actors.generic'
+local TriggerZone = require 'klinklang.actors.trigger'
 local BaseScene = require 'klinklang.scenes.base'
 local PauseScene = require 'klinklang.scenes.pause'
 local SceneFader = require 'klinklang.scenes.fader'
@@ -18,9 +20,6 @@ local CAMERA_MARGIN = 0.33
 local MIN_FRAMERATE = 45
 -- Don't do more than this many updates at once
 local MAX_UPDATES = 10
-
--- FIXME game-specific...  but maybe it doesn't need to be
-local TriggerZone = require 'klinklang.actors.trigger'
 
 local WorldScene = BaseScene:extend{
     __tostring = function(self) return "worldscene" end,
@@ -663,6 +662,11 @@ function WorldScene:load_map(map)
                         Vector(object.x, object.y),
                         Vector(object.width, object.height),
                         object.properties))
+                elseif object.type == 'ladder' then
+                    local shape = tiledmap.tiled_shape_to_whammo_shape(object)
+                    shape._xxx_is_one_way_platform = true
+                    self:add_actor(actors_generic.LadderZone(
+                        Vector(object.x, object.y), shape))
                 end
             end
         end

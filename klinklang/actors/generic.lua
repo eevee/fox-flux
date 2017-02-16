@@ -139,20 +139,24 @@ function GenericSlidingDoorShutter:open()
 end
 
 
-local GenericLadder = actors_base.Actor:extend{
-    name = 'ladder',
-    sprite_name = 'ladder',
-
+local LadderZone = actors_base.BareActor:extend{
     is_climbable = true,
 }
 
-function GenericLadder:blocks()
+function LadderZone:blocks()
     -- Be sure to use a one-way platform!
     return true
+end
+
+function LadderZone:init(pos, shape)
+    self.shape = shape
+    LadderZone.__super.init(self, pos)
 end
 
 
 return {
     GenericSlidingDoor = GenericSlidingDoor,
     GenericSlidingDoorShutter = GenericSlidingDoorShutter,
+    GenericLadder = GenericLadder,
+    LadderZone = LadderZone,
 }
