@@ -93,10 +93,13 @@ function Player:on_collide_with(actor, collision, ...)
     if self.form == 'glass' and not self.is_locked and not passable and collision.touchtype > 0 then
         local shatter_height = self.shatter_height
         local owner = worldscene.collider:get_owner(collision.shape)
-        if owner and type(owner) == 'table' and owner.isa and owner:isa(tiledmap.TiledTile) then
-            local hardness = owner:prop('hardness') or 0
-            shatter_height = shatter_height - hardness
+        local hardness = 0
+        if actor then
+            hardness = actor.hardness or 0
+        elseif owner and type(owner) == 'table' and owner.isa and owner:isa(tiledmap.TiledTile) then
+            hardness = owner:prop('hardness') or 0
         end
+        shatter_height = shatter_height - hardness
 
         local max_velocity = actors_base.get_jump_velocity(shatter_height * game.TILE_SIZE)
         -- FIXME take the collision angle into account here

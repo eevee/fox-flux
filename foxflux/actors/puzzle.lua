@@ -112,16 +112,33 @@ local Crate = actors_base.MobileActor:extend{
     mass = 4,
 }
 
-function Crate:on_collide(actor, direction, collision)
-    local hit_side
-    for normal in pairs(collision.normals) do
-        if normal.x ~= 0 then
-            hit_side = normal
-            break
-        end
+
+-- A pushable object that softens falls
+local Cushion = actors_base.MobileActor:extend{
+    name = 'cushion',
+    sprite_name = 'cushion',
+
+    is_portable = true,
+    can_carry = true,
+    is_pushable = true,
+    can_push = true,
+    mass = 2,
+
+    hardness = -3,
+}
+
+function Cushion:update(dt)
+    Cushion.__super.update(self, dt)
+
+    local any_cargo
+    for actor in pairs(self.cargo) do
+        any_cargo = true
+        break
     end
-    if not hit_side then
-        return
+    if any_cargo then
+        self.sprite:set_pose('occupied')
+    else
+        self.sprite:set_pose('flat')
     end
 end
 
