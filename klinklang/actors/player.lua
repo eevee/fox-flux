@@ -105,6 +105,7 @@ function Player:on_collide_with(actor, collision, ...)
         local max_velocity = actors_base.get_jump_velocity(shatter_height * game.TILE_SIZE)
         -- FIXME take the collision angle into account here
         if self.velocity:len2() > max_velocity * max_velocity then
+            game.resource_manager:get('assets/sounds/shatter.ogg'):play()
             self.is_locked = true
             self:set_sprite('lexy: glass revert')
             -- FIXME set_sprite should do this
@@ -218,6 +219,10 @@ function Player:transform(form)
 
     if form == 'slime' then
         self.jump_sound = 'assets/sounds/jump-slime.ogg'
+    elseif form == 'glass' then
+        self.jump_sound = 'assets/sounds/jump-glass.ogg'
+    elseif form == 'stone' then
+        self.jump_sound = 'assets/sounds/jump-stone.ogg'
     else
         self.jump_sound = Player.jump_sound
     end
