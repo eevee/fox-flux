@@ -6,6 +6,7 @@ local Vector = require 'vendor.hump.vector'
 
 local actors_base = require 'klinklang.actors.base'
 local BaseScene = require 'klinklang.scenes.base'
+local Object = require 'klinklang.object'
 
 local SPEAKER_SCALE = 2
 local SCROLL_RATE = 64  -- characters per second
@@ -24,6 +25,113 @@ local function _evaluate_condition(condition)
         return condition()
     end
 end
+
+
+-- TODO maybe this should be a /speaker/ object?
+local StackedSprite = Object:extend{
+    is_talking = false,
+}
+
+-- TODO defaults, explicit posing, named pose shortcuts, persistent additions like neon's weight, while_talking
+function StackedSprite:init(data)
+    if type(data) == 'string' then
+        local sprite = game.sprites[data]:instantiate()
+        self.sprites = { default = sprite }
+        self.sprite_order = {'default'}
+        self.sprite_poses = { default = sprite.pose }
+        self.sprite_talking_map = { default = {} }
+        self.sprite_metaposes = {}
+        -- FIXME this seems really stupid for the extremely common case
+        for pose_name in pairs(sprite.spriteset.poses) do
+            self.sprite_metaposes[pose_name] = { default = pose_name }
+        end
+    else
+        self.sprites = {}
+        self.sprite_order = {}
+        self.sprite_poses = {}
+        self.sprite_talking_map = {}
+        self.sprite_metaposes = data
+        for _, datum in ipairs(data) do
+            local sprite = game.sprites[datum.sprite_name]:instantiate()
+            self.sprites[datum.name] = sprite
+            table.insert(self.sprite_order, datum.name)
+            if datum.default == false then
+                self.sprite_poses[datum.name] = false
+            elseif datum.default then
+                sprite:set_pose(datum.default)
+                self.sprite_poses[datum.name] = datum.default
+            else
+                self.sprite_poses[datum.name] = sprite.pose
+            end
+            self.sprite_talking_map[datum.name] = datum.while_talking or {}
+        end
+    end
+end
+
+function StackedSprite:change_pose(pose)
+    if type(pose) == 'string' then
+        pose = {pose}
+    end
+
+    -- TODO allow specific per sprite too
+    for _, metapose in ipairs(pose) do
+        for layer_name, subpose in pairs(self.sprite_metaposes[metapose]) do
+            -- TODO consult current is_talking
+            self.sprite_poses[layer_name] = subpose
+            if subpose ~= false then
+                self.sprites[layer_name]:set_pose(subpose)
+            end
+        end
+    end
+end
+
+function StackedSprite:set_talking(is_talking)
+    if is_talking ~= self.is_talking then
+        for name, sprite in pairs(self.sprites) do
+            local pose = self.sprite_poses[name]
+            if is_talking then
+                local talking_pose = self.sprite_talking_map[name][pose]
+                if talking_pose ~= nil then
+                    pose = talking_pose
+                end
+            end
+
+            -- FIXME wait, what if you want to use 'false' for talking?  i
+            -- store only the current not-talking pose in sprite_poses...
+            if pose ~= false then
+                sprite:set_pose(pose)
+            end
+        end
+    end
+
+    self.is_talking = is_talking
+end
+
+-- TODO this should help, right
+function StackedSprite:_set_sprite_pose()
+end
+
+-- FIXME what if the subsprites are different dimensions, oh goodness
+function StackedSprite:getDimensions()
+    return self.sprites[self.sprite_order[1]]:getDimensions()
+end
+
+for _, func in ipairs{'set_scale', 'set_facing_right', 'update', 'draw'} do
+    StackedSprite[func] = function(self, ...)
+        for _, sprite in pairs(self.sprites) do
+            sprite[func](sprite, ...)
+        end
+    end
+end
+
+function StackedSprite:draw_at(pos)
+    for _, name in ipairs(self.sprite_order) do
+        if self.sprite_poses[name] then
+            self.sprites[name]:draw_at(pos)
+        end
+    end
+end
+
 
 
 
@@ -61,10 +169,16 @@ function DialogueScene:init(speakers, script)
         if speaker.isa and speaker:isa(actors_base.BareActor) then
             local actor = speaker
             speaker = {
-                sprite = game.sprites[actor.dialogue_sprite_name]:instantiate(),
                 position = actor.dialogue_position,
                 color = actor.dialogue_color,
             }
+            if actor.dialogue_sprite_name then
+                speaker.sprite = game.sprites[actor.dialogue_sprite_name]:instantiate()
+            elseif actor.dialogue_sprites then
+                speaker.sprite = StackedSprite(actor.dialogue_sprites)
+            else
+                error()
+            end
             if actor.dialogue_background then
                 speaker.background = game.resource_manager:load(actor.dialogue_background)
             end
@@ -216,8 +330,8 @@ function DialogueScene:update(dt)
                     self.state = 'waiting'
                     self.phrase_timer = 0
                     self:_hesitate()
-                    if self.phrase_speaker.sprite then
-                        self.phrase_speaker.sprite:set_pose(self.phrase_speaker.sprite.spriteset.default_pose)
+                    if self.phrase_speaker.sprite and self.phrase_speaker.sprite.set_talking then
+                        self.phrase_speaker.sprite:set_talking(false)
                     end
                     break
                 end
@@ -229,6 +343,9 @@ function DialogueScene:update(dt)
                     self.state = 'waiting'
                     self.phrase_timer = 0
                     self:_hesitate()
+                    if self.phrase_speaker.sprite and self.phrase_speaker.sprite.set_talking then
+                        self.phrase_speaker.sprite:set_talking(false)
+                    end
                     break
                 end
             end
@@ -299,6 +416,9 @@ function DialogueScene:_advance_script()
         -- We paused in the middle of a phrase (because it was too long), so
         -- just continue from here
         self.state = 'speaking'
+        if self.phrase_speaker.sprite and self.phrase_speaker.sprite.set_talking then
+            self.phrase_speaker.sprite:set_talking(true)
+        end
         return
     end
     -- FIXME another check required because script_index is initially zero...
@@ -328,16 +448,24 @@ function DialogueScene:_advance_script()
             game.progress.flags[step.set] = true
         end
 
+        -- Pose changes can happen on any step
+        if step.pose then
+            -- TODO this is super hokey at the moment dang
+            local speaker = self.speakers[step.speaker]
+            speaker.pose = step.pose
+            if speaker.sprite then
+                speaker.sprite:change_pose(step.pose)
+            end
+        end
+
         if #step > 0 then
             self.state = 'speaking'
             local _textwidth
             _textwidth, self.phrase_lines = self.font:getWrap(step[1], self.wraplimit)
             self.phrase_texts = {}
             self.phrase_speaker = self.speakers[step.speaker]
-            -- TODO euugh.  not only is this gross, it's wrong, because isaac faces left in this sprite
-            -- FIXME need a less hardcoded way to specify talking sprites; probably just only animate them while talking
-            if self.phrase_speaker.sprite then
-                self.phrase_speaker.sprite:set_pose(self.phrase_speaker.sprite.spriteset.default_pose)
+            if self.phrase_speaker.sprite and self.phrase_speaker.sprite.set_talking then
+                self.phrase_speaker.sprite:set_talking(true)
             end
             self.phrase_timer = 0
             self.curphrase = 1
@@ -378,13 +506,6 @@ function DialogueScene:_advance_script()
             -- FIXME you could reasonably have this alongside a jump, etc
             if _evaluate_condition(step.condition) then
                 step.execute()
-            end
-        elseif step.pose then
-            -- TODO this is super hokey at the moment dang
-            local speaker = self.speakers[step.speaker]
-            speaker.pose = step.pose
-            if speaker.sprite then
-                speaker.sprite:set_pose(step.pose)
             end
         elseif step.bail then
             self.state = 'done'
@@ -560,10 +681,11 @@ function DialogueScene:draw()
 
     -- Draw the speakers
     -- FIXME the draw order differs per run!
+    love.graphics.setColor(255, 255, 255)
     for _, speaker in pairs(self.speakers) do
         local sprite = speaker.sprite
         if sprite then
-            local sw, sh = sprite.anim:getDimensions()
+            local sw, sh = sprite:getDimensions()
             local x
             if speaker.position == 'far left' then
                 x = math.floor(boxwidth / 8)
@@ -575,12 +697,7 @@ function DialogueScene:draw()
                 print("unrecognized speaker position:", speaker.position)
                 x = 0
             end
-            local pos = Vector(x - sw * self.speaker_scale / 2, boxtop - sh * self.speaker_scale)
-            if speaker == self.phrase_speaker then
-                love.graphics.setColor(255, 255, 255)
-            else
-                love.graphics.setColor(128, 128, 128)
-            end
+            local pos = Vector(x - sw / 2, boxtop - sh)
             sprite:draw_at(pos)
         end
     end
