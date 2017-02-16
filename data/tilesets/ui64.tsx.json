@@ -1,11 +1,11 @@
 { "columns":2,
  "image":"..\/..\/assets\/images\/ui.png",
- "imageheight":192,
+ "imageheight":256,
  "imagewidth":128,
  "margin":0,
  "name":"ui",
  "spacing":0,
- "tilecount":6,
+ "tilecount":8,
  "tileheight":64,
  "tileproperties":
     {
@@ -20,6 +20,10 @@
      "4":
         {
          "sprite name":"inventory frame: glass\/default"
+        },
+     "6":
+        {
+         "sprite name":"inventory frame: stone\/default"
         }
     },
  "tilepropertytypes":
@@ -33,6 +37,10 @@
          "sprite name":"string"
         },
      "4":
+        {
+         "sprite name":"string"
+        },
+     "6":
         {
          "sprite name":"string"
         }

@@ -23,6 +23,7 @@ local Player = actors_base.SentientActor:extend{
 
     inventory_cursor = 1,
     shatter_height = 4,
+    camera_jitter = 0,
 
     jump_sound = 'assets/sounds/jump.ogg',
 }
@@ -124,12 +125,6 @@ function Player:update(dt)
         self:decide_climb(0)
     end
 
-    if self.form == 'slime' then
-        -- Slime can't hold onto ladders
-        -- TODO indicate this somehow?  like, have the frames but don't apply the logic?
-        self.decision_climb = nil
-    end
-
     if self.form == 'rubber' then
         local in_any_spikes = false
         for poker, impaled in pairs(self.in_spikes) do
@@ -144,9 +139,36 @@ function Player:update(dt)
         end
     end
 
+    if self.form == 'slime' then
+        -- Slime can't hold onto ladders
+        -- TODO indicate this somehow?  like, have the frames but don't apply the logic?
+        self.decision_climb = nil
+    end
+
+    if self.form == 'stone' then
+        -- Stone can't hold onto ladders
+        self.decision_climb = nil
+
+        -- Stone can't move along the ground
+        if self.on_ground then
+            self.decision_walk = 0
+        end
+    end
+
     -- Run the base logic to perform movement, collision, sprite updating, etc.
     self.touching_mechanism = nil
+    local was_on_ground = self.on_ground
     local movement, hits, last_clock = Player.__super.update(self, dt)
+
+    -- Create a thud if we land on something
+    if self.form == 'stone' and
+        not was_on_ground and self.on_ground and
+        self.camera_jitter == 0
+    then
+        game.resource_manager:get('assets/sounds/thud.ogg'):clone():play()
+        worldscene.fluct:to(self, 0.25, { camera_jitter = 10 })
+            :oncomplete(function() self.camera_jitter = 0 end)
+    end
 
     -- Stop tracking spikes we're no longer touching
     for poker in pairs(self.in_spikes) do
@@ -180,6 +202,11 @@ function Player:update_pose()
         return
     end
 
+    if self.form == 'stone' then
+        self.sprite:set_pose('stand')
+        return
+    end
+
     Player.__super.update_pose(self)
 end
 
@@ -193,6 +220,19 @@ function Player:transform(form)
         self.jump_sound = 'assets/sounds/jump-slime.ogg'
     else
         self.jump_sound = Player.jump_sound
+    end
+
+    if form == 'stone' then
+        self.xaccel = Player.xaccel / 2
+        self.max_speed = Player.max_speed / 2
+        self.jumpvel = actors_base.get_jump_velocity(32)
+        self.ground_friction = math.huge
+        -- TODO lower max slope too?
+    else
+        self.xaccel = Player.xaccel
+        self.max_speed = Player.max_speed
+        self.jumpvel = Player.jumpvel
+        self.ground_friction = Player.ground_friction
     end
 end
 

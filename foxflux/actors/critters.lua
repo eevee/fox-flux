@@ -7,34 +7,6 @@ local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 
 
-local Gecko = actors_base.SentientActor:extend{
-    name = 'gecko',
-    sprite_name = 'gecko',
-
-    max_speed = 256,
-}
-
-function Gecko:blocks()
-    return false
-end
-
-function Gecko:update(dt)
-    -- FIXME would be nice to not walk off ledges
-    if not self.move_event then
-        self.move_event = worldscene.tick:delay(function()
-            -- FIXME don't move in directions we already know we're blocked
-            self:decide_walk(love.math.random(3) - 2)
-        end, love.math.random(0.5, 2))
-        self.move_event:after(function()
-            self:decide_walk(0)
-            self.move_event = nil
-        end, love.math.random(0.5, 2.0))
-    end
-
-    Gecko.__super.update(self, dt)
-end
-
-
 local Slime = actors_base.SentientActor:extend{
     name = 'slime',
     sprite_name = 'slime',
@@ -214,6 +186,78 @@ function Draclear:sate()
     -- FIXME change back eventually
     self:set_sprite('draclear')
 end
+
+
+-- Turns the player to stone on touch
+local ReverseCockatrice = actors_base.SentientActor:extend{
+    name = 'reverse cockatrice',
+    sprite_name = 'reverse cockatrice',
+
+    max_speed = 64,
+}
+
+function ReverseCockatrice:blocks()
+    return false
+end
+
+function ReverseCockatrice:on_collide(actor)
+    if actor.is_player and not actor.is_locked and actor.form == 'rubber' then
+        actor:transform('stone')
+    end
+end
+
+function ReverseCockatrice:update(dt)
+    -- FIXME would be nice to not walk off ledges
+    if not self.move_event then
+        self.move_event = worldscene.tick:delay(function()
+            -- FIXME don't move in directions we already know we're blocked
+            self:decide_walk(love.math.random(3) - 2)
+        end, love.math.random(0.5, 2))
+        self.move_event:after(function()
+            self:decide_walk(0)
+            self.move_event = nil
+        end, love.math.random(0.5, 2.0))
+    end
+
+    ReverseCockatrice.__super.update(self, dt)
+end
+
+
+
+
+local Gecko = actors_base.SentientActor:extend{
+    name = 'gecko',
+    sprite_name = 'gecko',
+
+    max_speed = 256,
+}
+
+function Gecko:blocks()
+    return false
+end
+
+function Gecko:on_collide(actor)
+    if actor.is_player and not actor.is_locked and actor.form == 'stone' then
+        actor:transform('rubber')
+    end
+end
+
+function Gecko:update(dt)
+    -- FIXME would be nice to not walk off ledges
+    if not self.move_event then
+        self.move_event = worldscene.tick:delay(function()
+            -- FIXME don't move in directions we already know we're blocked
+            self:decide_walk(love.math.random(3) - 2)
+        end, love.math.random(0.5, 2))
+        self.move_event:after(function()
+            self:decide_walk(0)
+            self.move_event = nil
+        end, love.math.random(0.5, 2.0))
+    end
+
+    Gecko.__super.update(self, dt)
+end
+
 
 
 return {

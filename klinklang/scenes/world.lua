@@ -285,6 +285,10 @@ function WorldScene:update_camera()
             newy = focusy - y1
         end
         newy = math.max(miny, math.min(maxy, newy))
+        if self.player.camera_jitter and self.player.camera_jitter > 0 then
+            newy = newy + math.sin(self.player.camera_jitter * math.pi) * 3
+            newy = math.max(miny, math.min(maxy, newy))
+        end
         self.camera.y = math.floor(newy)
     end
 end

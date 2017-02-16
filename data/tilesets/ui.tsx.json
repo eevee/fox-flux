@@ -1,11 +1,11 @@
 { "columns":4,
  "image":"..\/..\/assets\/images\/ui.png",
- "imageheight":192,
+ "imageheight":256,
  "imagewidth":128,
  "margin":0,
  "name":"ui",
  "spacing":0,
- "tilecount":24,
+ "tilecount":32,
  "tileheight":32,
  "tileproperties":
     {

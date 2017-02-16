@@ -1,11 +1,11 @@
 { "columns":8,
  "image":"..\/..\/assets\/images\/critters.png",
- "imageheight":64,
+ "imageheight":128,
  "imagewidth":256,
  "margin":0,
  "name":"critters",
  "spacing":0,
- "tilecount":16,
+ "tilecount":32,
  "tileheight":32,
  "tileproperties":
     {
@@ -25,6 +25,19 @@
      "12":
         {
          "sprite name":"gecko\/fall"
+        },
+     "24":
+        {
+         "actor":"reverse cockatrice",
+         "sprite name":"reverse cockatrice\/stand"
+        },
+     "25":
+        {
+         "sprite name":"reverse cockatrice\/walk"
+        },
+     "28":
+        {
+         "sprite name":"reverse cockatrice\/fall"
         },
      "3":
         {
@@ -60,6 +73,19 @@
          "sprite name":"string"
         },
      "12":
+        {
+         "sprite name":"string"
+        },
+     "24":
+        {
+         "actor":"string",
+         "sprite name":"string"
+        },
+     "25":
+        {
+         "sprite name":"string"
+        },
+     "28":
         {
          "sprite name":"string"
         },
@@ -194,6 +220,57 @@
              "x":0,
              "y":0
             }
+        },
+     "24":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":26,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":24,
+                     "x":6,
+                     "y":4
+                    }, 
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":17,
+                     "y":30
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "25":
+        {
+         "animation":[
+                {
+                 "duration":100,
+                 "tileid":25
+                }, 
+                {
+                 "duration":100,
+                 "tileid":26
+                }]
         },
      "3":
         {

@@ -51,6 +51,14 @@
          "animation stops":true,
          "sprite name":"lexy: glass\/jump"
         },
+     "159":
+        {
+         "sprite name":"lexy: glass\/climb"
+        },
+     "162":
+        {
+         "sprite name":"lexy: glass\/descend"
+        },
      "18":
         {
          "sprite name":"lexy\/descend"
@@ -96,6 +104,10 @@
         {
          "animation stops":true,
          "sprite name":"lexy: slime\/jump"
+        },
+     "72":
+        {
+         "sprite name":"lexy: stone\/stand"
         },
      "9":
         {
@@ -154,6 +166,14 @@
          "animation stops":"bool",
          "sprite name":"string"
         },
+     "159":
+        {
+         "sprite name":"string"
+        },
+     "162":
+        {
+         "sprite name":"string"
+        },
      "18":
         {
          "sprite name":"string"
@@ -198,6 +218,10 @@
      "59":
         {
          "animation stops":"bool",
+         "sprite name":"string"
+        },
+     "72":
+        {
          "sprite name":"string"
         },
      "9":
@@ -722,6 +746,46 @@
              "y":0
             }
         },
+     "159":
+        {
+         "animation":[
+                {
+                 "duration":150,
+                 "tileid":159
+                }, 
+                {
+                 "duration":150,
+                 "tileid":160
+                }, 
+                {
+                 "duration":150,
+                 "tileid":161
+                }, 
+                {
+                 "duration":150,
+                 "tileid":162
+                }]
+        },
+     "162":
+        {
+         "animation":[
+                {
+                 "duration":150,
+                 "tileid":162
+                }, 
+                {
+                 "duration":150,
+                 "tileid":161
+                }, 
+                {
+                 "duration":150,
+                 "tileid":160
+                }, 
+                {
+                 "duration":150,
+                 "tileid":159
+                }]
+        },
      "18":
         {
          "animation":[
@@ -1185,6 +1249,45 @@
                      "width":0,
                      "x":20,
                      "y":60
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "72":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":60
+                    }, 
+                    {
+                     "height":50,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":24,
+                     "x":4,
+                     "y":10
                     }],
              "opacity":1,
              "type":"objectgroup",
