@@ -56,7 +56,7 @@ function TiledTile:prop(key)
     return props[key]
 end
 
-local function _tiled_shape_to_whammo_shape(object, anchor)
+local function tiled_shape_to_whammo_shape(object, anchor)
     anchor = anchor or Vector.zero
     local shape
     if object.polygon then
@@ -137,7 +137,7 @@ function TiledTile:get_collision(default_anchor)
             -- already taken care of
         elseif obj.type == "" or obj.type == "collision" then
             -- collision shape
-            local new_shape = _tiled_shape_to_whammo_shape(obj, anchor)
+            local new_shape = tiled_shape_to_whammo_shape(obj, anchor)
 
             if shape then
                 if not shape:isa(whammo_shapes.MultiShape) then
@@ -418,7 +418,7 @@ function TiledMap:init(path, resource_manager)
                 elseif object.type == 'player start' then
                     self.player_start = Vector(object.x, object.y)
                 elseif object.type == 'music zone' then
-                    local shape = _tiled_shape_to_whammo_shape(object)
+                    local shape = tiled_shape_to_whammo_shape(object)
                     self.music_zones[shape] = resource_manager:load(object.properties.music)
                 end
             end
@@ -479,7 +479,7 @@ function TiledMap:add_to_collider(collider, submap_name)
         elseif layer.type == 'objectgroup' and layer.submap == submap_name then
             for _, obj in ipairs(layer.objects) do
                 if obj.type == 'collision' then
-                    local shape = _tiled_shape_to_whammo_shape(obj, Vector.zero)
+                    local shape = tiled_shape_to_whammo_shape(obj, Vector.zero)
                     self.shapes[shape] = true
                     collider:add(shape)
                 end
@@ -556,4 +556,5 @@ return {
     TiledMap = TiledMap,
     TiledTileset = TiledTileset,
     TiledTile = TiledTile,
+    tiled_shape_to_whammo_shape = tiled_shape_to_whammo_shape,
 }
