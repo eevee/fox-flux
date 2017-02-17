@@ -664,7 +664,6 @@ function WorldScene:load_map(map)
                         object.properties))
                 elseif object.type == 'ladder' then
                     local shape = tiledmap.tiled_shape_to_whammo_shape(object)
-                    shape._xxx_is_one_way_platform = true
                     self:add_actor(actors_generic.LadderZone(
                         Vector(object.x, object.y), shape))
                 end
