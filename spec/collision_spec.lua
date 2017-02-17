@@ -1,7 +1,36 @@
 local Vector = require 'vendor.hump.vector'
 
+local util = require 'klinklang.util'
 local whammo = require 'klinklang.whammo'
 local whammo_shapes = require 'klinklang.whammo.shapes'
+
+local function do_simple_slide(collider, shape, movement)
+    local successful, hits = collider:slide(shape, movement)
+    if successful == movement then
+        return successful, hits
+    end
+
+    -- Just slide once; should be enough for testing purposes
+    -- XXX it seems weird to have tests that rely largely on how well this
+    -- utility function works.  i would love some tests for the actor stuff
+    -- (though i'd need to ditch worldscene, ideally)
+    local combined_clock = util.ClockRange(util.ClockRange.ZERO, util.ClockRange.ZERO)
+    for shape, collision in pairs(hits) do
+        if not collision.passable then
+            combined_clock:intersect(collision.clock)
+        end
+    end
+
+    local slide = combined_clock:closest_extreme(movement)
+    if slide then
+        shape:move(successful:unpack())
+        local successful2
+        successful2, hits = collider:slide(shape, (movement - successful):projectOn(slide))
+        return successful + successful2, hits
+    else
+        return successful, hits
+    end
+end
 
 describe("Collision", function()
     it("should handle orthogonal movement", function()
@@ -94,9 +123,9 @@ describe("Collision", function()
         collider:add(wall)
 
         local player = whammo_shapes.Box(200, 150, 100, 100)
-        local successful, hits = collider:slide(player, Vector(-200, -100))
+        local successful, hits = do_simple_slide(collider, player, Vector(-200, -100))
         assert.are.equal(-200, successful.x)
-        assert.are.equal(1, hits[wall].touchtype)
+        assert.are.equal(0, hits[wall].touchtype)
     end)
     it("should handle diagonal movement into corners with walls", function()
         --[[
@@ -114,10 +143,10 @@ describe("Collision", function()
         collider:add(wall2)
 
         local player = whammo_shapes.Box(100, 100, 100, 100)
-        local successful, hits = collider:slide(player, Vector(-50, -50))
+        local successful, hits = do_simple_slide(collider, player, Vector(-50, -50))
         assert.are.equal(Vector(0, -50), successful)
-        assert.are.equal(1, hits[wall1].touchtype)
-        assert.are.equal(1, hits[wall2].touchtype)
+        assert.are.equal(0, hits[wall1].touchtype)
+        assert.are.equal(0, hits[wall2].touchtype)
     end)
     it("should handle movement blocked in multiple directions", function()
         --[[
@@ -157,9 +186,9 @@ describe("Collision", function()
         collider:add(wall)
 
         local player = whammo_shapes.Box(100, 0, 100, 100)
-        local successful, hits = collider:slide(player, Vector(-100, 50))
+        local successful, hits = do_simple_slide(collider, player, Vector(-100, 50))
         assert.are.equal(Vector(0, 50), successful)
-        assert.are.equal(1, hits[wall].touchtype)
+        assert.are.equal(0, hits[wall].touchtype)
     end)
     it("should slide you down when pressed against a wall", function()
         --[[
@@ -178,10 +207,10 @@ describe("Collision", function()
         collider:add(wall2)
 
         local player = whammo_shapes.Box(100, 50, 100, 100)
-        local successful, hits = collider:slide(player, Vector(-50, 100))
+        local successful, hits = do_simple_slide(collider, player, Vector(-50, 100))
         assert.are.equal(Vector(0, 100), successful)
-        assert.are.equal(1, hits[wall1].touchtype)
-        assert.are.equal(1, hits[wall2].touchtype)
+        assert.are.equal(0, hits[wall1].touchtype)
+        assert.are.equal(0, hits[wall2].touchtype)
     end)
     it("should slide you along slopes", function()
         --[[
@@ -198,9 +227,9 @@ describe("Collision", function()
         collider:add(floor)
 
         local player = whammo_shapes.Box(0, 0, 100, 100)
-        local successful, hits = collider:slide(player, Vector(0, 100))
+        local successful, hits = do_simple_slide(collider, player, Vector(0, 100))
         assert.are.equal(Vector(40, 20), successful)
-        assert.are.equal(1, hits[floor].touchtype)
+        assert.are.equal(0, hits[floor].touchtype)
     end)
     it("should not put you inside slopes", function()
         --[[
@@ -377,9 +406,12 @@ describe("Collision", function()
         collider:add(floor2)
 
         local player = whammo_shapes.Box(443, 320, 32, 64)
-        local successful, hits = collider:slide(player, Vector(4.3068122830999, 0.73455352286288))
+        local successful, hits = do_simple_slide(collider, player, Vector(4.3068122830999, 0.73455352286288))
         assert.are.equal(Vector(4.3068122830999, 0), successful)
-        assert.are.equal(1, hits[floor1].touchtype)
+        -- XXX this is 0 because the last movement was a slide, but obviously
+        -- you DID collide with it...  within the game that's tested with the
+        -- callback though
+        assert.are.equal(0, hits[floor1].touchtype)
     end)
 
     it("should allow near misses", function()
