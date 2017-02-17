@@ -57,7 +57,7 @@ function TriggerZone:execute_trigger(activator)
     if self.action == 'change map' then
         local tiledmap = require 'klinklang.tiledmap'
         local map = game.resource_manager:load(self.props.map)
-        worldscene:load_map(map)
+        worldscene:load_map(map, self.props.spot)
     elseif self.action == 'enter submap' then
         worldscene:enter_submap(self.props.submap)
     elseif self.action == 'leave submap' then

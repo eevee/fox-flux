@@ -372,7 +372,9 @@ function TiledMap:init(path, resource_manager)
     end
 
     -- Detach any automatic actor tiles
+    -- TODO i can't figure out how much of this should be here vs worldscene
     self.actor_templates = {}
+    self.named_spots = {}
     self.music_zones = {}
     for _, layer in ipairs(self.layers) do
         -- TODO this is largely copy/pasted from below
@@ -417,6 +419,12 @@ function TiledMap:init(path, resource_manager)
                     end
                 elseif object.type == 'player start' then
                     self.player_start = Vector(object.x, object.y)
+                elseif object.type == 'spot' then
+                    local point = Vector(object.x, object.y)
+                    self.named_spots[object.name] = point
+                    if not self.player_start then
+                        self.player_start = point
+                    end
                 elseif object.type == 'music zone' then
                     local shape = tiled_shape_to_whammo_shape(object)
                     self.music_zones[shape] = resource_manager:load(object.properties.music)

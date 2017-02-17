@@ -590,7 +590,7 @@ end
 --------------------------------------------------------------------------------
 -- API
 
-function WorldScene:load_map(map)
+function WorldScene:load_map(map, spot_name)
     -- Unload previous map; this allows actors to clean up global resources,
     -- such as ambient sounds.
     -- TODO i'm not sure this is the right thing to do; it would be wrong for
@@ -636,16 +636,22 @@ function WorldScene:load_map(map)
     -- collider, but it happens to work (i think)
     map:add_to_collider(self.collider)
 
-    local player_start = self.map.player_start
-    -- FIXME fix all the maps and then make this fatal
-    if not player_start then
-        print("WARNING: no player start!!")
-        player_start = Vector(1 * map.tilewidth, 5 * map.tileheight)
-    end
-    if not self.player then
-        self.player = Player(player_start:clone())
+    local player_start
+    if spot_name then
+        player_start = self.map.named_spots[spot_name]
+        if not player_start then
+            error(("No spot named %s on map %s"):format(spot_name, map))
+        end
     else
+        player_start = self.map.player_start
+        if not player_start then
+            error(("No player start found on map %s"):format(map))
+        end
+    end
+    if self.player then
         self.player:move_to(player_start:clone())
+    else
+        self.player = Player(player_start:clone())
     end
 
     -- TODO this seems more a candidate for an 'enter' or map-switch event
