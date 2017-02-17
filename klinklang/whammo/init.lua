@@ -49,6 +49,7 @@ local function _collision_sort(a, b)
     return a.touchdist < b.touchdist
 end
 
+-- FIXME consider renaming this and the other method to "sweep"
 function Collider:slide(shape, attempted, pass_callback)
     local hits = {}
     local collisions = {}

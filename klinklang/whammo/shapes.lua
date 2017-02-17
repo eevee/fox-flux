@@ -271,7 +271,7 @@ function Polygon:slide_towards(other, movement)
 
     -- Project both shapes onto each axis and look for the minimum distance
     local maxamt = -math.huge
-    local maxsep, maxdir, maxnumer, maxdenom
+    local maxnumer, maxdenom
     local touchtype = -1
     -- TODO i would love to get rid of ClockRange, and it starts right here; i
     -- think at most we can return a span of two normals, if you hit a corner
@@ -280,9 +280,11 @@ function Polygon:slide_towards(other, movement)
     local normals = {}  -- set of normals we collided with
     --print("us:", self:bbox())
     --print("them:", other:bbox())
+    -- FIXME i can ditch the normalized axes entirely; just need to make sure
+    -- no callers are relying on getting them in normals
     for fullaxis, axis in pairs(axes) do
-        local min1, max1, minpt1, maxpt1 = self:project_onto_axis(axis)
-        local min2, max2, minpt2, maxpt2 = other:project_onto_axis(axis)
+        local min1, max1, minpt1, maxpt1 = self:project_onto_axis(fullaxis)
+        local min2, max2, minpt2, maxpt2 = other:project_onto_axis(fullaxis)
         local dist, sep
         if min1 < min2 then
             -- 1 appears first, so take the distance from 1 to 2
@@ -327,25 +329,27 @@ function Polygon:slide_towards(other, movement)
                 -- of dot products (which makes sense).  Vectors are neat.
                 -- Note that slides are meaningless here; a shape could move
                 -- perpendicular to the axis forever without hitting anything.
-                local numer = (sep * fullaxis)
+                local numer = sep * fullaxis
                 local amount = numer / dot
                 if math.abs(amount) < PRECISION then
                     amount = 0
                 end
-                if amount > maxamt then
+                -- TODO i think i could avoid this entirely by using a cross
+                -- product instead?
+                if math.abs(amount - maxamt) < PRECISION then
+                    -- Equal, ish
+                    if not fullaxis._is_move_normal then
+                        -- FIXME these are no longer de-duplicated, hmm
+                        normals[-fullaxis] = -axis
+                    end
+                elseif amount > maxamt then
                     maxamt = amount
-                    maxsep = sep
-                    maxdir = fullaxis
                     maxnumer = numer
                     maxdenom = dot
                     if fullaxis._is_move_normal then
                         normals = {}
                     else
                         normals = { [-fullaxis] = -axis }
-                    end
-                elseif amount == maxamt then
-                    if not fullaxis._is_move_normal then
-                        normals[-fullaxis] = -axis
                     end
                 end
             end
