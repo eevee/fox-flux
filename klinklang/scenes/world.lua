@@ -330,7 +330,7 @@ function WorldScene:draw()
         -- FIXME stop hardcoding fuckin layer names
         self.map:draw('background', self.submap, self.camera, w, h)
         self.map:draw('main terrain', self.submap, self.camera, w, h)
-        self.map:draw(self.submap, self.camera, w, h)
+        self.map:draw(self.submap, self.submap, self.camera, w, h)
         self:_draw_actors(self.actors)
         self.map:draw('objects', self.submap, self.camera, w, h)
         self.map:draw('foreground', self.submap, self.camera, w, h)
@@ -713,10 +713,12 @@ end
 
 function WorldScene:enter_submap(name)
     -- FIXME this is extremely half-baked
+    if self.submap == nil then
+        self.pushed_actors = self.actors
+        self.pushed_collider = self.collider
+    end
     self.submap = name
     self:remove_actor(self.player)
-    self.pushed_actors = self.actors
-    self.pushed_collider = self.collider
 
     -- FIXME get rid of pushed in favor of this?  but still need to establish the stack
     if self.stashed_submaps[name] then
@@ -738,6 +740,7 @@ function WorldScene:enter_submap(name)
     self:_create_actors(self.submap)
 
     -- FIXME this is also invasive
+    -- FIXME since this is copy/pasted it doesn't include ladders
     for _, layer in pairs(self.map.layers) do
         if layer.type == 'objectgroup' and layer.submap == self.submap then
             for _, object in ipairs(layer.objects) do
