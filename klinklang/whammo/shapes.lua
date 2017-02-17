@@ -276,7 +276,7 @@ function Polygon:slide_towards(other, movement)
     -- TODO i would love to get rid of ClockRange, and it starts right here; i
     -- think at most we can return a span of two normals, if you hit a corner
     local clock = util.ClockRange()
-    local is_slide = false
+    local slide_axis
     local normals = {}  -- set of normals we collided with
     --print("us:", self:bbox())
     --print("them:", other:bbox())
@@ -318,7 +318,7 @@ function Polygon:slide_towards(other, movement)
                 -- Zero dot and zero distance mean the movement is parallel
                 -- and the shapes can slide against each other.  But we still
                 -- need to check other axes to know if they'll actually touch.
-                is_slide = true
+                slide_axis = fullaxis
             else
                 -- Figure out how much movement is allowed, as a fraction.
                 -- Conceptually, the answer is the movement projected onto the
@@ -384,7 +384,7 @@ function Polygon:slide_towards(other, movement)
         return
     end
 
-    if is_slide then
+    if slide_axis then
         -- This is a slide; we will touch (or are already touching) the other
         -- object, but can continue past it.  (If we wouldn't touch, amount
         -- would exceed 1, and we would've returned earlier.)
@@ -396,6 +396,9 @@ function Polygon:slide_towards(other, movement)
         if touchtype == 1 then
             touchdist = 0
         end
+        -- Since we're touching, the slide axis is also a valid normal, along
+        -- with any collision normals
+        normals[-slide_axis] = -slide_axis:normalized()
         return {
             movement = movement,
             amount = 1,
