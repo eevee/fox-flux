@@ -254,6 +254,8 @@ function Polygon:slide_towards(other, movement)
 
     -- Mapping of normal vectors (i.e. projection axes) to their normalized
     -- versions (needed for comparing the results of the projection)
+    -- FIXME is the move normal actually necessary, or was it just covering up
+    -- my bad math before?
     local movenormal = movement:perpendicular()
     movenormal._is_move_normal = true
     local axes = {}
@@ -268,13 +270,14 @@ function Polygon:slide_towards(other, movement)
     end
 
     -- Project both shapes onto each axis and look for the minimum distance
-    local maxdist = -math.huge
-    local maxsep, maxdir
+    local maxamt = -math.huge
+    local maxsep, maxdir, maxnumer, maxdenom
+    local touchtype = -1
     -- TODO i would love to get rid of ClockRange, and it starts right here; i
     -- think at most we can return a span of two normals, if you hit a corner
     local clock = util.ClockRange()
     local is_slide = false
-    local possible_hits = {}
+    local normals = {}  -- set of normals we collided with
     --print("us:", self:bbox())
     --print("them:", other:bbox())
     for fullaxis, axis in pairs(axes) do
@@ -298,45 +301,74 @@ function Polygon:slide_towards(other, movement)
         if math.abs(dist) < PRECISION then
             dist = 0
         end
-        --print("    axis:", fullaxis, "dist:", dist, "sep:", sep)
+        --print("    axis:", fullaxis, "dist:", dist, "sep:", sep, "dot:", dot)
         if dist >= 0 then
             -- This dot product is positive if we're moving closer along this
             -- axis, negative if we're moving away
-            local dot = axis * movement
-            if dist == 0 and math.abs(dot) < PRECISION then
-                -- Zero dot and negative distance mean the movement is parallel
-                -- and the shapes can slide against each other.  But we still
-                -- need to check other axes to know if they'll actually touch.
-                is_slide = true
-            elseif dist >= 0 and dot <= 0 then
+            local dot = movement * fullaxis
+            if math.abs(dot) < PRECISION then
+                dot = 0
+            end
+
+            if dot < 0 or (dot == 0 and dist > 0) then
                 -- Even if the shapes are already touching, they're not moving
                 -- closer together, so they can't possibly collide.  Stop here.
                 return
+            elseif dist == 0 and dot == 0 then
+                -- Zero dot and zero distance mean the movement is parallel
+                -- and the shapes can slide against each other.  But we still
+                -- need to check other axes to know if they'll actually touch.
+                is_slide = true
+            else
+                -- Figure out how much movement is allowed, as a fraction.
+                -- Conceptually, the answer is the movement projected onto the
+                -- axis, divided by the separation projected onto the same
+                -- axis.  Stuff cancels, and it turns out to be just the ratio
+                -- of dot products (which makes sense).  Vectors are neat.
+                -- Note that slides are meaningless here; a shape could move
+                -- perpendicular to the axis forever without hitting anything.
+                local numer = (sep * fullaxis)
+                local amount = numer / dot
+                if math.abs(amount) < PRECISION then
+                    amount = 0
+                end
+                if amount > maxamt then
+                    maxamt = amount
+                    maxsep = sep
+                    maxdir = fullaxis
+                    maxnumer = numer
+                    maxdenom = dot
+                    if fullaxis._is_move_normal then
+                        normals = {}
+                    else
+                        normals = { [-fullaxis] = -axis }
+                    end
+                elseif amount == maxamt then
+                    if not fullaxis._is_move_normal then
+                        normals[-fullaxis] = -axis
+                    end
+                end
             end
 
-            -- If the distance isn't negative, then it's possible to do a slide
+            -- Update touchtype
+            if dist > 0 then
+                touchtype = 1
+            elseif touchtype < 0 then
+                touchtype = 0
+            end
+
+            -- If the distance isn't negative, then it's possible to move
             -- anywhere in the general direction of this axis
             local perp = fullaxis:perpendicular()
             clock:union(perp, -perp)
-
-            -- Track possible normals for later (but not for the movement
-            -- vector, since that's not normal to either shape)
-            if not fullaxis._is_move_normal then
-                possible_hits[fullaxis] = { dot = dot, dist = dist, axis = axis }
-            end
-        end
-        if dist > maxdist then
-            maxdist = dist
-            maxsep = sep
-            maxdir = fullaxis
         end
     end
 
-    if maxdist < 0 then
+    if touchtype < 0 then
         -- Shapes are already colliding
         -- FIXME should have /some/ kind of gentle rejection here; should be
         -- easier now that i have touchdist
-        --print("ALREADY COLLIDING", maxdist, worldscene.collider:get_owner(other))
+        --print("ALREADY COLLIDING", touchtype, worldscene.collider:get_owner(other))
         --error("seem to be inside something!!  stopping so you can debug buddy  <3")
         return {
             movement = Vector.zero,
@@ -344,59 +376,12 @@ function Polygon:slide_towards(other, movement)
             touchdist = 0,
             touchtype = -1,
             clock = util.ClockRange(util.ClockRange.ZERO, util.ClockRange.ZERO),
-            normals = {[-maxdir] = -maxdir:normalized()},
-            reject = maxsep:projectOn(maxdir),
+            normals = {},
         }
-    end
-
-    -- Figure out how much of the movement is allowed.
-    -- The naïve answer is `maxdist / movement:len()`, but that needs a square
-    -- root, and for small distances the error can be significant.
-    -- Instead, we project both the movement and the separation onto the axis
-    -- used (which only needs division), then compare lengths component-wise.
-    -- Projection of A onto B is B * (A * B / ||B||²).  We want to do that
-    -- twice against the same axis and divide the results.  Most of it cancels,
-    -- and we're left with...  the ratio of dot products!  Vectors are neat.
-    local amount = (maxsep * maxdir) / (movement * maxdir)
-    if amount > 1 and maxdist > 0 then
-        -- We're allowed to move further than the requested distance, AND we're
-        -- not already touching.  (Touching is handled as a slide below!)
+    elseif maxamt > 1 and touchtype > 0 then
+        -- We're allowed to move further than the requested distance, AND we
+        -- won't end up touching.  (Touching is handled as a slide below!)
         return
-    elseif math.abs(amount) < PRECISION then
-        amount = 0
-    end
-
-    -- Figure out a normal or two for the surface we're going to hit.
-    -- A recurring, tricky problem is distinguishing touching at a corner from
-    -- touching at an edge.  If we hit two non-parallel edges simultaneously,
-    -- that's a corner.  (More than two is impossible.)
-    local normal_test
-    local normals = {}
-    for fullaxis, data in pairs(possible_hits) do
-        if
-            -- Touches count, of course
-            data.dist == 0 or
-            -- dist / dot is the same calculation that produced amount above,
-            -- so we want to know if it's equal, but rearrange to avoid
-            -- division since dot can be zero:
-            math.abs(data.dist - data.dot * amount) < PRECISION
-        then
-            if normal_test then
-                if (normal_test.x < 0) ~= (data.axis.x < 0) then
-                    normal_test = -normal_test
-                end
-                if math.abs(normal_test.x - data.axis.x) > PRECISION and
-                    math.abs(normal_test.y - data.axis.y) > PRECISION
-                then
-                    -- This is a corner!  Stop here; there can't be any more
-                    normals[-fullaxis] = -data.axis
-                    break
-                end
-            else
-                normals[-fullaxis] = -data.axis
-                normal_test = data.axis
-            end
-        end
     end
 
     if is_slide then
@@ -407,8 +392,8 @@ function Polygon:slide_towards(other, movement)
         -- touching, then the touch axis will be the max distance, the dot
         -- products above will be zero, and amount will be nonsense.  If not,
         -- amount is correct.
-        local touchdist = amount
-        if maxdist == 0 then
+        local touchdist = maxamt
+        if touchtype == 1 then
             touchdist = 0
         end
         return {
@@ -421,12 +406,12 @@ function Polygon:slide_towards(other, movement)
         }
     end
 
-    assert(amount == amount, "somehow got nan here")
-
     return {
-        movement = movement * amount,
-        amount = amount,
-        touchdist = amount,
+        -- Minimize rounding error by repeating the same division we used to
+        -- get amount, but multiplying first
+        movement = movement * maxnumer / maxdenom,
+        amount = maxamt,
+        touchdist = maxamt,
         touchtype = 1,
         clock = clock,
         normals = normals,
@@ -452,7 +437,8 @@ function Polygon:_multi_slide_towards(other, movement)
                 if ret.touchtype == 0 then
                     ret.touchtype = collision.touchtype
                 end
-                for full, norm in ipairs(collision.normals) do
+                -- FIXME would be nice to de-dupe here too
+                for full, norm in pairs(collision.normals) do
                     ret.normals[full] = norm
                 end
             end

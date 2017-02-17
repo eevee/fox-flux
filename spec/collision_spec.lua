@@ -22,6 +22,20 @@ describe("Collision", function()
         assert.are.equal(Vector(0, 0), successful)
         assert.are.equal(1, hits[floor].touchtype)
     end)
+    it("should handle diagonal almost-parallel movement", function()
+        -- This one is hard to ASCII-art, but the numbers are smaller!
+        -- The player is moving towards a shallow slope at an even shallower
+        -- angle, and should hit the slope partway up it.  My math used to be
+        -- all kinds of bad and didn't correctly handle this case.
+        local collider = whammo.Collider(4)
+        local floor = whammo_shapes.Polygon(0, 0, 3, -1, 0, -2)
+        collider:add(floor)
+
+        local player = whammo_shapes.Box(4, -3, 2, 2)
+        local successful, hits = collider:slide(player, Vector(-3, -0.5))
+        assert.are.equal(Vector(-2, -1/3), successful)
+        assert.are.equal(1, hits[floor].touchtype)
+    end)
     it("should stop at the first obstacle", function()
         --[[
                 +--------+
