@@ -900,6 +900,8 @@ end
 -- Figure out a new pose and switch to it.  Default behavior is based on player
 -- logic; feel free to override.
 function SentientActor:update_pose()
+    self.sprite:set_facing_right(not self.facing_left)
+
     local pose = 'stand'
     if self.is_dead then
         pose = 'die'
@@ -908,9 +910,16 @@ function SentientActor:update_pose()
     elseif self.decision_climb then
         if self.decision_climb < 0 then
             pose = 'climb'
-        else
+        elseif self.decision_climb > 0 or self.velocity.x ~= 0 then
+            -- Include "climbing" sideways
             pose = 'descend'
+        else
+            -- Not moving; pause the current pose (which must already be climb
+            -- or descend, since getting on a ladder requires movement)
+            self.sprite.anim:pause()
+            return
         end
+        self.sprite.anim:resume()
     elseif self.on_ground then
         if self.decision_walk ~= 0 then
             pose = 'walk'
@@ -921,14 +930,7 @@ function SentientActor:update_pose()
         pose = 'fall'
     end
 
-    self.sprite:set_facing_right(not self.facing_left)
     self.sprite:set_pose(pose)
-
-    if self.decision_climb == 0 then
-        self.sprite.anim:pause()
-    elseif self.decision_climb then
-        self.sprite.anim:resume()
-    end
 end
 
 
