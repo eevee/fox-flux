@@ -211,6 +211,13 @@ function Player:update_pose()
     Player.__super.update_pose(self)
 end
 
+function Player:is_transformable()
+    -- is_locked is a cheap way to check whether we're in the middle of
+    -- transforming into something already
+    return self.form == 'rubber' and not self.is_locked
+end
+
+-- Change form instantly (does NOT do cutscenes etc)
 function Player:transform(form)
     self.form = form
     self.inventory_frame_sprite_name = 'inventory frame: ' .. form
@@ -269,37 +276,18 @@ function Player:draw()
     end
 end
 
-function Player:on_collide(actor, direction)
-    if self.form == 'rubber' and actor.name == 'slime' and math.abs(actor.pos.y - (self.pos.y - 12)) < 4 then
-        self.facing_left = actor.pos.x < self.pos.x
-        worldscene:remove_actor(actor)
-        self.is_locked = true
-        self:set_sprite('lexy: slime tf')
-        self.sprite:set_facing_right(not self.facing_left)
-        -- FIXME DO AT END OF ANIMATION
-        worldscene.tick:delay(function()
-            self.is_locked = false
-            self:transform('slime')
-        end, 0.85)
-    elseif self.form == 'rubber' and actor.name == 'draclear' then
-        local dist = self.pos + Vector(-6, -37) - actor.pos
-        if math.abs(dist.x) < 8 and math.abs(dist.y) < 8 then
-        local draclear = actor
-        worldscene:remove_actor(actor)
-        self.is_locked = true
-        self.facing_left = dist.x < 0
-        self:set_sprite('lexy: glass tf')
-        self.sprite:set_facing_right(not self.facing_left)
-        -- FIXME DO AT END OF ANIMATION
-        worldscene.tick:delay(function()
-            self.is_locked = false
-            self:transform('glass')
-
-            draclear:sate()
-            worldscene:add_actor(draclear)
-        end, 1.1)
+function Player:play_transform_cutscene(form, facing_left, sprite_name, onfinish)
+    self.is_locked = true
+    self.facing_left = facing_left
+    self:set_sprite(sprite_name)
+    self.sprite:set_facing_right(not facing_left)
+    self.sprite:set_pose('default', function()
+        self.is_locked = false
+        self:transform(form)
+        if onfinish then
+            onfinish()
         end
-    end
+    end)
 end
 
 function Player:toast()

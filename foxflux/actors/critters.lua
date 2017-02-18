@@ -16,30 +16,53 @@ local Slime = actors_base.SentientActor:extend{
     jumpvel = actors_base.get_jump_velocity(12),
 
     jump_sound = 'assets/sounds/jump-slime.ogg',
+
+    player_target_offset = Vector(0, -12),
 }
 
 function Slime:blocks()
     return false
 end
 
+function Slime:on_collide_with(actor, ...)
+    if actor and actor.is_player then
+        return true
+    end
+    return Slime.__super.on_collide_with(self, actor, ...)
+end
+
 function Slime:update(dt)
-    local player_dist = worldscene.player.pos - self.pos
+    local player = worldscene.player
+    local player_delta = (player.pos + self.player_target_offset) - self.pos
     -- TODO oh it would be fascinating if you could absorb more slime that you encountered
-    if worldscene.player.form == 'rubber' and math.abs(player_dist.x) < 96 and -32 < player_dist.y and player_dist.y < 12 then
-        local launch_speed = player_dist.x / 0.25
-        if self.on_ground then
-            -- If the player is close enough, launch ourselves at them
-            self.velocity.x = launch_speed
-            local yoff = 12 - player_dist.y
-            self.jumpvel = actors_base.get_jump_velocity(yoff)
-            self:decide_jump()
-        elseif math.abs(self.velocity.x) < math.abs(launch_speed) then
-            -- If we're already in the air, try to move in their direction
-            self:decide_walk(player_dist.x < 0 and -1 or 1)
-        end
+    if player:is_transformable() and
+        math.abs(player_delta.x) < 96 and
+        -40 < player_delta.y and player_delta.y < 8
+    then
         if self.move_event then
             self.move_event:stop()
             self.move_event = nil
+        end
+
+        -- FIXME so the problem with this is that it's entirely possible to
+        -- overshoot if we're moving too quickly...  we would need instead to
+        -- check that our movement passed within x units of the player?
+        if math.max(math.abs(player_delta.x), math.abs(player_delta.y)) < 4 then
+            -- Gotcha!
+            worldscene:remove_actor(self)
+            player:play_transform_cutscene('slime', self.velocity.x > 0, 'lexy: slime tf')
+            return
+        end
+
+        local launch_speed = player_delta.x / 0.25
+        if self.on_ground and player_delta.y < 0 then
+            -- If the player is close enough, launch ourselves at them
+            self.velocity.x = launch_speed
+            self.jumpvel = actors_base.get_jump_velocity(-player_delta.y)
+            self:decide_jump()
+        elseif math.abs(self.velocity.x) < math.abs(launch_speed) then
+            -- If we're already in the air, try to move in their direction
+            self:decide_walk(player_delta.x < 0 and -1 or 1)
         end
     elseif self.decision_walk == 0 then
         -- Otherwise, shuffle around a bit
@@ -109,7 +132,7 @@ local Draclear = actors_base.MobileActor:extend{
     pursuit_speed = 128,
     state = 'idle',
     perch_pos = nil,
-    player_target_offset = Vector(-6, -37),
+    player_target_offset = Vector(-6, -44),
 }
 
 function Draclear:blocks()
@@ -140,24 +163,38 @@ function Draclear:update(dt)
     -- FIXME i suppose it's possible that the perched object moves?
     if self.state == 'idle' then
         self.perch_pos = self.pos
-        if worldscene.player.form == 'rubber' then
+        if worldscene.player:is_transformable() then
             local player_delta = (worldscene.player.pos + self.player_target_offset) - self.pos
-            if math.abs(player_delta.x) < 128 and math.abs(player_delta.y) < 128 then
+            local max_dist = math.max(math.abs(player_delta.x), math.abs(player_delta.y))
+            if max_dist < 128 then
                 self.state = 'pursuing'
             end
         end
     elseif self.state == 'pursuing' then
-        if worldscene.player.form ~= 'rubber' then
-            self.state = 'returning'
-        else
-            local player_delta = (worldscene.player.pos + self.player_target_offset) - self.pos
-            if math.abs(player_delta.x) >= 128 or math.abs(player_delta.y) >= 128 then
+        local player = worldscene.player
+        if player:is_transformable() then
+            local player_delta = (player.pos + self.player_target_offset) - self.pos
+            local max_dist = math.max(math.abs(player_delta.x), math.abs(player_delta.y))
+            if max_dist > 128 then
+                -- Give up if the player is too far away
                 self.state = 'returning'
+            elseif max_dist < 4 then
+                -- Gotcha!
+                self.state = 'returning'
+                worldscene:remove_actor(self)
+                player:play_transform_cutscene('glass', player_delta.x < 0, 'lexy: glass tf', function()
+                    -- FIXME change back eventually
+                    self:set_sprite('draclear')
+                    worldscene:add_actor(self)
+                end)
+                return
             else
                 self.velocity = self.pursuit_speed * player_delta:normalized()
                 self.sprite:set_pose('fly')
                 self.sprite:set_facing_right(self.velocity.x > 0)
             end
+        else
+            self.state = 'returning'
         end
     elseif self.state == 'returning' then
         local perch_delta = self.perch_pos - self.pos
@@ -181,12 +218,6 @@ function Draclear:update(dt)
     Draclear.__super.update(self, dt)
 end
 
-function Draclear:sate()
-    self.state = 'returning'
-    -- FIXME change back eventually
-    self:set_sprite('draclear')
-end
-
 
 -- Turns the player to stone on touch
 local ReverseCockatrice = actors_base.SentientActor:extend{
@@ -201,7 +232,7 @@ function ReverseCockatrice:blocks()
 end
 
 function ReverseCockatrice:on_collide(actor)
-    if actor.is_player and not actor.is_locked and actor.form == 'rubber' then
+    if actor.is_player and actor:is_transformable() then
         actor:transform('stone')
     end
 end

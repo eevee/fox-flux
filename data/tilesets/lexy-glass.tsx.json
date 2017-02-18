@@ -1,16 +1,17 @@
-{ "columns":11,
+{ "columns":14,
  "image":"..\/..\/assets\/images\/lexy-glass.png",
  "imageheight":80,
- "imagewidth":880,
+ "imagewidth":1120,
  "margin":0,
  "name":"lexy-glass",
  "spacing":0,
- "tilecount":11,
+ "tilecount":14,
  "tileheight":80,
  "tileproperties":
     {
      "0":
         {
+         "animation stops":true,
          "sprite name":"lexy: glass tf\/default"
         }
     },
@@ -18,6 +19,7 @@
     {
      "0":
         {
+         "animation stops":"bool",
          "sprite name":"string"
         }
     },
@@ -67,8 +69,20 @@
                  "tileid":9
                 }, 
                 {
-                 "duration":100,
+                 "duration":150,
                  "tileid":10
+                }, 
+                {
+                 "duration":200,
+                 "tileid":11
+                }, 
+                {
+                 "duration":300,
+                 "tileid":12
+                }, 
+                {
+                 "duration":500,
+                 "tileid":13
                 }],
          "objectgroup":
             {
@@ -85,19 +99,19 @@
                      "type":"anchor",
                      "visible":true,
                      "width":0,
-                     "x":53,
-                     "y":77
+                     "x":52,
+                     "y":78
                     }, 
                     {
-                     "height":40,
+                     "height":44,
                      "id":2,
                      "name":"",
                      "rotation":0,
                      "type":"",
                      "visible":true,
-                     "width":18,
-                     "x":45,
-                     "y":36
+                     "width":24,
+                     "x":40,
+                     "y":34
                     }],
              "opacity":1,
              "type":"objectgroup",
