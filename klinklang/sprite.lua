@@ -137,7 +137,10 @@ end
 -- first frame of the new pose.)
 -- If given, the callback will be called when the animation loops.
 function Sprite:set_pose(pose, callback)
-    if pose == (self._pending_pose or self.pose) then
+    if pose == self._pending_pose then
+        -- FIXME this might clobber an existing callback, Ugh.  (or is that a feature?)
+        self._pending_callback = callback
+    elseif pose == self.pose then
         if callback then
             self:_add_loop_callback(callback)
         end
