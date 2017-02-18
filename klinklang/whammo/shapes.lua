@@ -411,6 +411,9 @@ function Polygon:slide_towards(other, movement)
             clock = clock,
             normals = normals,
         }
+    elseif maxamt == -math.huge then
+        -- We don't hit anything at all!
+        return
     end
 
     return {
