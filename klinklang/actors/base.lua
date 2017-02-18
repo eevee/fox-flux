@@ -461,7 +461,8 @@ function MobileActor:check_for_ground(hits)
     -- Ground test: did we collide with something facing upwards?
     -- Find the normal that faces /most/ upwards, i.e. most away from gravity
     local mindot = 0  -- 0 is vertical, which we don't want
-    local ground, ground_collision
+    local ground  -- normalized ground normal
+    local ground_actor  -- actor carrying us, if any
     for _, collision in pairs(hits) do
         if collision.touchtype >= 0 and not collision.passable and not collision.clock:includes(gravity) then
             for normal, normal1 in pairs(collision.normals) do
@@ -469,7 +470,12 @@ function MobileActor:check_for_ground(hits)
                 if dot < mindot then
                     mindot = dot
                     ground = normal1
-                    ground_collision = collision
+                end
+                if dot < mindot or (dot == mindot and not ground_actor) then
+                    ground_actor = worldscene.collider:get_owner(collision.shape)
+                    if ground_actor and not ground_actor.can_carry then
+                        ground_actor = nil
+                    end
                 end
             end
         end
@@ -479,12 +485,8 @@ function MobileActor:check_for_ground(hits)
     self.on_ground = not not ground
 
     -- Figure out what we're riding on, if anything
-    local ground_actor
-    if ground_collision and self.is_portable then
-        ground_actor = worldscene.collider:get_owner(ground_collision.shape)
-        if ground_actor and not ground_actor.can_carry then
-            ground_actor = nil
-        end
+    if not self.is_portable then
+        ground_actor = nil
     end
     if self.ptrs.cargo_of ~= ground_actor then
         if self.ptrs.cargo_of then
