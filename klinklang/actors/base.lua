@@ -604,6 +604,13 @@ function MobileActor:update(dt)
     return movement, hits, last_clock
 end
 
+-- API for outside code to affect this actor's velocity.
+-- By default, this just adds to velocity, but SentientActor makes use of it
+-- for variable jump logic.
+function MobileActor:push(dv)
+    self.velocity = self.velocity + dv
+end
+
 
 -- ========================================================================== --
 -- SentientActor
@@ -644,6 +651,7 @@ local SentientActor = MobileActor:extend{
     -- State
     decision_jump_mode = 0,
     decision_walk = 0,
+    in_mid_jump = false,
     is_dead = false,
     is_locked = false,
 }
@@ -675,6 +683,15 @@ end
 -- Decide to climb.  -1 up, 1 down, 0 to stay in place, nil to let go.
 function SentientActor:decide_climb(direction)
     self.decision_climb = direction
+end
+
+function SentientActor:push(dv)
+    SentientActor.__super.push(self, dv)
+
+    -- This flag disables trimming our upwards velocity when releasing jump
+    if dv * gravity < 0 then
+        self.in_mid_jump = false
+    end
 end
 
 function SentientActor:on_collide_with(actor, collision)
@@ -800,6 +817,7 @@ function SentientActor:update(dt)
             end
 
             if jumped then
+                self.in_mid_jump = true
                 self.decision_climb = nil
                 if self.jump_sound then
                     game.resource_manager:get(self.jump_sound):clone():play()
@@ -807,7 +825,7 @@ function SentientActor:update(dt)
             end
         end
     elseif self.decision_jump_mode == 0 then
-        if not self.on_ground then
+        if not self.on_ground and self.in_mid_jump then
             self.velocity.y = math.max(self.velocity.y, -self.jumpvel * self.jumpcap)
         end
     end
@@ -926,9 +944,9 @@ function SentientActor:update_pose()
         if self.decision_walk ~= 0 then
             pose = 'walk'
         end
-    elseif self.velocity.y < 0 then
+    elseif self.velocity.y < 0 and self.in_mid_jump then
         pose = 'jump'
-    elseif self.velocity.y > 0 then
+    else
         pose = 'fall'
     end
 
