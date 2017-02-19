@@ -746,7 +746,7 @@ function WorldScene:enter_submap(name)
     self:_create_actors(self.submap)
 
     -- FIXME this is also invasive
-    -- FIXME since this is copy/pasted it doesn't include ladders
+    -- FIXME UGGH and it's copy-pasted
     for _, layer in pairs(self.map.layers) do
         if layer.type == 'objectgroup' and layer.submap == self.submap then
             for _, object in ipairs(layer.objects) do
@@ -755,6 +755,10 @@ function WorldScene:enter_submap(name)
                         Vector(object.x, object.y),
                         Vector(object.width, object.height),
                         object.properties))
+                elseif object.type == 'ladder' then
+                    local shape = tiledmap.tiled_shape_to_whammo_shape(object)
+                    self:add_actor(actors_generic.LadderZone(
+                        Vector(object.x, object.y), shape))
                 end
             end
         end
