@@ -4,10 +4,10 @@ local actors_base = require 'klinklang.actors.base'
 local util = require 'klinklang.util'
 
 
-local NORTH = Vector(0, -8)
-local SOUTH = Vector(0, 8)
-local EAST = Vector(8, 0)
-local WEST = Vector(-8, 0)
+local NORTH = Vector(0, -16)
+local SOUTH = Vector(0, 16)
+local EAST = Vector(16, 0)
+local WEST = Vector(-16, 0)
 
 -- TODO i'd like to improve "powered" to a broader understanding of all current
 -- inputs, so other stuff can be sent over wires.  but at the same time, there
@@ -32,6 +32,8 @@ function Wirable:on_enter()
     local orig = self.powered
 
     -- FIXME get this stuff from the physics engine (but wait, how, if these lot don't have collision??)
+    -- ...and more importantly, how would that interact with stuff like the pressure plate that only conducts through a single edge?
+    -- FIXME this, seems, overly complicated
     local nodes = {}
     for _, offset in ipairs(self.nodes) do
         table.insert(nodes, self.pos + offset)
@@ -146,6 +148,11 @@ function Wirable:_receive_pulse(value, source)
 end
 
 function Wirable:on_power_change(active)
+    if active then
+        self.sprite:set_pose('on')
+    else
+        self.sprite:set_pose('off')
+    end
 end
 
 function Wirable:update(dt)
@@ -397,7 +404,7 @@ end
 
 
 return {
-    Wire = Wire,
+    Wirable = Wirable,
     Bulb = Bulb,
     WireNS = WireNS,
     WireNE = WireNE,
