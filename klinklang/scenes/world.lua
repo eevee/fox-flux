@@ -233,17 +233,6 @@ function WorldScene:update(dt)
     love.audio.setOrientation(fx, 0, 0, -1, 0, 0)
 
     self:update_camera()
-
-    -- TODO where does this belong, really?
-    -- FIXME also i hate this so much lol
-    if self.player and self.player.__EXIT then
-        self.player.__EXIT = false
-        game.map_index = game.map_index + 1
-        local map = tiledmap.TiledMap("data/maps/" .. game.maps[game.map_index], game.resource_manager)
-        Gamestate.push(SceneFader(self, true, 0.25, {0, 0, 0}, function()
-            self:load_map(map)
-        end))
-    end
 end
 
 function WorldScene:update_camera()

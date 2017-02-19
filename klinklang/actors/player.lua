@@ -178,13 +178,6 @@ function Player:update(dt)
         end
     end
 
-    -- TODO this is stupid but i want a real exit door anyway
-    -- TODO also it should fire an event or something
-    local _, _, x1, _ = self.shape:bbox()
-    if x1 >= worldscene.map.width then
-        self.__EXIT = true
-    end
-
     -- A floating player spawns particles
     -- FIXME this seems a prime candidate for entity/component or something,
     -- where floatiness is a child component with its own update behavior
