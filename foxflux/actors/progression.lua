@@ -47,20 +47,25 @@ end
 local SlimeHeart = StrawberryHeart:extend{
     name = 'slime heart',
     sprite_name = 'slime heart',
-    z = 9999,
 
     required_form = 'slime',
     collect_sound = 'assets/sounds/get-heart-slime.ogg',
 }
 
-
 local GlassHeart = StrawberryHeart:extend{
     name = 'glass heart',
     sprite_name = 'glass heart',
-    z = 9999,
 
     required_form = 'glass',
     collect_sound = 'assets/sounds/get-heart-glass.ogg',
+}
+
+local StoneHeart = StrawberryHeart:extend{
+    name = 'stone heart',
+    sprite_name = 'stone heart',
+
+    required_form = 'stone',
+    --collect_sound = 'assets/sounds/get-heart-glass.ogg',
 }
 
 

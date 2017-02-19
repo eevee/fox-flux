@@ -1,6 +1,7 @@
 local Vector = require 'vendor.hump.vector'
 
 local actors_base = require 'klinklang.actors.base'
+local actors_wire = require 'klinklang.actors.wire'
 local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 
@@ -29,6 +30,45 @@ function SpikesUp:on_collide(actor, movement, collision)
 end
 
 
+local Fan = actors_base.Actor:extend{
+    name = 'fan',
+    sprite_name = 'fan',
+
+    is_active = false,
+}
+
+function Fan:update(dt)
+    Fan.__super.update(self, dt)
+
+    if not self.is_active then
+        return
+    end
+
+    local height = 128
+    local x0, y0, x1, y1 = self.shape:bbox()
+    local shape = whammo_shapes.Box(x0, y0 - height, x1 - x0, height)
+    local callback = function(collision)
+        local actor = worldscene.collider:get_owner(collision.shape)
+        if actor == self then
+            return
+        end
+        if type(actor) == 'table' and actor.isa and actor:isa(actors_base.MobileActor) then
+            local ax0, ay0, ax1, ay1 = collision.shape:bbox()
+            if ay1 > y0 then
+                return
+            end
+
+            local frac = (y0 - ay1) / height
+            -- FIXME i am having a hell of a time making this strong enough
+            -- that it actually lifts you up (even when falling), but not so
+            -- strong that it launches you into the stratosphere
+            actor:push(Vector(0, -2048) * ((1 - frac * frac * 0.0) * dt))
+        end
+    end
+    worldscene.collider:slide(shape, Vector(), callback)
+end
+
+
 local FloorButton = actors_base.Actor:extend{
     name = 'floor button',
     sprite_name = 'floor button',
@@ -46,6 +86,13 @@ function FloorButton:on_collide(actor, movement, collision)
             if normal.y < 0 then
                 self.is_pressed = true
                 self.sprite:set_pose('pressed')
+
+                for _, other in ipairs(worldscene.actors) do
+                    if other:isa(Fan) then
+                        other.is_active = true
+                        other.sprite:set_pose('on')
+                    end
+                end
                 break
             end
         end
@@ -196,6 +243,88 @@ function Panel:on_activate_panel(state)
         self.sprite:set_pose('off')
     end
 end
+
+
+-- FIXME this is a stupid hack because Wirable is an Actor, so i can't make a
+-- MobileActor also be wirable.  i ALSO need a sprite for it because i can't
+-- make a BareActor be wirable!!
+local PressurePlateEmitter = actors_wire.Wirable:extend{
+    sprite_name = 'wire ns',
+    nodes = {Vector(0, 16)},
+    can_receive = false,
+}
+
+function PressurePlateEmitter:draw()
+end
+
+-- FIXME it seems perhaps odd to call this a "mobile" actor when it doesn't
+-- actually move?  i just want the cargo support.  which i could do just as
+-- well by adding my own cargo thing?
+local PressurePlate = actors_base.MobileActor:extend{
+    name = 'pressure plate',
+    sprite_name = 'pressure plate',
+
+    can_carry = true,
+    gravity_multiplier = 0,
+
+    is_broken = false,
+}
+
+function PressurePlate:on_enter()
+    PressurePlate.__super.on_enter(self)
+
+    local emitter = PressurePlateEmitter(self.pos)
+    self.ptrs.emitter = emitter
+    worldscene:add_actor(emitter)
+end
+
+function PressurePlate:on_leave()
+    if self.ptrs.emitter then
+        worldscene:remove_actor(self.ptrs.emitter)
+        self.ptrs.emitter = false
+    end
+end
+
+function PressurePlate:update(dt)
+    self.velocity = Vector()
+    PressurePlate.__super.update(self, dt)
+
+    if not self.is_broken then
+        local total_mass = self:_sum_mass(self, {})
+        if total_mass >= 10 then
+            self.is_broken = true
+            self.sprite:set_pose('broken')
+            self.ptrs.emitter.powered = 1
+            self.ptrs.emitter:_emit_pulse(true)
+        elseif total_mass >= 5 then
+            self.sprite:set_pose('active')
+            -- FIXME well this is not the friendliest api
+            self.ptrs.emitter.powered = 1
+            self.ptrs.emitter:_emit_pulse(true)
+        else
+            self.sprite:set_pose('inactive')
+            self.ptrs.emitter.powered = 0
+            self.ptrs.emitter:_emit_pulse(false)
+        end
+    end
+end
+
+-- Sum up the total mass of all of the base object's cargo, excluding any that
+-- have already been seen
+function PressurePlate:_sum_mass(base, seen)
+    if not base.cargo then
+        return 0
+    end
+
+    local total_mass = 0
+    for actor in pairs(base.cargo) do
+        seen[actor] = true
+        total_mass = total_mass + actor.mass + self:_sum_mass(actor, seen)
+    end
+    return total_mass
+end
+
+
 
 
 return {

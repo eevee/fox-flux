@@ -9,11 +9,6 @@
  "tileheight":32,
  "tileproperties":
     {
-     "104":
-        {
-         "actor":"ladder",
-         "sprite name":"ladder\/default"
-        },
      "11":
         {
          "sprite name":"strawberry heart\/collected"
@@ -31,26 +26,6 @@
         {
          "actor":"blast door shutter",
          "sprite name":"blast door shutter\/default"
-        },
-     "128":
-        {
-         "hardness":"-1"
-        },
-     "129":
-        {
-         "hardness":"-1"
-        },
-     "132":
-        {
-         "hardness":"-1"
-        },
-     "133":
-        {
-         "hardness":"-1"
-        },
-     "135":
-        {
-         "hardness":"-1"
         },
      "143":
         {
@@ -73,15 +48,6 @@
      "181":
         {
          "sprite name":"panel\/off"
-        },
-     "184":
-        {
-         "actor":"cushion",
-         "sprite name":"cushion\/flat"
-        },
-     "185":
-        {
-         "sprite name":"cushion\/occupied"
         },
      "22":
         {
@@ -141,29 +107,29 @@
         },
      "80":
         {
-         "hardness":"-1"
+         "hardness":-1
         },
      "81":
         {
-         "hardness":"-1"
-        },
-     "82":
-        {
-         "hardness":"-1"
+         "hardness":-1
         },
      "90":
         {
          "actor":"spikes up",
          "sprite name":"spikes up\/default"
+        },
+     "92":
+        {
+         "actor":"fan",
+         "sprite name":"fan\/off"
+        },
+     "93":
+        {
+         "sprite name":"fan\/on"
         }
     },
  "tilepropertytypes":
     {
-     "104":
-        {
-         "actor":"string",
-         "sprite name":"string"
-        },
      "11":
         {
          "sprite name":"string"
@@ -181,26 +147,6 @@
         {
          "actor":"string",
          "sprite name":"string"
-        },
-     "128":
-        {
-         "hardness":"string"
-        },
-     "129":
-        {
-         "hardness":"string"
-        },
-     "132":
-        {
-         "hardness":"string"
-        },
-     "133":
-        {
-         "hardness":"string"
-        },
-     "135":
-        {
-         "hardness":"string"
         },
      "143":
         {
@@ -221,15 +167,6 @@
          "sprite name":"string"
         },
      "181":
-        {
-         "sprite name":"string"
-        },
-     "184":
-        {
-         "actor":"string",
-         "sprite name":"string"
-        },
-     "185":
         {
          "sprite name":"string"
         },
@@ -291,19 +228,24 @@
         },
      "80":
         {
-         "hardness":"string"
+         "hardness":"int"
         },
      "81":
         {
-         "hardness":"string"
-        },
-     "82":
-        {
-         "hardness":"string"
+         "hardness":"int"
         },
      "90":
         {
          "actor":"string",
+         "sprite name":"string"
+        },
+     "92":
+        {
+         "actor":"string",
+         "sprite name":"string"
+        },
+     "93":
+        {
          "sprite name":"string"
         }
     },
@@ -814,45 +756,6 @@
              "y":0
             }
         },
-     "168":
-        {
-         "objectgroup":
-            {
-             "draworder":"index",
-             "height":0,
-             "name":"",
-             "objects":[
-                    {
-                     "ellipse":true,
-                     "height":0,
-                     "id":1,
-                     "name":"",
-                     "rotation":0,
-                     "type":"anchor",
-                     "visible":true,
-                     "width":0,
-                     "x":16,
-                     "y":32
-                    }, 
-                    {
-                     "height":4,
-                     "id":2,
-                     "name":"",
-                     "rotation":0,
-                     "type":"",
-                     "visible":true,
-                     "width":24,
-                     "x":4,
-                     "y":28
-                    }],
-             "opacity":1,
-             "type":"objectgroup",
-             "visible":true,
-             "width":0,
-             "x":0,
-             "y":0
-            }
-        },
      "176":
         {
          "objectgroup":
@@ -1095,45 +998,6 @@
              "y":0
             }
         },
-     "184":
-        {
-         "objectgroup":
-            {
-             "draworder":"index",
-             "height":0,
-             "name":"",
-             "objects":[
-                    {
-                     "ellipse":true,
-                     "height":0,
-                     "id":1,
-                     "name":"",
-                     "rotation":0,
-                     "type":"anchor",
-                     "visible":true,
-                     "width":0,
-                     "x":16,
-                     "y":28
-                    }, 
-                    {
-                     "height":8,
-                     "id":2,
-                     "name":"",
-                     "rotation":0,
-                     "type":"",
-                     "visible":true,
-                     "width":28,
-                     "x":2,
-                     "y":20
-                    }],
-             "opacity":1,
-             "type":"objectgroup",
-             "visible":true,
-             "width":0,
-             "x":0,
-             "y":0
-            }
-        },
      "192":
         {
          "objectgroup":
@@ -1165,6 +1029,53 @@
                      "width":0,
                      "x":0,
                      "y":32
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "193":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":7,
+                     "id":1,
+                     "name":"",
+                     "properties":
+                        {
+                         "one-way platform":true
+                        },
+                     "propertytypes":
+                        {
+                         "one-way platform":"bool"
+                        },
+                     "rotation":0,
+                     "type":"collision",
+                     "visible":true,
+                     "width":28,
+                     "x":2,
+                     "y":4
+                    }, 
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":4
                     }],
              "opacity":1,
              "type":"objectgroup",
@@ -1586,6 +1497,18 @@
              "y":0
             }
         },
+     "77":
+        {
+         "animation":[
+                {
+                 "duration":100,
+                 "tileid":77
+                }, 
+                {
+                 "duration":100,
+                 "tileid":78
+                }]
+        },
      "8":
         {
          "objectgroup":
@@ -1852,6 +1775,93 @@
                      "width":32,
                      "x":0,
                      "y":14
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "92":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":22,
+                     "id":3,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":32,
+                     "x":0,
+                     "y":10
+                    }, 
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":4,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":32
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "93":
+        {
+         "animation":[
+                {
+                 "duration":100,
+                 "tileid":93
+                }, 
+                {
+                 "duration":100,
+                 "tileid":94
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":32
+                    }, 
+                    {
+                     "height":22,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":32,
+                     "x":0,
+                     "y":10
                     }],
              "opacity":1,
              "type":"objectgroup",
