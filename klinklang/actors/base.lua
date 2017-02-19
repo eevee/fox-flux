@@ -786,9 +786,8 @@ function SentientActor:update(dt)
     if self.decision_jump_mode == 2 then
         -- You cannot climb while jumping, sorry
         -- TODO but maybe...  you can hold up + jump, and regrab the ladder only at the apex of the jump?
-        self.decision_climb = nil
         self.decision_jump_mode = 1
-        if self.on_ground then
+        if self.on_ground or self.decision_climb then
             -- TODO maybe jump away from the ground, not always up?  then could
             -- allow jumping off of steep slopes
             local jumped
@@ -800,8 +799,11 @@ function SentientActor:update(dt)
                 jumped = true
             end
 
-            if jumped and self.jump_sound then
-                game.resource_manager:get(self.jump_sound):clone():play()
+            if jumped then
+                self.decision_climb = nil
+                if self.jump_sound then
+                    game.resource_manager:get(self.jump_sound):clone():play()
+                end
             end
         end
     elseif self.decision_jump_mode == 0 then
