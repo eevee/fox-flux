@@ -547,13 +547,15 @@
                     {
                      "action":"change map",
                      "activation":"use",
-                     "map":"data\/maps\/tech-overworld.tmx.json"
+                     "map":"data\/maps\/tech-overworld.tmx.json",
+                     "spot":"from level 4"
                     },
                  "propertytypes":
                     {
                      "action":"string",
                      "activation":"string",
-                     "map":"string"
+                     "map":"string",
+                     "spot":"string"
                     },
                  "rotation":0,
                  "type":"trigger",
