@@ -184,6 +184,9 @@ function DialogueScene:init(speakers, script)
             if actor.dialogue_background then
                 speaker.background = game.resource_manager:load(actor.dialogue_background)
             end
+            if actor.dialogue_chatter_sound then
+                speaker.chatter_sfx = game.resource_manager:get(actor.dialogue_chatter_sound)
+            end
         end
         self.speakers[name] = speaker
 
@@ -261,6 +264,8 @@ function DialogueScene:init(speakers, script)
     self.phrase_lines = nil  -- set below
     self.phrase_speaker = nil
     self.phrase_timer = nil  -- counts in time * SCROLL_RATE; every time it goes up by 1, a new character should appear
+    self.last_was_space = true
+    self.chatter_enabled = true
 
     self.state = 'start'
     self.hesitating = false
@@ -355,7 +360,24 @@ function DialogueScene:update(dt)
             -- Count a non-whitespace character against the timer.
             -- Note that this is a byte slice of the end of a UTF-8 character,
             -- but spaces are a single byte in UTF-8, so it's fine.
-            if string.sub(self.phrase_lines[self.curline], self.curchar, self.curchar) ~= " " then
+            if string.sub(self.phrase_lines[self.curline], self.curchar, self.curchar) == " " then
+                self.last_was_space = true
+            else
+                if self.last_was_space and self.chatter_enabled and self.phrase_speaker.chatter_sfx then
+                    local sfx = self.phrase_speaker.chatter_sfx:clone()
+                    -- Pitch is exponential, whereas math.random() is linear;
+                    -- multiplying two random numbers compensates somewhat by
+                    -- adding a significant bias towards the low end
+                    local pitch = 1 + math.random() * math.random() * 0.5
+                    sfx:setPitch(pitch)
+                    sfx:play()
+
+                    self.chatter_enabled = false
+                    self.tick:delay(function()
+                        self.chatter_enabled = true
+                    end, sfx:getDuration() / 4)
+                end
+                self.last_was_space = false
                 self.phrase_timer = self.phrase_timer - 1
             end
         end
@@ -426,12 +448,14 @@ function DialogueScene:_advance_script()
     end
     -- FIXME another check required because script_index is initially zero...
     if self.curphrase and self.script[self.script_index] and self.curphrase < #self.script[self.script_index] then
+        -- Advance to the next phrase in the current step
         self.curphrase = self.curphrase + 1
         self.curline = 1
         self.curchar = 0
         local _textwidth
         _textwidth, self.phrase_lines = self.font:getWrap(self.script[self.script_index][self.curphrase], self.wraplimit)
         self.phrase_texts = {}
+        self.last_was_space = true
         self.state = 'speaking'
         return
     end
@@ -471,6 +495,7 @@ function DialogueScene:_advance_script()
                 self.phrase_speaker.sprite:set_talking(true)
             end
             self.phrase_timer = 0
+            self.last_was_space = true
             self.curphrase = 1
             self.curline = 1
             self.curchar = 0
