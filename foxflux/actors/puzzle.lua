@@ -5,31 +5,82 @@ local actors_wire = require 'klinklang.actors.wire'
 local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 
+-- Particle-ish effect spawned by destroyed spikes
+local DustCloud = actors_base.Actor:extend{
+    name = 'dust cloud',
+    sprite_name = 'dust cloud',
+    z = 9999,
+
+    velocity = Vector(0, -64),
+}
+
+function DustCloud:update(dt)
+    self.pos = self.pos + self.velocity * dt
+    DustCloud.__super.update(self, dt)
+end
+
+function DustCloud:on_enter()
+    DustCloud.__super.on_enter(self)
+
+    self.sprite:set_pose('default', function()
+        worldscene:remove_actor(self)
+    end)
+end
+
 
 -- A rubber player can walk through spikes, but if they land atop them, they
 -- get poked and stuck.
 -- A slime player is unimpeded regardless.
 -- A glass player can walk on top of them.
+-- A stone player destroys them.
 local SpikesUp = actors_base.Actor:extend{
     name = 'spikes up',
     sprite_name = 'spikes up',
     z = 999,  -- just below player; player may redraw us if necessary
+
+    is_broken = false,
 }
 
 function SpikesUp:blocks(actor, collision)
+    if self.is_broken then
+        return false
+    end
+
     if actor.is_player and actor.form == 'glass' and collision.touchtype >= 0 and actors_base.any_normal_faces(collision, Vector(0, -1)) then
+        return true
+    end
+    if actor.is_player and actor.form == 'stone' then
         return true
     end
     return SpikesUp.__super.blocks(self, actor, collision)
 end
 
 function SpikesUp:on_collide(actor, movement, collision)
+    if self.is_broken then
+        return
+    end
     if actor.is_player and collision.touchtype > 0 then
-        actor:poke(self, collision)
+        if actor.form == 'stone' then
+            if actors_base.any_normal_faces(collision, Vector(0, -1)) then
+                self.is_broken = true
+                self.sprite:set_pose('broken')
+                local x0, y0, x1, y1 = self.shape:bbox()
+                for relx = 0, 1, 0.5 do
+                    local where = Vector(
+                        x0 + (x1 - x0) * relx,
+                        y0 + math.random() * (y1 - y0))
+                    worldscene:add_actor(DustCloud(where))
+                end
+            end
+        else
+            actor:poke(self, collision)
+        end
     end
 end
 
 
+-- Blows objects upwards.
+-- FIXME not very well at the moment though
 local Fan = actors_base.Actor:extend{
     name = 'fan',
     sprite_name = 'fan',
@@ -69,6 +120,7 @@ function Fan:update(dt)
 end
 
 
+-- Turns on fans
 local FloorButton = actors_base.Actor:extend{
     name = 'floor button',
     sprite_name = 'floor button',
@@ -101,10 +153,6 @@ end
 
 
 
--- TODO to make this work:
--- 1. detect mobile objects that are on top of us
--- 2. constant velocity; ignore collisions, don't truncate velocity
--- 3. when moving, nudge passengers by the same amount
 local Platform = actors_base.MobileActor:extend{
     name = 'platform',
     sprite_name = 'platform',
@@ -160,6 +208,71 @@ local Crate = actors_base.MobileActor:extend{
 }
 
 
+-- Particle spawned by a destroyed boulder
+local RockChunk = actors_base.MobileActor:extend{
+    name = 'rock chunk',
+    sprite_name = 'rock chunk',
+    z = 9999,
+}
+
+function RockChunk:blocks()
+    return false
+end
+
+function RockChunk:on_collide_with()
+    return true
+end
+
+function RockChunk:on_enter()
+    RockChunk.__super.on_enter(self)
+
+    worldscene.tick:delay(function()
+        worldscene:remove_actor(self)
+    end, 1)
+end
+
+
+-- Solid block that can be destroyed by a large weight landing on it
+local Boulder = actors_base.Actor:extend{
+    name = 'boulder',
+    sprite_name = 'boulder',
+
+    health = 3,
+}
+
+function Boulder:blocks()
+    return true
+end
+
+function Boulder:on_collide(actor, movement, collision)
+    if actor.is_player and actor.form == 'stone' and
+        collision.touchtype > 0 and
+        collision.movement.y > 0 and
+        -- Must be moving down
+        actors_base.any_normal_faces(collision, Vector(0, -1))
+    then
+        self.health = self.health - 1
+
+        if self.health == 0 then
+            for dx = -1, 1, 2 do
+                for dy = -1, 1, 2 do
+                    local chunk = RockChunk(self.pos + Vector(dx * 12, dy * 12 - 16))
+                    chunk:push(Vector(dx * 32, 16 * (dy - 3)))
+                    worldscene:add_actor(chunk)
+                end
+            end
+            worldscene:remove_actor(self)
+        elseif self.health == 1 then
+            self.sprite:set_pose('very cracked')
+        elseif self.health == 2 then
+            self.sprite:set_pose('cracked')
+        elseif self.health == 3 then
+            self.sprite:set_pose('pristine')
+        end
+    end
+end
+
+
 -- A pushable object that softens falls
 local Cushion = actors_base.MobileActor:extend{
     name = 'cushion',
@@ -190,6 +303,21 @@ function Cushion:update(dt)
 end
 
 
+local SewerGrate = actors_base.Actor:extend{
+    name = 'sewer grate',
+    sprite_name = 'sewer grate',
+}
+
+function SewerGrate:blocks(actor)
+    if actor.is_player and actor.form == 'slime' then
+        return false
+    end
+
+    return true
+end
+
+
+
 local ForceField = actors_base.Actor:extend{
     name = 'force field',
     sprite_name = 'force field',
@@ -214,6 +342,12 @@ end
 function ForceField:on_activate_panel(state)
     self.active = state
 end
+
+
+local ForceFloor = ForceField:extend{
+    name = 'force floor',
+    sprite_name = 'force floor',
+}
 
 
 local Panel = actors_base.Actor:extend{
