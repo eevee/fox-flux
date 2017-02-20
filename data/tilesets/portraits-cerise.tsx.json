@@ -1,17 +1,49 @@
-{ "columns":2,
+{ "columns":3,
  "image":"..\/..\/assets\/images\/portraits-cerise.png",
- "imageheight":144,
- "imagewidth":224,
+ "imageheight":864,
+ "imagewidth":336,
  "margin":0,
  "name":"portraits-cerise",
  "spacing":0,
- "tilecount":2,
+ "tilecount":18,
  "tileheight":144,
  "tileproperties":
     {
      "0":
         {
-         "sprite name":"cerise portrait\/default"
+         "sprite name":"cerise portrait - base\/default"
+        },
+     "1":
+        {
+         "sprite name":"cerise portrait - base\/hand on hip"
+        },
+     "12":
+        {
+         "sprite name":"cerise portrait - snoot\/default"
+        },
+     "13":
+        {
+         "sprite name":"cerise portrait - snoot\/talking"
+        },
+     "15":
+        {
+         "sprite name":"cerise portrait - disguise\/panties"
+        },
+     "2":
+        {
+         "sprite name":"cerise portrait - base\/bad end"
+        },
+     "3":
+        {
+         "sprite name":"cerise portrait - far hand\/compact"
+        },
+     "6":
+        {
+         "sprite name":"cerise portrait - eyes\/default"
+        },
+     "9":
+        {
+         "sprite name":"cerise portrait - eyelids\/furrowed brow"
         }
     },
  "tilepropertytypes":
@@ -19,6 +51,121 @@
      "0":
         {
          "sprite name":"string"
+        },
+     "1":
+        {
+         "sprite name":"string"
+        },
+     "12":
+        {
+         "sprite name":"string"
+        },
+     "13":
+        {
+         "sprite name":"string"
+        },
+     "15":
+        {
+         "sprite name":"string"
+        },
+     "2":
+        {
+         "sprite name":"string"
+        },
+     "3":
+        {
+         "sprite name":"string"
+        },
+     "6":
+        {
+         "sprite name":"string"
+        },
+     "9":
+        {
+         "sprite name":"string"
+        }
+    },
+ "tiles":
+    {
+     "13":
+        {
+         "animation":[
+                {
+                 "duration":100,
+                 "tileid":13
+                }, 
+                {
+                 "duration":100,
+                 "tileid":14
+                }, 
+                {
+                 "duration":50,
+                 "tileid":13
+                }, 
+                {
+                 "duration":200,
+                 "tileid":12
+                }, 
+                {
+                 "duration":100,
+                 "tileid":13
+                }, 
+                {
+                 "duration":100,
+                 "tileid":14
+                }, 
+                {
+                 "duration":50,
+                 "tileid":13
+                }, 
+                {
+                 "duration":100,
+                 "tileid":12
+                }, 
+                {
+                 "duration":100,
+                 "tileid":13
+                }, 
+                {
+                 "duration":100,
+                 "tileid":14
+                }, 
+                {
+                 "duration":50,
+                 "tileid":13
+                }, 
+                {
+                 "duration":400,
+                 "tileid":12
+                }]
+        },
+     "6":
+        {
+         "animation":[
+                {
+                 "duration":2000,
+                 "tileid":6
+                }, 
+                {
+                 "duration":50,
+                 "tileid":8
+                }, 
+                {
+                 "duration":50,
+                 "tileid":7
+                }, 
+                {
+                 "duration":6000,
+                 "tileid":6
+                }, 
+                {
+                 "duration":50,
+                 "tileid":8
+                }, 
+                {
+                 "duration":50,
+                 "tileid":7
+                }]
         }
     },
  "tilewidth":112

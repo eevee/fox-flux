@@ -8,12 +8,11 @@ local actors_base = require 'klinklang.actors.base'
 local BaseScene = require 'klinklang.scenes.base'
 local Object = require 'klinklang.object'
 
-local SPEAKER_SCALE = 2
 local SCROLL_RATE = 64  -- characters per second
 
 -- Magic rendering numbers
-local TEXT_MARGIN_X = 24
-local TEXT_MARGIN_Y = 16
+local TEXT_MARGIN_X = 16
+local TEXT_MARGIN_Y = 12
 
 
 local function _evaluate_condition(condition)
@@ -155,7 +154,7 @@ function DialogueScene:init(speakers, script)
     -- FIXME unhardcode some more of this, adjust it on resize
     local w, h = game:getDimensions()
     self.speaker_height = 160
-    local boxheight = 120
+    local boxheight = 112
     local winheight = h
     -- FIXME cerise is slightly too big, arrgghhh
     self.speaker_scale = math.floor((winheight - boxheight) / self.speaker_height)
@@ -616,12 +615,12 @@ function DialogueScene:draw()
     local background = self.phrase_speaker.background or self.default_background
     -- TODO this feels rather hardcoded; surely the background should flex to fit the height rather than defining it.
     local boxheight = background:getHeight()
-    boxheight = 120
+    boxheight = 112
     local w, h = game:getDimensions()
     local boxwidth = w
     local boxtop = h - boxheight
 
-    local BOXSCALE = 1.5  -- FIXME this was 2 for isaac
+    local BOXSCALE = 1  -- FIXME this was 2 for isaac
     local boxrepeatleft, boxrepeatright = 192, 224
     local boxquadl = love.graphics.newQuad(0, 0, boxrepeatleft, background:getHeight(), background:getDimensions())
     love.graphics.draw(background, boxquadl, 0, boxtop, 0, BOXSCALE)

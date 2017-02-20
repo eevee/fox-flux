@@ -13,6 +13,9 @@ local Player = actors_base.SentientActor:extend{
     sprite_name = 'lexy',
     dialogue_position = 'left',
     dialogue_sprite_name = 'lexy portrait',
+    dialogue_chatter_sound = 'assets/sounds/chatter-lexy-rubber.ogg',
+    dialogue_color = {255, 255, 255},
+    dialogue_shadow = {135, 22, 70},
     z = 1000,
     is_portable = true,
     can_carry = true,
@@ -51,8 +54,9 @@ function Player:init(...)
                 lexy = activator,
                 cerise = actors_npcs.Cerise,
             }, {
-                { "Hey, sweetie!\nHere are a few more\nlines of text\njust for you!", speaker = 'cerise' },
-                { "Oh, hey.", speaker = 'lexy' },
+                { "Hey, sweetie!\nHere are a few more fairly long lines of text just for you, to test whether my mouth moves correctly!  I hope this has been helpful!", speaker = 'cerise', pose = { 'compact', 'villain' } },
+                { "Oh, gosh, I need to say a lot more now because you're testing sounds as well!  I just can't think of anything to say, though...", speaker = 'cerise' },
+                { "Oh, uh, I guess I should say something too.  Hi.  What's up.  Cool.", speaker = 'lexy' },
             }))
         end,
     })

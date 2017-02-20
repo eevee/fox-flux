@@ -14,7 +14,20 @@ local Cerise = actors_base.Actor:extend{
     name = 'cerise',
     sprite_name = 'cerise',
     dialogue_position = 'right',
-    dialogue_sprite_name = 'cerise portrait',
+    dialogue_chatter_sound = 'assets/sounds/chatter-cerise.ogg',
+    dialogue_background = 'assets/images/dialoguebox-cerise.png',
+    dialogue_color = {135, 22, 70},
+    dialogue_shadow = {207, 60, 113, 128},
+    dialogue_sprites = {
+        { name = 'base', sprite_name = 'cerise portrait - base' },
+        { name = 'eyes', sprite_name = 'cerise portrait - eyes' },
+        { name = 'snoot', sprite_name = 'cerise portrait - snoot', while_talking = { default = 'talking' } },
+        { name = 'hand', sprite_name = 'cerise portrait - far hand', default = false },
+        { name = 'eyelids', sprite_name = 'cerise portrait - eyelids', default = false },
+        { name = 'disguise', sprite_name = 'cerise portrait - disguise', default = false },
+        compact = { hand = 'compact' },
+        villain = { disguise = 'panties', eyelids = 'furrowed brow' },
+    },
 
     is_usable = true,
 }
