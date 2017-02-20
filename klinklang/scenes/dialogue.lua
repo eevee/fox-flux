@@ -124,10 +124,10 @@ for _, func in ipairs{'set_scale', 'set_facing_right', 'update', 'draw'} do
     end
 end
 
-function StackedSprite:draw_at(pos)
+function StackedSprite:draw_anchorless(pos)
     for _, name in ipairs(self.sprite_order) do
         if self.sprite_poses[name] then
-            self.sprites[name]:draw_at(pos)
+            self.sprites[name]:draw_anchorless(pos)
         end
     end
 end
@@ -688,17 +688,17 @@ function DialogueScene:draw()
             local sw, sh = sprite:getDimensions()
             local x
             if speaker.position == 'far left' then
-                x = math.floor(boxwidth / 8)
+                x = 1/8
             elseif speaker.position == 'left' then
-                x = math.floor(boxwidth / 4)
+                x = 1/4
             elseif speaker.position == 'right' then
-                x = math.floor(boxwidth * 3 / 4)
+                x = 3/4
             else
                 print("unrecognized speaker position:", speaker.position)
                 x = 0
             end
-            local pos = Vector(x - sw / 2, boxtop - sh)
-            sprite:draw_at(pos)
+            local pos = Vector(math.floor((boxwidth - sw) * x + 0.5), boxtop - sh)
+            sprite:draw_anchorless(pos)
         end
     end
 
