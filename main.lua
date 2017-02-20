@@ -4,6 +4,7 @@ local Gamestate = require 'vendor.hump.gamestate'
 local tick = require 'vendor.tick'
 
 local ResourceManager = require 'klinklang.resources'
+local DebugScene = require 'klinklang.scenes.debug'
 local WorldScene = require 'klinklang.scenes.world'
 local SpriteSet = require 'klinklang.sprite'
 local tiledmap = require 'klinklang.tiledmap'
@@ -147,6 +148,14 @@ function love.keypressed(key, scancode, isrepeat)
             -- LOVE claims to do this for me, but it lies
             _previous_size = {love.window.getMode()}
             love.window.setFullscreen(true)
+        end
+    elseif scancode == 'pause' and not isrepeat and game.debug then
+        if not game.debug_scene then
+            game.debug_scene = DebugScene(m5x7)
+        end
+        -- FIXME this is incredibly stupid
+        if Gamestate.current() ~= game.debug_scene then
+            Gamestate.push(game.debug_scene)
         end
     end
 end
