@@ -45,6 +45,53 @@ end
 
 
 --------------------------------------------------------------------------------
+-- LÖVE-specific helpers
+
+local function _find_files_impl(stack)
+    while true do
+        local row
+        while true do
+            row = stack[#stack]
+            if row == nil then
+                -- Done!
+                return
+            end
+            row.cursor = row.cursor or 1
+            if row.cursor > #row then
+                stack[#stack] = nil
+            else
+                break
+            end
+        end
+
+        local fn = row[row.cursor]
+        local path = fn
+        if row.base then
+            path = row.base .. '/' .. path
+        end
+        row.cursor = row.cursor + 1
+
+        if love.filesystem.isFile(path) then
+            if not stack.pattern or fn:match(stack.pattern) then
+                return path, fn
+            end
+        elseif love.filesystem.isDirectory(path) then
+            if stack.recurse ~= false then
+                local new_row = love.filesystem.getDirectoryItems(path)
+                new_row.base = path
+                new_row.cursor = 1
+                table.insert(stack, new_row)
+            end
+        end
+    end
+end
+
+local function find_files(args)
+    return _find_files_impl, {args, pattern = args.pattern, recurse = args.recurse, n = 1}
+end
+
+
+--------------------------------------------------------------------------------
 -- Operations on ranges of angles, represented by clockwise pairs of vectors,
 -- without ever calculating the actual angles.
 -- Note that this is "clockwise" from the perspective of the reversed y-axis
@@ -308,6 +355,7 @@ return {
     sign = sign,
     clamp = clamp,
     divmod = divmod,
+    find_files = find_files,
     ClockRange = ClockRange,
     vector_clock_direction = ClockRange.direction,
 }

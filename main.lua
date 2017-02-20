@@ -7,6 +7,7 @@ local ResourceManager = require 'klinklang.resources'
 local WorldScene = require 'klinklang.scenes.world'
 local SpriteSet = require 'klinklang.sprite'
 local tiledmap = require 'klinklang.tiledmap'
+local util = require 'klinklang.util'
 --local TitleScene = require 'isaacsdescent.scenes.title'
 
 
@@ -63,15 +64,9 @@ function love.load(args)
     love.graphics.setDefaultFilter('nearest', 'nearest', 1)
 
     -- Eagerly load all actor modules, so we can access them by name
-    for _, package in ipairs{'klinklang', 'foxflux'} do
-        local dir = package .. '/actors'
-        for _, filename in ipairs(love.filesystem.getDirectoryItems(dir)) do
-            -- FIXME this should recurse, but i can't be assed right now
-            if filename:match("%.lua$") and love.filesystem.isFile(dir .. '/' .. filename) then
-                module = package .. '.actors.' .. filename:sub(1, #filename - 4)
-                require(module)
-            end
-        end
+    for path in util.find_files{'klinklang/actors', 'foxflux/actors', pattern = '%.lua$'} do
+        module = path:sub(1, #path - 4):gsub('/', '.')
+        require(module)
     end
 
     local resource_manager = ResourceManager()
@@ -83,24 +78,14 @@ function love.load(args)
     game.resource_manager = resource_manager
 
     -- Eagerly load all sound effects, which we will surely be needing
-    local sounddir = 'assets/sounds'
-    for _, filename in ipairs(love.filesystem.getDirectoryItems(sounddir)) do
-        -- FIXME recurse?
-        local path = sounddir .. '/' .. filename
-        if love.filesystem.isFile(path) then
-            resource_manager:load(path)
-        end
+    for path in util.find_files{'assets/sounds'} do
+        resource_manager:load(path)
     end
 
     -- Load all the graphics upfront
-    local tilesetdir = 'data/tilesets'
-    for _, filename in ipairs(love.filesystem.getDirectoryItems(tilesetdir)) do
-        -- FIXME recurse?
-        local path = tilesetdir .. '/' .. filename
-        if love.filesystem.isFile(path) then
-            local tileset = tiledmap.TiledTileset(path, nil, resource_manager)
-            resource_manager:add(path, tileset)
-        end
+    for path in util.find_files{'data/tilesets', pattern = "%.tsx%.json$"} do
+        local tileset = tiledmap.TiledTileset(path, nil, resource_manager)
+        resource_manager:add(path, tileset)
     end
 
     local DialogueScene = require 'klinklang.scenes.dialogue'
