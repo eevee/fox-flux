@@ -141,6 +141,7 @@ local DialogueScene = BaseScene:extend{
     -- Default speaker settings; set in a subclass (or just monkeypatch)
     default_background = nil,
     default_color = {255, 255, 255},
+    default_shadow = {0, 0, 0, 128},
 }
 
 -- TODO as with DeadScene, it would be nice if i could formally eat keyboard input
@@ -171,6 +172,7 @@ function DialogueScene:init(speakers, script)
             speaker = {
                 position = actor.dialogue_position,
                 color = actor.dialogue_color,
+                shadow = actor.dialogue_shadow,
             }
             if actor.dialogue_sprite_name then
                 speaker.sprite = game.sprites[actor.dialogue_sprite_name]:instantiate()
@@ -670,7 +672,7 @@ function DialogueScene:draw()
     local x, y = TEXT_MARGIN_X, boxtop + TEXT_MARGIN_Y
     for _, text in ipairs(texts) do
         -- Draw the text, twice: once for a drop shadow, then the text itself
-        love.graphics.setColor(0, 0, 0, 128)
+        love.graphics.setColor(self.phrase_speaker.shadow or self.default_shadow)
         love.graphics.draw(text, x, y + 2)
 
         love.graphics.setColor(self.phrase_speaker.color or self.default_color)
