@@ -473,12 +473,12 @@ function TiledMap:add_to_collider(collider, submap_name)
                 local gid = data[t + 1]
                 local tile = self.tiles[gid]
                 if tile then
-                    local shape = tile:get_collision()
+                    local shape, anchor = tile:get_collision()
                     if shape then
                         local ty, tx = util.divmod(t, width)
                         shape:move(
-                            tx * self.raw.tilewidth,
-                            (ty + 1) * self.raw.tileheight - tile.tileset.raw.tileheight)
+                            tx * self.raw.tilewidth + anchor.x,
+                            (ty + 1) * self.raw.tileheight - tile.tileset.raw.tileheight + anchor.y)
                         self.shapes[shape] = true
                         collider:add(shape, tile)
                     end
