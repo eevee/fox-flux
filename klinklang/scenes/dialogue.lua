@@ -252,6 +252,7 @@ function DialogueScene:init(speakers, script)
 
     -- TODO should rig up a whole thing for who to display and where, pose to use, etc., but for now these bits are hardcoded i guess
     self.font = m5x7  -- TODO global, should use resourcemanager probably
+    self.font_height = math.ceil(self.font:getHeight() * self.font:getLineHeight())
     
     -- State of the current phrase
     self.curphrase = 1
@@ -605,7 +606,7 @@ function DialogueScene:draw()
     love.graphics.draw(background, boxquadr, w - (background:getWidth() - boxrepeatright) * BOXSCALE, boxtop, 0, BOXSCALE)
 
     -- Print the text
-    local max_lines = math.floor((boxheight - TEXT_MARGIN_Y * 2) / self.font:getHeight())
+    local max_lines = math.floor((boxheight - TEXT_MARGIN_Y * 2) / self.font_height)
     local texts = {}
     if self.state == 'menu' then
         -- FIXME i don't reeeally like this clumsy-ass two separate cases thing
@@ -622,7 +623,7 @@ function DialogueScene:draw()
                 table.insert(texts, item.texts[l])
                 if m == self.menu_cursor then
                     love.graphics.setColor(255, 255, 255, 64)
-                    love.graphics.rectangle('fill', TEXT_MARGIN_X * 3/4, boxtop + TEXT_MARGIN_Y + self.font:getHeight() * lines, boxwidth - TEXT_MARGIN_X * 6/4, self.font:getHeight())
+                    love.graphics.rectangle('fill', TEXT_MARGIN_X * 3/4, boxtop + TEXT_MARGIN_Y + self.font_height * lines, boxwidth - TEXT_MARGIN_X * 6/4, self.font_height)
                 end
                 if m == #self.menu_items and l == #item.lines then
                     is_bottom = true
@@ -678,7 +679,7 @@ function DialogueScene:draw()
         love.graphics.setColor(self.phrase_speaker.color or self.default_color)
         love.graphics.draw(text, x, y)
 
-        y = y + self.font:getHeight()
+        y = y + self.font_height
     end
 
     -- Draw the speakers
