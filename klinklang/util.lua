@@ -75,7 +75,9 @@ local function _find_files_impl(stack)
         end
         row.cursor = row.cursor + 1
 
-        if love.filesystem.isFile(path) then
+        if fn:match("^%.") then
+            -- Ignore dot files
+        elseif love.filesystem.isFile(path) then
             if not stack.pattern or fn:match(stack.pattern) then
                 return path, fn
             end
