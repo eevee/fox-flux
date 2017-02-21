@@ -62,6 +62,16 @@ function TriggerZone:execute_trigger(activator)
         worldscene:enter_submap(self.props.submap)
     elseif self.action == 'leave submap' then
         worldscene:leave_submap()
+    elseif self.action == 'broadcast' then
+        for _, actor in ipairs(worldscene.actors) do
+            if actor[self.props.message] then
+                actor[self.props.message](actor, activator, self.props)
+            end
+        end
+    end
+
+    if self.props.once then
+        worldscene:remove_actor(self)
     end
 end
 
