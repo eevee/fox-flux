@@ -1,11 +1,11 @@
-{ "columns":3,
+{ "columns":14,
  "image":"..\/..\/assets\/images\/draclear.png",
  "imageheight":128,
- "imagewidth":192,
+ "imagewidth":896,
  "margin":0,
  "name":"draclear",
  "spacing":0,
- "tilecount":6,
+ "tilecount":28,
  "tileheight":64,
  "tileproperties":
     {
@@ -18,14 +18,19 @@
         {
          "sprite name":"draclear\/fly"
         },
-     "3":
+     "14":
         {
          "actor":"draclear",
          "sprite name":"draclear: clear\/perch"
         },
-     "4":
+     "15":
         {
          "sprite name":"draclear: clear\/fly"
+        },
+     "3":
+        {
+         "animation stops":true,
+         "sprite name":"draclear\/fade"
         }
     },
  "tilepropertytypes":
@@ -39,13 +44,18 @@
         {
          "sprite name":"string"
         },
-     "3":
+     "14":
         {
          "actor":"string",
          "sprite name":"string"
         },
-     "4":
+     "15":
         {
+         "sprite name":"string"
+        },
+     "3":
+        {
+         "animation stops":"bool",
          "sprite name":"string"
         }
     },
@@ -138,7 +148,7 @@
              "y":0
             }
         },
-     "3":
+     "14":
         {
          "objectgroup":
             {
@@ -177,16 +187,16 @@
              "y":0
             }
         },
-     "4":
+     "15":
         {
          "animation":[
                 {
                  "duration":200,
-                 "tileid":4
+                 "tileid":15
                 }, 
                 {
                  "duration":200,
-                 "tileid":5
+                 "tileid":16
                 }],
          "objectgroup":
             {
@@ -216,6 +226,90 @@
                      "width":24,
                      "x":29,
                      "y":25
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "3":
+        {
+         "animation":[
+                {
+                 "duration":1600,
+                 "tileid":3
+                }, 
+                {
+                 "duration":1200,
+                 "tileid":4
+                }, 
+                {
+                 "duration":800,
+                 "tileid":5
+                }, 
+                {
+                 "duration":400,
+                 "tileid":6
+                }, 
+                {
+                 "duration":200,
+                 "tileid":7
+                }, 
+                {
+                 "duration":100,
+                 "tileid":8
+                }, 
+                {
+                 "duration":100,
+                 "tileid":9
+                }, 
+                {
+                 "duration":100,
+                 "tileid":10
+                }, 
+                {
+                 "duration":100,
+                 "tileid":11
+                }, 
+                {
+                 "duration":100,
+                 "tileid":12
+                }, 
+                {
+                 "duration":100,
+                 "tileid":13
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":24,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":24,
+                     "x":29,
+                     "y":25
+                    }, 
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":40,
+                     "y":53
                     }],
              "opacity":1,
              "type":"objectgroup",

@@ -131,6 +131,7 @@ local Draclear = actors_base.MobileActor:extend{
 
     pursuit_speed = 128,
     state = 'idle',
+    is_sated = false,
     perch_pos = nil,
     player_target_offset = Vector(-6, -44),
 }
@@ -183,8 +184,10 @@ function Draclear:update(dt)
                 self.state = 'returning'
                 worldscene:remove_actor(self)
                 player:play_transform_cutscene('glass', player_delta.x < 0, 'lexy: glass tf', function()
-                    -- FIXME change back eventually
+                    -- Player may have moved in the meantime!
+                    self.pos = player.pos + self.player_target_offset
                     self:set_sprite('draclear')
+                    self.is_sated = true
                     worldscene:add_actor(self)
                 end)
                 return
@@ -200,18 +203,30 @@ function Draclear:update(dt)
         local perch_delta = self.perch_pos - self.pos
         local perch_dist = perch_delta:len()
 
-        if perch_dist < 2 then
+        if perch_dist > 2 then
+            self.velocity = perch_delta * math.min(1 / dt, self.pursuit_speed / perch_dist)
+            self.sprite:set_pose('fly')
+            self.sprite:set_facing_right(self.velocity.x > 0)
+        else
             self.pos = self.perch_pos:clone()
             self.velocity = Vector()
             self.sprite:set_pose('perch')
             self.state = 'waiting'
-            worldscene.tick:delay(function()
-                self.state = 'idle'
-            end, love.math.random(3, 7))
-        else
-            self.velocity = perch_delta * math.min(1 / dt, self.pursuit_speed / perch_dist)
-            self.sprite:set_pose('fly')
-            self.sprite:set_facing_right(self.velocity.x > 0)
+            if self.is_sated then
+                -- Stuffed!  Wait for a while before it wears off
+                worldscene.tick:delay(function()
+                    self.sprite:set_pose('fade', function()
+                        self.is_sated = false
+                        self.state = 'idle'
+                        self:set_sprite('draclear: clear')
+                    end)
+                end, util.random_float(8, 16))
+            else
+                -- Still hungry; just wait a bit before pursuing again
+                worldscene.tick:delay(function()
+                    self.state = 'idle'
+                end, util.random_float(3, 7))
+            end
         end
     end
 

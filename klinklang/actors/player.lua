@@ -114,6 +114,11 @@ function Player:on_collide_with(actor, collision, ...)
             self:set_sprite('lexy: glass revert')
             -- FIXME set_sprite should do this
             self.sprite:set_facing_right(not self.facing_left)
+            -- FIXME really need an animation or SOMETHING here
+            worldscene.tick:delay(function()
+                self.is_locked = false
+                self:transform('rubber')
+            end, 5)
         end
     end
 
