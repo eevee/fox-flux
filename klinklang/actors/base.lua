@@ -119,7 +119,6 @@ local Actor = BareActor:extend{
 
 function Actor:init(position)
     self.pos = position
-    self.velocity = Vector.zero:clone()
 
     -- Table of weak references to other actors
     self.ptrs = setmetatable({}, { __mode = 'v' })
@@ -241,6 +240,12 @@ local MobileActor = Actor:extend{
     -- Physics state
     on_ground = false,
 }
+
+function MobileActor:init(...)
+    MobileActor.__super.init(self, ...)
+
+    self.velocity = Vector.zero:clone()
+end
 
 function MobileActor:on_enter()
     self.cargo = setmetatable({}, { __mode = 'k' })
