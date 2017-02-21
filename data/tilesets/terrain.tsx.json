@@ -9,6 +9,18 @@
  "tileheight":32,
  "tileproperties":
     {
+     "107":
+        {
+         "sprite name":"dart\/forwards"
+        },
+     "108":
+        {
+         "sprite name":"dart\/falling"
+        },
+     "109":
+        {
+         "sprite name":"dart\/down"
+        },
      "11":
         {
          "sprite name":"strawberry heart\/collected"
@@ -238,6 +250,18 @@
     },
  "tilepropertytypes":
     {
+     "107":
+        {
+         "sprite name":"string"
+        },
+     "108":
+        {
+         "sprite name":"string"
+        },
+     "109":
+        {
+         "sprite name":"string"
+        },
      "11":
         {
          "sprite name":"string"
@@ -601,6 +625,101 @@
                      "width":24,
                      "x":4,
                      "y":0
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "107":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":16
+                    }, 
+                    {
+                     "height":24,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":24,
+                     "x":4,
+                     "y":4
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "108":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":16
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "109":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":16
                     }],
              "opacity":1,
              "type":"objectgroup",

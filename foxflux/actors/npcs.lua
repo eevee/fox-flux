@@ -9,6 +9,100 @@ local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 local DialogueScene = require 'klinklang.scenes.dialogue'
 
+local BossScene = require 'foxflux.scenes.boss'
+
+
+local Dart = actors_base.MobileActor:extend{
+    name = 'dart',
+    sprite_name = 'dart',
+}
+
+function Dart:init(...)
+    Dart.__super.init(self, ...)
+
+    self.velocity = Vector(-256, 0)
+    self.sprite:set_facing_right(false)
+end
+
+function Dart:blocks()
+    return false
+end
+
+function Dart:on_collide_with(actor, ...)
+    if actor then
+        return true
+    end
+
+    self.velocity = Vector()
+    return Dart.__super.on_collide_with(self, actor, ...)
+end
+
+function Dart:nudge(movement, pushers)
+    return Dart.__super.nudge(self, movement, pushers, true)
+end
+
+function Dart:update(dt)
+    Dart.__super.update(self, dt)
+
+    local vx = math.abs(self.velocity.x)
+    local vy = math.abs(self.velocity.y)
+    if vx > vy * 2 then
+        self.sprite:set_pose('forwards')
+    elseif vy > vx * 2 then
+        self.sprite:set_pose('down')
+    else
+        self.sprite:set_pose('falling')
+    end
+end
+
+
+local Lop = actors_base.Actor:extend{
+    name = 'lop',
+    sprite_name = 'lop',
+    z = 1,  -- in front of dart
+
+    is_usable = true,
+}
+
+function Lop:init(...)
+    Lop.__super.init(self, ...)
+
+    self.sprite:set_pose('armed')
+    self.sprite:set_facing_right(false)
+end
+
+function Lop:on_approach_lop(activator)
+    Gamestate.push(BossScene(activator, self))
+end
+
+function Lop:launch_dart(scene)
+    worldscene.tick:delay(function()
+        local dart = Dart(self.pos + Vector(-34, -79))
+        worldscene:add_actor(dart)
+        self.sprite:set_pose('out of ammo')
+    end, 1)
+    :after(function()
+        self.sprite:set_pose('disarmed', function()
+            self.sprite:set_pose('stand')
+            self:schedule_idle()
+            scene:announce_victory()
+        end)
+    end, 2)
+end
+
+function Lop:schedule_idle()
+    worldscene.tick:delay(function()
+        if math.random() < 0.5 then
+            self.sprite:set_pose('wag')
+        else
+            self.sprite:set_pose('pant')
+        end
+    end, util.random_float(1, 3))
+    :after(function()
+        self.sprite:set_pose('stand')
+        self:schedule_idle()
+    end, util.random_float(2, 5))
+end
 
 local Cerise = actors_base.Actor:extend{
     name = 'cerise',
