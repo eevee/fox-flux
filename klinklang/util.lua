@@ -43,6 +43,10 @@ local function divmod(n, b)
     return math.floor(n / b), n % b
 end
 
+local function random_float(a, b)
+    return a + math.random() * (b - a)
+end
+
 
 --------------------------------------------------------------------------------
 -- LÖVE-specific helpers
@@ -355,6 +359,7 @@ return {
     sign = sign,
     clamp = clamp,
     divmod = divmod,
+    random_float = random_float,
     find_files = find_files,
     ClockRange = ClockRange,
     vector_clock_direction = ClockRange.direction,
