@@ -183,7 +183,6 @@ function Actor:set_sprite(sprite_name)
     local facing = self.sprite.facing
     self.sprite_name = sprite_name
     self.sprite = game.sprites[self.sprite_name]:instantiate(nil, facing)
-    self.sprite:set_facing_right(facing_right)
 end
 
 
