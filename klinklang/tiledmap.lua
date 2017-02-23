@@ -376,6 +376,8 @@ function TiledMap:init(path, resource_manager)
     self.actor_templates = {}
     self.named_spots = {}
     self.music_zones = {}
+    -- TODO maybe it should be possible to name arbitrary shapes
+    self.named_tracks = {}
     for _, layer in ipairs(self.layers) do
         -- TODO this is largely copy/pasted from below
         -- FIXME i think these are deprecated for layers maybe?
@@ -428,6 +430,12 @@ function TiledMap:init(path, resource_manager)
                 elseif object.type == 'music zone' then
                     local shape = tiled_shape_to_whammo_shape(object)
                     self.music_zones[shape] = resource_manager:load(object.properties.music)
+                elseif object.type == 'track' then
+                    local points = {}
+                    for _, rawpoint in ipairs(object.polyline) do
+                        table.insert(points, Vector(object.x + rawpoint.x, object.y + rawpoint.y))
+                    end
+                    self.named_tracks[object.name] = points
                 end
             end
         end
