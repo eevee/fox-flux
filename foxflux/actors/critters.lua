@@ -36,8 +36,8 @@ function Slime:update(dt)
     local player_delta = (player.pos + self.player_target_offset) - self.pos
     -- TODO oh it would be fascinating if you could absorb more slime that you encountered
     if player:is_transformable() and
-        math.abs(player_delta.x) < 96 and
-        -40 < player_delta.y and player_delta.y < 8
+        math.abs(player_delta.x) < 64 and
+        -48 < player_delta.y and player_delta.y < 8
     then
         if self.move_event then
             self.move_event:stop()
@@ -54,15 +54,30 @@ function Slime:update(dt)
             return
         end
 
-        local launch_speed = player_delta.x / 0.25
         if self.on_ground and player_delta.y < 0 then
             -- If the player is close enough, launch ourselves at them
+            local jump_speed = actors_base.get_jump_velocity(-player_delta.y)
+            -- Figure how long it'll take to reach the apex of the jump, and
+            -- set our speed to match
+            -- FIXME hardcoding gravity, eh
+            local t = jump_speed / 768
+            local launch_speed = player_delta.x / t
             self.velocity.x = launch_speed
-            self.jumpvel = actors_base.get_jump_velocity(-player_delta.y)
+            self.jumpvel = jump_speed
             self:decide_jump()
-        elseif math.abs(self.velocity.x) < math.abs(launch_speed) then
+        else
             -- If we're already in the air, try to move in their direction
-            self:decide_walk(player_delta.x < 0 and -1 or 1)
+            local t = -self.velocity.y / 768
+            local launch_speed = player_delta.x / t
+            if math.abs(self.velocity.x) < math.abs(launch_speed) then
+                self:decide_walk(player_delta.x < 0 and -1 or 1)
+            end
+            -- And stop jumping if we're too high
+            -- FIXME this should actually check if our trajectory is aiming us too high...
+            -- FIXME and if you want to be really clever you can take the player's velocity into account...
+            if 0 < player_delta.y then
+                self:decide_abandon_jump()
+            end
         end
     elseif self.decision_walk == 0 then
         -- Otherwise, shuffle around a bit
@@ -74,6 +89,8 @@ function Slime:update(dt)
                 self.move_event = nil
             end, love.math.random(0.5, 1.5))
         end
+        -- Reset our jump height, if we leapt at the player once but missed
+        --self.jumpvel = Slime.jumpvel
     end
 
     Slime.__super.update(self, dt)
