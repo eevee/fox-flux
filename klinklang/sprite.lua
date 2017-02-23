@@ -114,22 +114,22 @@ end
 
 -- A Sprite is a definition; call this to get an instance with state, which can
 -- draw itself and remember its current pose
-function SpriteSet:instantiate()
-    return Sprite(self)
+function SpriteSet:instantiate(...)
+    return Sprite(self, ...)
 end
 
 Sprite = Object:extend{}
 
-function Sprite:init(spriteset)
+function Sprite:init(spriteset, pose_name, facing)
     self.spriteset = spriteset
     self.scale = 1
     self.pose = nil
-    self.facing = 'right'
+    self.facing = facing or 'right'
     self._pending_pose = nil
     self._pending_callback = nil
     self.anim = nil
-    -- TODO this doesn't check that the default pose exists
-    self:_set_pose(spriteset.default_pose)
+    -- TODO this doesn't check that the given pose exists
+    self:_set_pose(pose_name or spriteset.default_pose)
 end
 
 -- Schedule the given pose to replace the current pose on the next update()
