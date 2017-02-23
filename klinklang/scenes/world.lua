@@ -411,8 +411,10 @@ function WorldScene:draw()
         end
     end
 
-    local sprite = game.sprites[self.player.inventory[self.player.inventory_cursor].sprite_name]:instantiate()
-    sprite:draw_at(Vector(16, 16 + 32 - dy) + sprite.anchor)
+    if self.player.form ~= 'stone' then
+        local sprite = game.sprites[self.player.inventory[self.player.inventory_cursor].sprite_name]:instantiate()
+        sprite:draw_at(Vector(16, 16 + 32 - dy) + sprite.anchor)
+    end
     love.graphics.pop()
 
     love.graphics.push('all')
@@ -494,6 +496,7 @@ function WorldScene:keypressed(key, scancode, isrepeat)
     if scancode == 'space' then
         self.player:decide_jump()
     elseif scancode == 'q' then
+        do return end
         -- Switch inventory items
         if not self.inventory_switch or self.inventory_switch.progress == 1 then
             local old_item = self.player.inventory[self.player.inventory_cursor]
@@ -519,6 +522,9 @@ function WorldScene:keypressed(key, scancode, isrepeat)
         end
     elseif scancode == 'e' then
         if self.player.is_dead then
+            return
+        end
+        if self.player.form == 'stone' then
             return
         end
         -- Use inventory item, or nearby thing
