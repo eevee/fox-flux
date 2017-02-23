@@ -309,12 +309,22 @@ function MobileActor:_collision_callback(collision, pushers, already_hit)
     local passable = self:on_collide_with(actor, collision)
 
     -- Pushing
+    if actor and self.cargo and self.cargo[actor] then
+        -- If the other actor is already our cargo, ignore it for now, since
+        -- we'll move it at the end of our movement
+        -- FIXME this is /technically/ wrong if the carrier is blockable, but so
+        -- far all of mine are not.  one current side effect is that if you're
+        -- on a crate on a platform moving up, and you hit a ceiling, then you
+        -- get knocked off the crate rather than the crate being knocked
+        -- through the platform.
+        return true
+    end
     if actor and not pushers[actor] and collision.touchtype >= 0 and not passable and (
         (actor.is_pushable and self.can_push) or
         -- This allows a carrier to pick up something by rising into it
         -- FIXME check that it's pushed upwards?
         -- FIXME this is such a weird fucking case though
-        (actor.is_portable and self.can_carry and not self.cargo[actor]))
+        (actor.is_portable and self.can_carry))
     then
         local nudge = collision.attempted - collision.movement
         -- Only push in the direction the collision occurred!  If several
@@ -331,11 +341,9 @@ function MobileActor:_collision_callback(collision, pushers, already_hit)
             nudge = Vector.zero
         end
         if already_hit[actor] == 'nudged' or _is_vector_almost_zero(nudge) then
-            -- If we've already pushed this object once, OR if we're not
-            -- actually trying to push it at all, return a special value
-            -- that means to trim our movement but pretend we're not
-            -- blocked in that direction, so the caller doesn't cut our
-            -- velocity
+            -- If we've already pushed this object once, or we're not actually
+            -- trying to push it, do nothing...  but pretend it's solid, so we
+            -- don't, say, fall through it
             already_hit[actor] = 'nudged'
             passable = false
         else
@@ -450,9 +458,7 @@ function MobileActor:nudge(movement, pushers, xxx_no_slide)
     -- FIXME this means our momentum isn't part of theirs.  is that bad?
     if self.can_carry and self.cargo and not _is_vector_almost_zero(total_movement) then
         for actor in pairs(self.cargo) do
-            if not pushers[actor] and already_hit[actor] ~= 'nudged' then
-                actor:nudge(total_movement, pushers)
-            end
+            actor:nudge(total_movement, pushers)
         end
     end
 
