@@ -17,6 +17,11 @@
      "1":
         {
          "sprite name":"cushion\/occupied"
+        },
+     "2":
+        {
+         "actor":"platform",
+         "sprite name":"platform\/default"
         }
     },
  "tilepropertytypes":
@@ -28,6 +33,11 @@
         },
      "1":
         {
+         "sprite name":"string"
+        },
+     "2":
+        {
+         "actor":"string",
          "sprite name":"string"
         }
     },
@@ -94,6 +104,18 @@
                      "width":64,
                      "x":0,
                      "y":29
+                    }, 
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":32,
+                     "y":29
                     }],
              "opacity":1,
              "type":"objectgroup",
@@ -128,6 +150,18 @@
                      "visible":true,
                      "width":64,
                      "x":0,
+                     "y":29
+                    }, 
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":32,
                      "y":29
                     }],
              "opacity":1,

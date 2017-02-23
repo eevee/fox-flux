@@ -18,6 +18,11 @@
         {
          "actor":"campfire",
          "sprite name":"campfire\/default"
+        },
+     "9":
+        {
+         "actor":"chain-link fence",
+         "sprite name":"chain-link fence\/default"
         }
     },
  "tilepropertytypes":
@@ -28,6 +33,11 @@
          "sprite name":"string"
         },
      "1":
+        {
+         "actor":"string",
+         "sprite name":"string"
+        },
+     "9":
         {
          "actor":"string",
          "sprite name":"string"
@@ -117,6 +127,45 @@
                      "width":0,
                      "x":15,
                      "y":57
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "9":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":64,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":32,
+                     "x":0,
+                     "y":0
+                    }, 
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":64
                     }],
              "opacity":1,
              "type":"objectgroup",

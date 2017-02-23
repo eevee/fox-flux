@@ -110,10 +110,10 @@ function Fan:update(dt)
             end
 
             local frac = (y0 - ay1) / height
-            -- FIXME i am having a hell of a time making this strong enough
-            -- that it actually lifts you up (even when falling), but not so
-            -- strong that it launches you into the stratosphere
-            actor:push(Vector(0, -2048) * ((1 - frac * frac * 0.0) * dt))
+            local vely = -2048 * (1 - frac * 0.75) * dt / actor.mass
+            if actor.velocity.y > vely then
+                actor:push(Vector(0, vely))
+            end
         end
     end
     worldscene.collider:slide(shape, Vector(), callback)
@@ -162,34 +162,87 @@ local Platform = actors_base.MobileActor:extend{
     is_blockable = false,
     mass = 1000,
 
-    plat_distance = 4 * 32,
-    plat_speed = 32,
-    plat_forwards = true,
+    platform_direction = 1,
+    platform_slowdown_distance = 32,
 }
+
+function Platform:init(pos, props)
+    Platform.__super.init(self, pos)
+
+    if props then
+        if props['platform track'] then
+            -- FIXME would like a nicer way of doing this.  also i observe that
+            -- not only platforms necessarily follow tracks...  maybe this
+            -- should be generic (component) behavior
+            self.platform_points = worldscene.map.named_tracks[props['platform track']]
+            self.platform_point = 1
+        end
+        self.platform_speed = props['platform speed'] or 64
+    end
+end
 
 function Platform:on_enter()
     Platform.__super.on_enter(self)
-    self.pos0 = self.pos:clone()
+    self:move_to(self.platform_points[1]:clone())
 end
 
+-- FIXME a horizontal platform in particular looks pretty janky but i'm not
+-- totally sure who to blame.  it sometimes jitters relative to the player,
+-- too, which is aaaawful.  nudge() does goal rounding, so i'm suspicious of
+-- that, but lowering it from 1/8 to 1/32 didn't seem to help
 function Platform:update(dt)
-    -- FIXME this doesn't prevent, e.g., overshooting.  it also doesn't slow
-    -- down nicely at the ends.  probably need a more formal concept of a track
-    -- to follow -- maybe even definable within tiled?
-    if self.plat_forwards then
-        if (self.pos - self.pos0):len2() > self.plat_distance * self.plat_distance then
-            self.plat_forwards = false
-        end
+    local pt0, pt1
+    if self.platform_direction > 0 then
+        pt0 = self.platform_point
+        pt1 = self.platform_point + 1
+    elseif self.platform_direction < 0 then
+        pt0 = self.platform_point
+        pt1 = self.platform_point - 1
     else
-        if self.pos.y > self.pos0.y then
-            self.plat_forwards = true
-        end
+        return
     end
 
-    if self.plat_forwards then
-        self.velocity = Vector(0, -self.plat_speed)
+    local goal_is_endpoint = (pt1 == 1 or pt1 == #self.platform_points)
+    local departing_endpoint = (pt0 == 1 or pt0 == #self.platform_points)
+    local goal = self.platform_points[pt1]
+    local delta = goal - self.pos
+    local dist = delta:len()
+    local max_dist = self.platform_speed * dt
+
+    if max_dist < dist then
+        self.velocity = delta * (self.platform_speed / dist)
+
+        if goal_is_endpoint or departing_endpoint then
+            local dist_from_end
+            if departing_endpoint then
+                local dist0 = (self.platform_points[pt0] - self.pos):len()
+                if goal_is_endpoint then
+                    dist_from_end = math.min(dist, dist0)
+                else
+                    dist_from_end = dist0
+                end
+            else
+                dist_from_end = dist
+            end
+            if dist_from_end < self.platform_slowdown_distance then
+                self.velocity = self.velocity * (dist_from_end / self.platform_slowdown_distance * 0.75 + 0.25)
+            end
+        end
     else
-        self.velocity = Vector(0, self.plat_speed)
+        if dt < 1e-8 or dist < 1e-8 then
+            self.velocity = Vector()
+        else
+            self.velocity = delta * (max_dist / dt / dist)
+        end
+
+        self.platform_point = pt1
+        if goal_is_endpoint then
+            local new_direction = -self.platform_direction
+            self.platform_direction = 0
+            worldscene.tick:delay(function()
+                self.platform_direction = new_direction
+            end, 1)
+        end
     end
 
     Platform.__super.update(self, dt)
@@ -199,6 +252,7 @@ end
 local Crate = actors_base.MobileActor:extend{
     name = 'crate',
     sprite_name = 'crate',
+    z = -1,
 
     is_portable = true,
     can_carry = true,
@@ -237,6 +291,7 @@ local Boulder = actors_base.Actor:extend{
     name = 'boulder',
     sprite_name = 'boulder',
 
+    hardness = 2,
     health = 3,
 }
 
@@ -284,7 +339,7 @@ local Cushion = actors_base.MobileActor:extend{
     can_push = true,
     mass = 2,
 
-    hardness = -3,
+    hardness = -6,
 }
 
 function Cushion:update(dt)
@@ -309,6 +364,21 @@ local SewerGrate = actors_base.Actor:extend{
 }
 
 function SewerGrate:blocks(actor)
+    if actor.is_player and actor.form == 'slime' then
+        return false
+    end
+
+    return true
+end
+
+
+local ChainLinkFence = actors_base.Actor:extend{
+    name = 'chain-link fence',
+    sprite_name = 'chain-link fence',
+    z = 9999,
+}
+
+function ChainLinkFence:blocks(actor)
     if actor.is_player and actor.form == 'slime' then
         return false
     end
@@ -458,6 +528,25 @@ function PressurePlate:_sum_mass(base, seen)
     return total_mass
 end
 
+
+local ConveyorBelt = actors_base.MobileActor:extend{
+    name = 'conveyor belt',
+    sprite_name = 'conveyor belt',
+
+    can_carry = true,
+    -- FIXME once again, this doesn't actually move; it just has cargo
+    is_blockable = false,
+    gravity_multiplier = 0,
+
+    conveyance_speed = 64,
+}
+
+function ConveyorBelt:update(dt)
+    local displacement = Vector(self.conveyance_speed * dt, 0)
+    for actor in pairs(self.cargo) do
+        actor:nudge(displacement, {[self] = true})
+    end
+end
 
 
 

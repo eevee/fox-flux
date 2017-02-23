@@ -5,6 +5,15 @@
  "margin":0,
  "name":"terrain",
  "spacing":0,
+ "terrains":[
+        {
+         "name":"dirt",
+         "tile":96
+        }, 
+        {
+         "name":"grass",
+         "tile":64
+        }],
  "tilecount":256,
  "tileheight":32,
  "tileproperties":
@@ -60,6 +69,11 @@
          "actor":"force field",
          "sprite name":"force field\/default"
         },
+     "168":
+        {
+         "actor":"conveyor belt",
+         "sprite name":"conveyor belt\/default"
+        },
      "170":
         {
          "actor":"force floor",
@@ -78,6 +92,11 @@
         {
          "actor":"pressure plate",
          "sprite name":"pressure plate\/inactive"
+        },
+     "2":
+        {
+         "actor":"sewer grate",
+         "sprite name":"sewer grate\/default"
         },
      "212":
         {
@@ -301,6 +320,11 @@
          "actor":"string",
          "sprite name":"string"
         },
+     "168":
+        {
+         "actor":"string",
+         "sprite name":"string"
+        },
      "170":
         {
          "actor":"string",
@@ -316,6 +340,11 @@
          "sprite name":"string"
         },
      "197":
+        {
+         "actor":"string",
+         "sprite name":"string"
+        },
+     "2":
         {
          "actor":"string",
          "sprite name":"string"
@@ -543,7 +572,8 @@
              "width":0,
              "x":0,
              "y":0
-            }
+            },
+         "terrain":[-1, 0, -1, -1]
         },
      "102":
         {
@@ -570,7 +600,8 @@
              "width":0,
              "x":0,
              "y":0
-            }
+            },
+         "terrain":[0, 0, -1, -1]
         },
      "103":
         {
@@ -597,7 +628,8 @@
              "width":0,
              "x":0,
              "y":0
-            }
+            },
+         "terrain":[0, -1, -1, -1]
         },
      "104":
         {
@@ -1151,6 +1183,42 @@
              "y":0
             }
         },
+     "168":
+        {
+         "animation":[
+                {
+                 "duration":250,
+                 "tileid":168
+                }, 
+                {
+                 "duration":250,
+                 "tileid":169
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":7,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":32,
+                     "x":0,
+                     "y":25
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
      "170":
         {
          "animation":[
@@ -1230,6 +1298,33 @@
              "height":0,
              "name":"",
              "objects":[],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "18":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":32,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":32,
+                     "x":0,
+                     "y":0
+                    }],
              "opacity":1,
              "type":"objectgroup",
              "visible":true,
@@ -1685,6 +1780,33 @@
                         },
                      "rotation":0,
                      "type":"collision",
+                     "visible":true,
+                     "width":32,
+                     "x":0,
+                     "y":0
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "2":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":6,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
                      "visible":true,
                      "width":32,
                      "x":0,
@@ -2425,6 +2547,10 @@
              "y":0
             }
         },
+     "64":
+        {
+         "terrain":[-1, -1, 1, 1]
+        },
      "66":
         {
          "objectgroup":
@@ -2729,7 +2855,8 @@
              "width":0,
              "x":0,
              "y":0
-            }
+            },
+         "terrain":[1, 1, 0, 0]
         },
      "81":
         {
@@ -2756,7 +2883,8 @@
              "width":0,
              "x":0,
              "y":0
-            }
+            },
+         "terrain":[-1, 1, -1, 0]
         },
      "82":
         {
@@ -2783,7 +2911,8 @@
              "width":0,
              "x":0,
              "y":0
-            }
+            },
+         "terrain":[1, -1, 0, -1]
         },
      "83":
         {
@@ -2842,7 +2971,8 @@
              "width":0,
              "x":0,
              "y":0
-            }
+            },
+         "terrain":[-1, -1, -1, 0]
         },
      "86":
         {
@@ -2869,7 +2999,8 @@
              "width":0,
              "x":0,
              "y":0
-            }
+            },
+         "terrain":[-1, -1, 0, 0]
         },
      "87":
         {
@@ -2896,7 +3027,8 @@
              "width":0,
              "x":0,
              "y":0
-            }
+            },
+         "terrain":[-1, -1, 0, -1]
         },
      "9":
         {
@@ -3064,7 +3196,8 @@
              "width":0,
              "x":0,
              "y":0
-            }
+            },
+         "terrain":[0, 0, 0, 0]
         },
      "97":
         {
@@ -3091,7 +3224,8 @@
              "width":0,
              "x":0,
              "y":0
-            }
+            },
+         "terrain":[-1, 0, -1, 0]
         },
      "98":
         {
@@ -3118,7 +3252,8 @@
              "width":0,
              "x":0,
              "y":0
-            }
+            },
+         "terrain":[0, -1, 0, -1]
         }
     },
  "tilewidth":32
