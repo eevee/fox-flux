@@ -150,9 +150,10 @@ function Player:update(dt)
     end
 
     if self.form == 'slime' then
-        -- Slime can't hold onto ladders
-        -- TODO indicate this somehow?  like, have the frames but don't apply the logic?
-        self.decision_climb = nil
+        -- Slime can hold onto ladders, but just falls straight down all the way
+        self.xxx_useless_climb = true
+    else
+        self.xxx_useless_climb = false
     end
 
     if self.form == 'stone' then

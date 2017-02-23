@@ -105,6 +105,14 @@
          "animation stops":true,
          "sprite name":"lexy: slime\/jump"
         },
+     "63":
+        {
+         "sprite name":"lexy: slime\/climb"
+        },
+     "66":
+        {
+         "sprite name":"lexy: slime\/descend"
+        },
      "72":
         {
          "sprite name":"lexy: stone\/stand"
@@ -218,6 +226,14 @@
      "59":
         {
          "animation stops":"bool",
+         "sprite name":"string"
+        },
+     "63":
+        {
+         "sprite name":"string"
+        },
+     "66":
+        {
          "sprite name":"string"
         },
      "72":
@@ -1309,6 +1325,96 @@
                      "visible":true,
                      "width":0,
                      "x":20,
+                     "y":62
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "63":
+        {
+         "animation":[
+                {
+                 "duration":150,
+                 "tileid":63
+                }, 
+                {
+                 "duration":150,
+                 "tileid":64
+                }, 
+                {
+                 "duration":150,
+                 "tileid":65
+                }, 
+                {
+                 "duration":150,
+                 "tileid":66
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":62
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "66":
+        {
+         "animation":[
+                {
+                 "duration":150,
+                 "tileid":66
+                }, 
+                {
+                 "duration":150,
+                 "tileid":65
+                }, 
+                {
+                 "duration":150,
+                 "tileid":64
+                }, 
+                {
+                 "duration":150,
+                 "tileid":63
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
                      "y":62
                     }],
              "opacity":1,

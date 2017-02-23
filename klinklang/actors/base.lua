@@ -846,7 +846,9 @@ function SentientActor:update(dt)
     -- Because gravity happens /after/ movement, this completely negates
     -- gravity, no extra effort required!
     if self.decision_climb then
-        if self.decision_climb > 0 then
+        if self.xxx_useless_climb then
+            -- Can try to climb, but is just affected by gravity as normal
+        elseif self.decision_climb > 0 then
             self.velocity.y = -self.climb_speed
         elseif self.decision_climb < 0 then
             self.velocity.y = self.climb_speed
