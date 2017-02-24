@@ -248,6 +248,15 @@
         {
          "hardness":-1
         },
+     "88":
+        {
+         "actor":"spring",
+         "sprite name":"spring\/default"
+        },
+     "89":
+        {
+         "sprite name":"spring\/depressed"
+        },
      "90":
         {
          "actor":"spikes up",
@@ -498,6 +507,15 @@
      "81":
         {
          "hardness":"int"
+        },
+     "88":
+        {
+         "actor":"string",
+         "sprite name":"string"
+        },
+     "89":
+        {
+         "sprite name":"string"
         },
      "90":
         {
@@ -3029,6 +3047,84 @@
              "y":0
             },
          "terrain":[-1, -1, 0, -1]
+        },
+     "88":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":24,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":32,
+                     "x":0,
+                     "y":8
+                    }, 
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":16
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "89":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":32
+                    }, 
+                    {
+                     "height":8,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":32,
+                     "x":0,
+                     "y":24
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
         },
      "9":
         {

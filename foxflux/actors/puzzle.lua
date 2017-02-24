@@ -358,6 +358,7 @@ function Cushion:update(dt)
 end
 
 
+-- A grating that's solid, unless you're slime
 local SewerGrate = actors_base.Actor:extend{
     name = 'sewer grate',
     sprite_name = 'sewer grate',
@@ -372,6 +373,7 @@ function SewerGrate:blocks(actor)
 end
 
 
+-- A fence that's solid, unless you're slime
 local ChainLinkFence = actors_base.Actor:extend{
     name = 'chain-link fence',
     sprite_name = 'chain-link fence',
@@ -386,6 +388,88 @@ function ChainLinkFence:blocks(actor)
     return true
 end
 
+
+-- Boing!
+local Spring = actors_base.MobileActor:extend{
+    name = 'spring',
+    sprite_name = 'spring',
+    can_carry = true,
+    -- FIXME again, this doesn't really move itself, but only mobile actors can have cargo
+    is_blockable = false,
+    gravity_multiplier = 0,
+
+    spring_phase = 0,  -- 0 neutral, 1 depressing, 2 launching
+    spring_depression = 0,
+    spring_depression_max = 16,
+    spring_depression_speed = 32,
+    spring_launch_speed = 512,  -- determined experimentally to be awesome
+}
+
+-- FIXME two of them next to each other will toggle cargo back and forth forever and never be pushed down, whoops
+function Spring:update(dt)
+    local any_cargo = false
+    for actor in pairs(self.cargo) do
+        any_cargo = true
+        break
+    end
+
+    if any_cargo then
+        if self.spring_phase == 0 then
+            self.spring_phase = 1
+        end
+    else
+        if self.spring_phase == 1 then
+            self.spring_phase = 2
+        end
+    end
+
+    if self.spring_phase == 1 then
+        local ds = self.spring_depression_speed * dt
+        if self.spring_depression + ds >= self.spring_depression_max then
+            ds = self.spring_depression_max - self.spring_depression
+            self.spring_phase = 2
+        end
+        self.spring_depression = self.spring_depression + ds
+        self:nudge(Vector(0, ds))
+    elseif self.spring_phase == 2 then
+        local ds = self.spring_launch_speed * dt
+        if self.spring_depression - ds <= 0 then
+            ds = self.spring_depression
+            self.spring_phase = 0
+        end
+        self.spring_depression = self.spring_depression - ds
+        self:nudge(Vector(0, -ds))
+        if self.spring_phase == 0 then
+            -- We hit the top, so launch everyone we're carrying
+            -- TODO technically should count recursive cargo for mass purposes
+            for actor in pairs(self.cargo) do
+                -- The square root is...  somewhat arbitrary, because otherwise
+                -- a crate is barely launched at all.  I think this would be a
+                -- transfer of energy, which something something ½mv², so maybe
+                -- there's an actual physical basis here somewhere.
+                actor:push(Vector(0, -self.spring_launch_speed / math.sqrt(actor.mass)))
+            end
+        end
+    end
+
+    Spring.__super.update(self, dt)
+end
+
+function Spring:draw()
+    -- Since we physically move ourselves to "compress", we need a scissor to
+    -- hide our bottom bit
+    love.graphics.push('all')
+    -- XXX is the physics shape the right thing to use here?  assumes the
+    -- entire spring is the physics box, which seems reasonble enough
+    local x0, y0, x1, y1 = self.shape:bbox()
+    love.graphics.setScissor(
+        x0 - worldscene.camera.x,
+        y0 - worldscene.camera.y,
+        x1 - x0,
+        y1 - y0 - self.spring_depression)
+    Spring.__super.draw(self)
+    love.graphics.pop()
+end
 
 
 local ForceField = actors_base.Actor:extend{
