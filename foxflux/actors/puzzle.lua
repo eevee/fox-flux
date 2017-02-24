@@ -482,6 +482,8 @@ local ForceField = actors_base.Actor:extend{
 function ForceField:blocks(actor)
     if actor.is_player and actor.sprite_name == 'lexy: glass' then
         return false
+    elseif actor.sprite_name == 'draclear: clear' then
+        return false
     else
         return self.active
     end
@@ -515,6 +517,7 @@ local Panel = actors_base.Actor:extend{
 }
 
 function Panel:on_use(activator)
+    game.resource_manager:get('assets/sounds/boopbeep.ogg'):play()
     local state = not self.state
     for _, actor in ipairs(worldscene.actors) do
         if actor.on_activate_panel then
@@ -584,7 +587,7 @@ function PressurePlate:update(dt)
             self.sprite:set_pose('broken')
             self.ptrs.emitter.powered = 1
             self.ptrs.emitter:_emit_pulse(true)
-        elseif total_mass >= 5 then
+        elseif total_mass >= 1 then
             self.sprite:set_pose('active')
             -- FIXME well this is not the friendliest api
             self.ptrs.emitter.powered = 1
@@ -610,6 +613,73 @@ function PressurePlate:_sum_mass(base, seen)
         total_mass = total_mass + actor.mass + self:_sum_mass(actor, seen)
     end
     return total_mass
+end
+
+
+-- Emits holographic platforms that rise upwards, but only while powered
+local HolographicPlatform = actors_base.MobileActor:extend{
+    name = 'holo platform',
+    sprite_name = 'holo platform',
+    can_carry = true,
+    is_blockable = false,
+    gravity_multiplier = 0,
+    opacity = 1,
+}
+
+function HolographicPlatform:init(...)
+    HolographicPlatform.__super.init(self, ...)
+    self.velocity = Vector(0, -32)
+end
+
+function HolographicPlatform:update(dt)
+    HolographicPlatform.__super.update(self, dt)
+
+    -- moves at 1 tile per second, so this will be just over 3 tiles of lift
+    if self.timer > 3 and self.opacity == 1 then
+        worldscene.fluct:to(self, 0.25, { opacity = 0 })
+            :oncomplete(function() worldscene:remove_actor(self) end)
+    end
+end
+
+function HolographicPlatform:draw()
+    love.graphics.push('all')
+    love.graphics.setColor(255, 255, 255, self.opacity * 255)
+    HolographicPlatform.__super.draw(self)
+    love.graphics.pop()
+end
+
+
+local PlatformEmitter = actors_wire.Wirable:extend{
+    name = 'platform emitter',
+    sprite_name = 'platform emitter',
+    nodes = {Vector(0, 32)},
+}
+
+function PlatformEmitter:blocks()
+    return true
+end
+
+function PlatformEmitter:on_power_change(value)
+    if value == true then
+        self:emit_platform()
+        self:schedule_emit()
+    else
+        if self.emit_event then
+            self.emit_event:stop()
+            self.emit_event = nil
+        end
+    end
+end
+
+function PlatformEmitter:schedule_emit()
+    self.emit_event = worldscene.tick:delay(function()
+        self:emit_platform()
+        self:schedule_emit()
+    end, 2)
+end
+
+function PlatformEmitter:emit_platform()
+    worldscene:add_actor(HolographicPlatform(self.pos:clone()))
 end
 
 

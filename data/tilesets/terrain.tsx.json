@@ -13,6 +13,10 @@
         {
          "name":"grass",
          "tile":64
+        }, 
+        {
+         "name":"tech",
+         "tile":162
         }],
  "tilecount":256,
  "tileheight":32,
@@ -111,6 +115,11 @@
          "actor":"slime heart",
          "sprite name":"slime heart\/default"
         },
+     "221":
+        {
+         "actor":"platform emitter",
+         "sprite name":"platform emitter\/off"
+        },
      "224":
         {
          "actor":"wire se",
@@ -143,6 +152,19 @@
          "animation stops":true,
          "sprite name":"slime heart\/collect"
         },
+     "230":
+        {
+         "actor":"wire new",
+         "sprite name":"wire new\/off"
+        },
+     "236":
+        {
+         "sprite name":"holo platform\/default"
+        },
+     "237":
+        {
+         "sprite name":"platform emitter\/on"
+        },
      "240":
         {
          "actor":"wire ne",
@@ -169,6 +191,10 @@
      "245":
         {
          "sprite name":"wire ns\/on"
+        },
+     "246":
+        {
+         "sprite name":"wire new\/on"
         },
      "27":
         {
@@ -371,6 +397,11 @@
          "actor":"string",
          "sprite name":"string"
         },
+     "221":
+        {
+         "actor":"string",
+         "sprite name":"string"
+        },
      "224":
         {
          "actor":"string",
@@ -403,6 +434,19 @@
          "animation stops":"bool",
          "sprite name":"string"
         },
+     "230":
+        {
+         "actor":"string",
+         "sprite name":"string"
+        },
+     "236":
+        {
+         "sprite name":"string"
+        },
+     "237":
+        {
+         "sprite name":"string"
+        },
      "240":
         {
          "actor":"string",
@@ -427,6 +471,10 @@
          "sprite name":"string"
         },
      "245":
+        {
+         "sprite name":"string"
+        },
+     "246":
         {
          "sprite name":"string"
         },
@@ -1064,7 +1112,8 @@
              "width":0,
              "x":0,
              "y":0
-            }
+            },
+         "terrain":[-1, -1, 2, 2]
         },
      "162":
         {
@@ -1091,7 +1140,8 @@
              "width":0,
              "x":0,
              "y":0
-            }
+            },
+         "terrain":[2, 2, 2, 2]
         },
      "163":
         {
@@ -1315,7 +1365,26 @@
              "draworder":"index",
              "height":0,
              "name":"",
-             "objects":[],
+             "objects":[
+                    {
+                     "height":4,
+                     "id":1,
+                     "name":"",
+                     "properties":
+                        {
+                         "one-way platform":true
+                        },
+                     "propertytypes":
+                        {
+                         "one-way platform":"bool"
+                        },
+                     "rotation":0,
+                     "type":"collision",
+                     "visible":true,
+                     "width":32,
+                     "x":0,
+                     "y":0
+                    }],
              "opacity":1,
              "type":"objectgroup",
              "visible":true,
@@ -1484,7 +1553,8 @@
              "width":0,
              "x":0,
              "y":0
-            }
+            },
+         "terrain":[-1, -1, -1, 2]
         },
      "185":
         {
@@ -1511,7 +1581,8 @@
              "width":0,
              "x":0,
              "y":0
-            }
+            },
+         "terrain":[-1, -1, 2, -1]
         },
      "186":
         {
@@ -1538,7 +1609,8 @@
              "width":0,
              "x":0,
              "y":0
-            }
+            },
+         "terrain":[2, 2, 2, -1]
         },
      "187":
         {
@@ -1565,9 +1637,38 @@
              "width":0,
              "x":0,
              "y":0
-            }
+            },
+         "terrain":[2, 2, -1, -1]
         },
      "188":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":32,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":32,
+                     "x":0,
+                     "y":0
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            },
+         "terrain":[2, 2, -1, 2]
+        },
+     "189":
         {
          "objectgroup":
             {
@@ -1863,7 +1964,8 @@
              "width":0,
              "x":0,
              "y":0
-            }
+            },
+         "terrain":[-1, 2, -1, -1]
         },
      "201":
         {
@@ -1890,7 +1992,8 @@
              "width":0,
              "x":0,
              "y":0
-            }
+            },
+         "terrain":[2, -1, -1, -1]
         },
      "202":
         {
@@ -1917,7 +2020,8 @@
              "width":0,
              "x":0,
              "y":0
-            }
+            },
+         "terrain":[2, -1, 2, -1]
         },
      "204":
         {
@@ -1930,6 +2034,34 @@
                     {
                      "height":32,
                      "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":32,
+                     "x":0,
+                     "y":0
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            },
+         "terrain":[-1, 2, -1, 2]
+        },
+     "205":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":32,
+                     "id":2,
                      "name":"",
                      "rotation":0,
                      "type":"",
@@ -2041,7 +2173,8 @@
              "width":0,
              "x":0,
              "y":0
-            }
+            },
+         "terrain":[2, -1, 2, 2]
         },
      "219":
         {
@@ -2068,7 +2201,8 @@
              "width":0,
              "x":0,
              "y":0
-            }
+            },
+         "terrain":[-1, -1, 2, 2]
         },
      "22":
         {
@@ -2126,6 +2260,46 @@
                      "visible":true,
                      "width":32,
                      "x":0,
+                     "y":0
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            },
+         "terrain":[-1, 2, 2, 2]
+        },
+     "221":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":32,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":32,
+                     "x":0,
+                     "y":0
+                    }, 
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
                      "y":0
                     }],
              "opacity":1,
@@ -2239,6 +2413,81 @@
                  "duration":50,
                  "tileid":26
                 }]
+        },
+     "230":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":16
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "236":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":8,
+                     "id":1,
+                     "name":"",
+                     "properties":
+                        {
+                         "one-way platform":true
+                        },
+                     "propertytypes":
+                        {
+                         "one-way platform":"bool"
+                        },
+                     "rotation":0,
+                     "type":"collision",
+                     "visible":true,
+                     "width":24,
+                     "x":4,
+                     "y":0
+                    }, 
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":0
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
         },
      "240":
         {
