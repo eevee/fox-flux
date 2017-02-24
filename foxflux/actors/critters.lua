@@ -202,7 +202,7 @@ function Draclear:update(dt)
                 worldscene:remove_actor(self)
                 player:play_transform_cutscene('glass', player_delta.x < 0, 'lexy: glass tf', function()
                     -- Player may have moved in the meantime!
-                    self.pos = player.pos + self.player_target_offset
+                    self:move_to(player.pos + self.player_target_offset)
                     self:set_sprite('draclear')
                     self.is_sated = true
                     worldscene:add_actor(self)
