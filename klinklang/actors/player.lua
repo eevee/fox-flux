@@ -106,9 +106,13 @@ function Player:on_collide_with(actor, collision, ...)
         end
         shatter_height = shatter_height - hardness
 
-        local max_velocity = actors_base.get_jump_velocity(shatter_height * game.TILE_SIZE)
-        -- FIXME take the collision angle into account here
-        if self.velocity:len2() > max_velocity * max_velocity then
+        local shatter_speed = actors_base.get_jump_velocity((shatter_height - 0.5) * game.TILE_SIZE)
+        local collision_speed = 0
+        for normal, normal1 in pairs(collision.normals) do
+            -- We're moving into the normal, so the dot product should be negative!
+            collision_speed = collision_speed + math.max(0, -(self.velocity * normal1))
+        end
+        if collision_speed > shatter_speed then
             game.resource_manager:get('assets/sounds/shatter.ogg'):play()
             self.is_locked = true
             self:set_sprite('lexy: glass revert')
