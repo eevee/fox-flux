@@ -89,9 +89,6 @@ function love.load(args)
         resource_manager:add(path, tileset)
     end
 
-    local DialogueScene = require 'klinklang.scenes.dialogue'
-    DialogueScene.default_background = game.resource_manager:load('assets/images/dialoguebox-lexy.png')
-
     -- FIXME probably want a way to specify fonts with named roles
     local fontscale = 2
     m5x7 = love.graphics.newFont('assets/fonts/m5x7.ttf', 16 * fontscale)

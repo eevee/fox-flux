@@ -7,12 +7,31 @@ local tiledmap = require 'klinklang.tiledmap'
 local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 
+local conversations = require 'foxflux.conversations'
+
 
 local Player = actors_base.SentientActor:extend{
     name = 'lexy',
     sprite_name = 'lexy',
     dialogue_position = 'left',
-    dialogue_sprite_name = 'lexy portrait',
+    dialogue_sprite_variants = {
+        rubber = {
+            { name = 'body', sprite_name = 'lexy portrait: rubber - body' },
+            { name = 'head', sprite_name = 'lexy portrait: rubber - head', while_talking = { neutral = 'talking' } },
+            { name = 'eyes', sprite_name = 'lexy portrait: rubber - eyes' },
+            { name = 'blush', sprite_name = 'lexy portrait: rubber - blush', default = false },
+            { name = 'sweat', sprite_name = 'lexy portrait: rubber - sweat', default = false },
+            compact = { body = 'compact' },
+        },
+        slime = {
+            { name = 'body', sprite_name = 'lexy portrait: slime - body' },
+            { name = 'head', sprite_name = 'lexy portrait: slime - head', while_talking = { neutral = 'talking' } },
+            --{ name = 'eyes', sprite_name = 'lexy portrait: slime - eyes' },
+            compact = { body = 'compact' },
+        },
+        glass = 'lexy portrait: glass',
+
+    },
     dialogue_chatter_sound = 'assets/sounds/chatter-lexy-rubber.ogg',
     dialogue_color = {255, 255, 255},
     dialogue_shadow = {135, 22, 70},
@@ -53,11 +72,7 @@ function Player:init(...)
             Gamestate.push(DialogueScene({
                 lexy = activator,
                 cerise = actors_npcs.Cerise,
-            }, {
-                { "Hey, sweetie!\nHere are a few more fairly long lines of text just for you, to test whether my mouth moves correctly!  I hope this has been helpful!", speaker = 'cerise', pose = { 'compact', 'villain' } },
-                { "Oh, gosh, I need to say a lot more now because you're testing sounds as well!  I just can't think of anything to say, though...", speaker = 'cerise' },
-                { "Oh, uh, I guess I should say something too.  Hi.  What's up.  Cool.", speaker = 'lexy' },
-            }))
+            }, conversations.intro))
         end,
     })
 
@@ -229,15 +244,22 @@ function Player:transform(form)
     self.form = form
     self.inventory_frame_sprite_name = 'inventory frame: ' .. form
     self:set_sprite('lexy: ' .. form)
-    self.dialogue_sprite_name = 'lexy portrait: ' .. form
+    self.dialogue_sprites = self.dialogue_sprite_variants[form]
+    self.dialogue_background = ('assets/images/dialoguebox-lexy-%s.png'):format(form)
 
     if form == 'slime' then
+        self.dialogue_color = {238, 255, 169}
+        self.dialogue_shadow = {19, 157, 8}
         self.jump_sound = 'assets/sounds/jump-slime.ogg'
     elseif form == 'glass' then
+        self.dialogue_color = {255, 255, 255}
+        self.dialogue_shadow = {123, 123, 123}
         self.jump_sound = 'assets/sounds/jump-glass.ogg'
     elseif form == 'stone' then
         self.jump_sound = 'assets/sounds/jump-stone.ogg'
     else
+        self.dialogue_color = {255, 255, 255}
+        self.dialogue_shadow = {135, 22, 70}
         self.jump_sound = Player.jump_sound
     end
 

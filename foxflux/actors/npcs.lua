@@ -10,6 +10,7 @@ local whammo_shapes = require 'klinklang.whammo.shapes'
 local DialogueScene = require 'klinklang.scenes.dialogue'
 
 local BossScene = require 'foxflux.scenes.boss'
+local conversations = require 'foxflux.conversations'
 
 
 local Dart = actors_base.MobileActor:extend{
@@ -60,8 +61,20 @@ local Lop = actors_base.Actor:extend{
     name = 'lop',
     sprite_name = 'lop',
     z = 1,  -- in front of dart
+    dialogue_position = 'right',
+    -- TODO dialogue_chatter_sound = 'assets/sounds/chatter-cerise.ogg',
+    dialogue_background = 'assets/images/dialoguebox-lop.png',
+    dialogue_color = {35, 23, 18},
+    dialogue_shadow = {123, 123, 123},
+    dialogue_sprites = {
+        { name = 'base', sprite_name = 'lop portrait', while_talking = { default = 'talking' } },
+        { name = 'eyes', sprite_name = 'lop portrait - eye' },
+        { name = 'decor', sprite_name = 'lop portrait - decor' },
+    },
 
     is_usable = true,
+
+    is_defeated = false,
 }
 
 function Lop:init(...)
@@ -72,7 +85,9 @@ function Lop:init(...)
 end
 
 function Lop:on_approach_lop(activator)
-    Gamestate.push(BossScene(activator, self))
+    if not self.is_defeated then
+        Gamestate.push(BossScene(activator, self))
+    end
 end
 
 function Lop:launch_dart(scene)
@@ -83,6 +98,7 @@ function Lop:launch_dart(scene)
     end, 1)
     :after(function()
         self.sprite:set_pose('disarmed', function()
+            self.is_defeated = true
             self.sprite:set_pose('stand')
             self:schedule_idle()
             scene:announce_victory()
@@ -104,6 +120,25 @@ function Lop:schedule_idle()
     end, util.random_float(2, 5))
 end
 
+function Lop:on_use(activator)
+    if not activator.is_player then
+        return
+    end
+
+    local convo
+    if game.progress.flags['has forest passcode'] then
+        local convos = conversations.followup_lop[activator.form]
+        convo = convos[math.random(1, #convos)]
+    else
+        convo = conversations.defeat_lop[activator.form]
+    end
+    Gamestate.push(DialogueScene({
+        lexy = activator,
+        lop = self,
+    }, convo))
+end
+
+
 local Cerise = actors_base.Actor:extend{
     name = 'cerise',
     sprite_name = 'cerise',
@@ -121,6 +156,7 @@ local Cerise = actors_base.Actor:extend{
         { name = 'disguise', sprite_name = 'cerise portrait - disguise', default = false },
         compact = { hand = 'compact' },
         villain = { disguise = 'panties', eyelids = 'furrowed brow' },
+        ['not villain'] = { disguise = false, eyelids = false },
     },
 
     is_usable = true,
