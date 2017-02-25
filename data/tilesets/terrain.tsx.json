@@ -83,6 +83,10 @@
          "actor":"force floor",
          "sprite name":"force floor\/default"
         },
+     "176":
+        {
+         "hardness":"2"
+        },
      "180":
         {
          "actor":"panel",
@@ -364,6 +368,10 @@
         {
          "actor":"string",
          "sprite name":"string"
+        },
+     "176":
+        {
+         "hardness":"string"
         },
      "180":
         {
@@ -2022,6 +2030,33 @@
              "y":0
             },
          "terrain":[2, -1, 2, -1]
+        },
+     "203":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":32,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":32,
+                     "x":0,
+                     "y":0
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
         },
      "204":
         {
