@@ -666,9 +666,14 @@ end
 
 function PlatformEmitter:on_power_change(value)
     if value == true then
+        self.sprite:set_pose('on')
+        -- FIXME if you bounce in place you can get a whole pile of these,
+        -- which seems silly; should only immediately emit one if it's been x
+        -- seconds since the last one
         self:emit_platform()
         self:schedule_emit()
     else
+        self.sprite:set_pose('off')
         if self.emit_event then
             self.emit_event:stop()
             self.emit_event = nil
