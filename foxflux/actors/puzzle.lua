@@ -248,6 +248,11 @@ function Platform:update(dt)
     Platform.__super.update(self, dt)
 end
 
+local TechPlatform = Platform:extend{
+    name = 'tech platform',
+    sprite_name = 'tech platform',
+}
+
 
 local Crate = actors_base.MobileActor:extend{
     name = 'crate',

@@ -22,6 +22,11 @@
         {
          "actor":"platform",
          "sprite name":"platform\/default"
+        },
+     "3":
+        {
+         "actor":"tech platform",
+         "sprite name":"tech platform\/default"
         }
     },
  "tilepropertytypes":
@@ -36,6 +41,11 @@
          "sprite name":"string"
         },
      "2":
+        {
+         "actor":"string",
+         "sprite name":"string"
+        },
+     "3":
         {
          "actor":"string",
          "sprite name":"string"
