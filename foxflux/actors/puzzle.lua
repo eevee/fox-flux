@@ -103,6 +103,9 @@ function Fan:update(dt)
         if actor == self then
             return
         end
+        if collision.touchtype >= 0 then
+            return
+        end
         if type(actor) == 'table' and actor.isa and actor:isa(actors_base.MobileActor) then
             local ax0, ay0, ax1, ay1 = collision.shape:bbox()
             if ay1 > y0 then
