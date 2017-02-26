@@ -235,7 +235,13 @@ end
 --   touchtype: 1 for collision, 0 for slide, -1 for already overlapping
 --   clock: Range of angles that would move the shapes apart
 function Polygon:slide_towards(other, movement)
-    -- TODO skip entirely if bbox movement renders this impossible
+    -- We cannot possibly collide if the bboxes don't overlap
+    local ax0, ay0, ax1, ay1 = self:extended_bbox(movement:unpack())
+    local bx0, by0, bx1, by1 = other:bbox()
+    if (ax1 < bx0 or bx1 < ax0) and (ay1 < by0 or by1 < ay0) then
+        return
+    end
+
     -- Use the separating axis theorem.
     -- 1. Choose a bunch of axes, generally normals of the shapes.
     -- 2. Project both shapes along each axis.
