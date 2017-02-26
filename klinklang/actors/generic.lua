@@ -112,6 +112,20 @@ function GenericSlidingDoor:open()
     ]]
 end
 
+function GenericSlidingDoor:open_instant()
+    if self.busy then
+        -- FIXME this should cancel an ongoing open(), surely
+        return
+    end
+    if self.door_height <= 32 then
+        return
+    end
+
+    self.door_height = 32
+    self:set_shape(whammo_shapes.Box(-12, 0, 24, self.door_height))
+end
+
+
 
 local GenericSlidingDoorShutter = actors_base.Actor:extend{
     -- Configuration
@@ -136,6 +150,10 @@ function GenericSlidingDoorShutter:open()
     -- FIXME support this, but also turn it off when the door is off
     --self.sprite:set_pose('active')
     self.ptrs.door:open()
+end
+
+function GenericSlidingDoorShutter:open_instant()
+    self.ptrs.door:open_instant()
 end
 
 
