@@ -131,6 +131,16 @@ function DebugScene:do_world_menu(inner_width)
             game.debug_twiddles[state._twiddle] = not checked
         end
     end
+
+    suit.layout:push(suit.layout:row())
+    local padx, pady = suit.layout:padding()
+    local bw = math.floor((inner_width - 3 * padx) / 4)
+    for _, form in ipairs{'rubber', 'slime', 'glass', 'stone'} do
+        if suit.Button(form, suit.layout:col(bw, self.unit)).hit then
+            worldscene.player:transform(form)
+        end
+    end
+    suit.layout:pop()
 end
 
 function DebugScene:do_dialogue_menu(inner_width)
