@@ -68,13 +68,18 @@ function StackedSprite:init(data)
 end
 
 function StackedSprite:change_pose(pose)
-    if type(pose) == 'string' then
+    if type(pose) == 'string' or #pose == 0 then
         pose = {pose}
     end
 
-    -- TODO allow specific per sprite too
-    for _, metapose in ipairs(pose) do
-        for layer_name, subpose in pairs(self.sprite_metaposes[metapose]) do
+    for _, metapose_name in ipairs(pose) do
+        local metapose
+        if type(metapose_name) == 'table' then
+            metapose = metapose_name
+        else
+            metapose = self.sprite_metaposes[metapose_name]
+        end
+        for layer_name, subpose in pairs(metapose) do
             -- TODO consult current is_talking
             self.sprite_poses[layer_name] = subpose
             if subpose ~= false then
@@ -429,6 +434,9 @@ function DialogueScene:_advance_script()
         self.curchar = 0
         self.state = 'waiting'
         self:_hesitate()
+        if self.phrase_speaker.sprite and self.phrase_speaker.sprite.set_talking then
+            self.phrase_speaker.sprite:set_talking(false)
+        end
         return
     elseif self.state == 'menu' then
         return
@@ -456,6 +464,9 @@ function DialogueScene:_advance_script()
         self.phrase_texts = {}
         self.last_was_space = true
         self.state = 'speaking'
+        if self.phrase_speaker.sprite and self.phrase_speaker.sprite.set_talking then
+            self.phrase_speaker.sprite:set_talking(true)
+        end
         return
     end
 
