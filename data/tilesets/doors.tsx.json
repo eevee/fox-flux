@@ -7,5 +7,128 @@
  "spacing":0,
  "tilecount":24,
  "tileheight":96,
+ "tileproperties":
+    {
+     "0":
+        {
+         "actor":"forest boss door",
+         "sprite name":"forest boss door\/locked"
+        },
+     "12":
+        {
+         "actor":"tech boss door",
+         "sprite name":"tech boss door\/locked"
+        },
+     "21":
+        {
+         "sprite name":"tech boss door\/unlocked"
+        },
+     "9":
+        {
+         "sprite name":"forest boss door\/unlocked"
+        }
+    },
+ "tilepropertytypes":
+    {
+     "0":
+        {
+         "actor":"string",
+         "sprite name":"string"
+        },
+     "12":
+        {
+         "actor":"string",
+         "sprite name":"string"
+        },
+     "21":
+        {
+         "sprite name":"string"
+        },
+     "9":
+        {
+         "sprite name":"string"
+        }
+    },
+ "tiles":
+    {
+     "0":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":32,
+                     "y":96
+                    }, 
+                    {
+                     "height":60,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":32,
+                     "x":16,
+                     "y":36
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "12":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":60,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":32,
+                     "x":16,
+                     "y":36
+                    }, 
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":32,
+                     "y":96
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        }
+    },
  "tilewidth":64
 }
