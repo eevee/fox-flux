@@ -237,18 +237,6 @@
                  "y":480
                 }, 
                 {
-                 "gid":584,
-                 "height":64,
-                 "id":52,
-                 "name":"",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":64,
-                 "x":704,
-                 "y":352
-                }, 
-                {
                  "height":0,
                  "id":53,
                  "name":"random-ass track",
