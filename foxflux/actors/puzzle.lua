@@ -347,7 +347,7 @@ local Cushion = actors_base.MobileActor:extend{
     can_push = true,
     mass = 2,
 
-    hardness = -6,
+    hardness = -16,
 }
 
 function Cushion:update(dt)

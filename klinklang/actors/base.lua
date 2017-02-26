@@ -816,7 +816,7 @@ function SentientActor:update(dt)
         -- You cannot climb while jumping, sorry
         -- TODO but maybe...  you can hold up + jump, and regrab the ladder only at the apex of the jump?
         self.decision_jump_mode = 1
-        if self.on_ground or self.decision_climb then
+        if self.on_ground or (self.decision_climb and not self.xxx_useless_climb) then
             -- TODO maybe jump away from the ground, not always up?  then could
             -- allow jumping off of steep slopes
             local jumped

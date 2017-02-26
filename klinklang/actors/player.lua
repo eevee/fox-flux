@@ -37,7 +37,6 @@ local Player = actors_base.SentientActor:extend{
     dialogue_shadow = {135, 22, 70},
     z = 1000,
     is_portable = true,
-    can_carry = true,
     is_pushable = true,
     can_push = true,
 
@@ -80,6 +79,7 @@ function Player:init(...)
 end
 
 function Player:on_enter()
+    Player.__super.on_enter(self)
     self.in_spikes = setmetatable({}, { __mode = 'k' })
 end
 
@@ -125,14 +125,15 @@ function Player:on_collide_with(actor, collision, ...)
         local collision_speed = 0
         for normal, normal1 in pairs(collision.normals) do
             -- We're moving into the normal, so the dot product should be negative!
-            collision_speed = collision_speed + math.max(0, -(self.velocity * normal1))
+            -- XXX observe that if you fall onto a slope, you get normals for
+            -- BOTH the slope and your own flat bottom edge...  though i'm not
+            -- sure that's wrong, exactly...
+            collision_speed = math.max(collision_speed, -(self.velocity * normal1))
         end
         if collision_speed > shatter_speed then
             game.resource_manager:get('assets/sounds/shatter.ogg'):play()
             self.is_locked = true
             self:set_sprite('lexy: glass revert')
-            -- FIXME set_sprite should do this
-            self.sprite:set_facing_right(not self.facing_left)
             -- FIXME really need an animation or SOMETHING here
             worldscene.tick:delay(function()
                 self.is_locked = false
@@ -263,6 +264,14 @@ function Player:transform(form)
         self.jump_sound = Player.jump_sound
     end
 
+    if form == 'glass' then
+        self.mass = 0.5
+    elseif form == 'stone' then
+        self.mass = 10
+    else
+        self.mass = 1
+    end
+
     if form == 'stone' then
         self.xaccel = Player.xaccel / 2
         self.max_speed = Player.max_speed / 2
@@ -308,8 +317,8 @@ end
 function Player:play_transform_cutscene(form, facing_left, sprite_name, onfinish)
     self.is_locked = true
     self.facing_left = facing_left
-    self:set_sprite(sprite_name)
     self.sprite:set_facing_right(not facing_left)
+    self:set_sprite(sprite_name)
     self.sprite:set_pose('default', function()
         self.is_locked = false
         self:transform(form)
