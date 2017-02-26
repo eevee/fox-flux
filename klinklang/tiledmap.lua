@@ -41,16 +41,16 @@ function TiledTile:__tostring()
     return ("<TiledTile #%d from %s>"):format(self.id, self.tileset.path)
 end
 
-function TiledTile:prop(key)
+function TiledTile:prop(key, default)
     -- TODO what about the tilepropertytypes
     local proptable = self.tileset.raw.tileproperties
     if not proptable then
-        return
+        return default
     end
 
     local props = proptable[self.id]
-    if not props then
-        return
+    if props == nil then
+        return default
     end
 
     return props[key]
@@ -302,11 +302,14 @@ function TiledMapLayer:init(raw_layer)
     self.submap = self:prop('submap')
 end
 
-function TiledMapLayer:prop(key)
+function TiledMapLayer:prop(key, default)
     if not self.raw.properties then
-        return nil
+        return default
     end
     local value = self.raw.properties[key]
+    if value == nil then
+        return default
+    end
     -- TODO this would be a good place to do type-casting based on the...  type
     return value
 end
@@ -319,6 +322,7 @@ local TiledMap = Object:extend{
 }
 
 function TiledMap:init(path, resource_manager)
+    self.path = path
     self.raw = util.strict_json_decode(love.filesystem.read(path))
 
     -- Copy some basics
@@ -442,6 +446,18 @@ function TiledMap:init(path, resource_manager)
     end
 
     resource_manager:add(path, self)
+end
+
+function TiledMap:prop(key, default)
+    if not self.raw.properties then
+        return default
+    end
+    local value = self.raw.properties[key]
+    if value == nil then
+        return default
+    end
+    -- TODO this would be a good place to do type-casting based on the...  type
+    return value
 end
 
 function TiledMap:add_to_collider(collider, submap_name)
