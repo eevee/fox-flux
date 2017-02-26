@@ -55,7 +55,6 @@ end
 function TriggerZone:execute_trigger(activator)
     -- TODO turn these into, idk, closures or something interesting?
     if self.action == 'change map' then
-        local tiledmap = require 'klinklang.tiledmap'
         local map = game.resource_manager:load(self.props.map)
         worldscene:load_map(map, self.props.spot)
     elseif self.action == 'enter submap' then
