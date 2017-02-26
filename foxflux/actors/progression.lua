@@ -15,11 +15,25 @@ local StrawberryHeart = actors_base.Actor:extend{
     sprite_name = 'strawberry heart',
     z = 9999,
 
+    is_heart = true,
+
     required_form = 'rubber',
     collect_sound = 'assets/sounds/get-heart.ogg',
     is_collected = false,
     jiggle = 0,
 }
+
+function StrawberryHeart:init(pos, props)
+    StrawberryHeart.__super.init(self, pos)
+
+    if props and props['persistence key'] then
+        self.persistence_key = props['persistence key']
+        if game:heart(worldscene.map, self.persistence_key) then
+            self.is_collected = true
+            self.sprite:set_pose('collected')
+        end
+    end
+end
 
 function StrawberryHeart:on_collide(actor)
     if self.is_collected then
@@ -29,6 +43,9 @@ function StrawberryHeart:on_collide(actor)
         if actor.form == self.required_form then
             game.resource_manager:get(self.collect_sound):clone():play()
             self.is_collected = true
+            if self.persistence_key then
+                game:set_heart(worldscene.map, self.persistence_key)
+            end
             actor.inventory.strawberry_hearts = (actor.inventory.strawberry_hearts or 0) + 1
             self.sprite:set_pose('collect', function()
                 worldscene:remove_actor(self)

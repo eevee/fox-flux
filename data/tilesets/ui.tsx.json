@@ -17,6 +17,10 @@
         {
          "sprite name":"spoon: swap\/default"
         },
+     "18":
+        {
+         "sprite name":"heart counter\/default"
+        },
      "2":
         {
          "sprite name":"compact\/default"
@@ -33,6 +37,10 @@
          "sprite name":"string"
         },
      "11":
+        {
+         "sprite name":"string"
+        },
+     "18":
         {
          "sprite name":"string"
         },

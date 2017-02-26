@@ -471,6 +471,14 @@
         }],
  "nextobjectid":31,
  "orientation":"orthogonal",
+ "properties":
+    {
+     "region":"tech"
+    },
+ "propertytypes":
+    {
+     "region":"string"
+    },
  "renderorder":"right-down",
  "tileheight":32,
  "tilesets":[

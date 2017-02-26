@@ -909,6 +909,14 @@
         }],
  "nextobjectid":99,
  "orientation":"orthogonal",
+ "properties":
+    {
+     "region":"forest"
+    },
+ "propertytypes":
+    {
+     "region":"string"
+    },
  "renderorder":"right-down",
  "tileheight":32,
  "tilesets":[

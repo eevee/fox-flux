@@ -225,6 +225,12 @@ function WorldScene:update(dt)
         end
     end
 
+    -- Note that this will be called every frame after collecting a heart until
+    -- the game is saved, but it just iterates over some tables so that's nbd
+    if game.is_dirty then
+        self:update_heart_counts()
+    end
+
     love.audio.setPosition(self.player.pos.x, self.player.pos.y, 0)
     local fx = 1
     if self.player.facing_left then
@@ -278,6 +284,24 @@ function WorldScene:update_camera()
             newy = math.max(miny, math.min(maxy, newy))
         end
         self.camera.y = math.floor(newy)
+    end
+end
+
+function WorldScene:update_heart_counts()
+    self.hearts_collected_in_region = 0
+    self.hearts_collected_in_map = 0
+    local region = self.map:prop('region', '')
+    for map_path, hearts in pairs(game.progress.hearts[region] or {}) do
+        local heartct = 0
+        for heart, collected in pairs(hearts) do
+            if collected then
+                heartct = heartct + 1
+            end
+        end
+        self.hearts_collected_in_region = self.hearts_collected_in_region + heartct
+        if map_path == self.map.path then
+            self.hearts_collected_in_map = self.hearts_collected_in_map + heartct
+        end
     end
 end
 
@@ -391,6 +415,35 @@ function WorldScene:draw()
     end
 
     love.graphics.push('all')
+    love.graphics.scale(game.scale, game.scale)
+    local function draw_outlined_text(text, x, y)
+        love.graphics.setColor(32, 32, 32)
+        love.graphics.draw(text, x + 2, y)
+        love.graphics.draw(text, x - 2, y)
+        love.graphics.draw(text, x, y + 2)
+        love.graphics.draw(text, x, y - 2)
+        love.graphics.setColor(255, 255, 255)
+        love.graphics.draw(text, x, y)
+    end
+    local sprite = game.sprites['heart counter']:instantiate()
+    local sw, sh = sprite:getDimensions()
+    local text = love.graphics.newText(m5x7, ("x %d"):format(self.hearts_collected_in_region))
+    local padding = 8
+    local tw = text:getWidth() + 4
+    local x = w - math.max(64, tw) - padding * 2 - sw
+    sprite:draw_anchorless(Vector(x, padding))
+    x = x + sw + padding + 2
+    local y = math.floor(padding + (32 - m5x7:getHeight() * m5x7:getLineHeight()) / 2)
+    draw_outlined_text(text, x, y)
+    if self.hearts_total_in_map > 0 then
+        -- Position "n / m" so that the "/" is centered below the "x" of the
+        -- total heart count
+        local center = m5x7:getWidth(("%d /"):format(self.hearts_collected_in_map)) - m5x7:getWidth("/") / 2
+        x = x + m5x7:getWidth("x") / 2 - center
+        y = y + 32
+        local text = love.graphics.newText(m5x7, ("%d / %d"):format(self.hearts_collected_in_map, self.hearts_total_in_map))
+        draw_outlined_text(text, x, y)
+    end
 
     -- FIXME put this and the debug stuff on a separate "layer" which doesn't have to live here
     local frame = game.sprites[self.player.inventory_frame_sprite_name]:instantiate()
@@ -648,6 +701,35 @@ function WorldScene:load_map(map, spot_name)
 
     -- TODO this seems more a candidate for an 'enter' or map-switch event
     self:_create_actors()
+
+    -- Count all the hearts on all submaps
+    self.hearts_total_in_map = 0
+    local heart_list = {}
+    local heart_list_set = {}
+    for _, template in ipairs(self.map.actor_templates) do
+        local class = actors_base.Actor:get_named_type(template.name)
+        if class and class.is_heart then
+            self.hearts_total_in_map = self.hearts_total_in_map + 1
+
+            local persistence_key = template.properties and template.properties['persistence key']
+            if not persistence_key then
+                print(
+                    ("WARNING: found a heart with no persistence key on map %s at %s")
+                    :format(self.map.path, template.position))
+            elseif heart_list_set[persistence_key] then
+                print(
+                    ("WARNING: found two hearts with the same persistence key %s on map %s at %s, %s")
+                    :format(persistence_key, self.map.path,
+                        heart_list_set[persistence_key].position, template.position))
+            else
+                table.insert(heart_list, persistence_key)
+                heart_list_set[persistence_key] = template
+            end
+        end
+    end
+    self.map_region = self.map:prop('region', '')
+    game:update_heart_list(self.map, heart_list)
+    self:update_heart_counts()
 
     -- FIXME this is invasive
     -- FIXME should probably just pass the slightly-munged object right to the constructor, instead of special casing these

@@ -1,5 +1,6 @@
 local utf8 = require 'utf8'
 
+local json = require 'vendor.dkjson'
 local Gamestate = require 'vendor.hump.gamestate'
 local tick = require 'vendor.tick'
 
@@ -18,7 +19,82 @@ game = {
 
     progress = {
         flags = {},
+        hearts = {},  -- region => map path => heart id => bool
     },
+    is_dirty = false,
+
+    -- FIXME it nearly goes without saying by now, but this should be in its
+    -- own file and be a real object.  in fact progress should also be its own
+    -- type, and these should be methods on /it/
+    flag = function(self, flag)
+        return self.progress.flags[flag]
+    end,
+    set_flag = function(self, flag)
+        self.is_dirty = true
+        self.progress.flags[flag] = true
+    end,
+    update_heart_list = function(self, map, heart_list)
+        local region = map:prop('region', '')
+        if not self.progress.hearts[region] then
+            self.progress.hearts[region] = {}
+        end
+        local old = self.progress.hearts[region][map.path] or {}
+        local new = {}
+        for _, heart in ipairs(heart_list) do
+            new[heart] = old[heart] or false
+        end
+        self.progress.hearts[region][map.path] = new
+    end,
+    -- TODO should be able to get map from heart?
+    heart = function(self, map, heart)
+        local region = map:prop('region', '')
+        return self.progress.hearts[region]
+            and self.progress.hearts[region][map.path]
+            and self.progress.hearts[region][map.path][heart]
+    end,
+    set_heart = function(self, map, heart)
+        local region = map:prop('region', '')
+        -- These two cases shouldn't actually happen, but...
+        if not self.progress.hearts[region] then
+            self.progress.hearts[region] = {}
+        end
+        if not self.progress.hearts[region][map.path] then
+            self.progress.hearts[region][map.path] = {}
+        end
+        if self.progress.hearts[region][map.path][heart] then
+            return
+        end
+
+        self.is_dirty = true
+        self.progress.hearts[region][map.path][heart] = true
+    end,
+
+    save = function(self)
+        if self.is_dirty then
+            self:really_save()
+        end
+    end,
+    really_save = function(self)
+        love.filesystem.write('demosave.json', json.encode(self.progress))
+        self.is_dirty = false
+    end,
+    load = function(self)
+        local data = love.filesystem.read('demosave.json')
+        if data then
+            local savegame, _pos, err = json.decode(data)
+            if not savegame then
+                print("Error loading save file:", err)
+                local fn = ("demosave-broken-%d.json"):format(os.time())
+                love.filesystem.write(fn, data)
+                love.filesystem.remove('demosave.json')
+                print(("Starting a new game, but backing up old save file as %s"):format(fn))
+            else
+                for k, v in pairs(savegame) do
+                    game.progress[k] = v
+                end
+            end
+        end
+    end,
 
     debug = false,
     debug_twiddles = {
@@ -97,6 +173,9 @@ function love.load(args)
     m5x7small = love.graphics.newFont('assets/fonts/m5x7.ttf', 16)
 
     love.joystick.loadGamepadMappings("vendor/gamecontrollerdb.txt")
+
+    game:load()
+    tick.recur(function() game:save() end, 5)
 
     game.maps = {
         'forest-overworld.tmx.json',

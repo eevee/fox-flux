@@ -222,13 +222,11 @@
  "orientation":"orthogonal",
  "properties":
     {
-     "camera margin left":16,
-     "camera margin right":32
+     "region":"forest"
     },
  "propertytypes":
     {
-     "camera margin left":"int",
-     "camera margin right":"int"
+     "region":"string"
     },
  "renderorder":"right-down",
  "tileheight":32,
