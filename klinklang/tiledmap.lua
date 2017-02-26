@@ -445,6 +445,9 @@ function TiledMap:init(path, resource_manager)
         end
     end
 
+    -- Used for drawing
+    self.sprite_batches = {}
+
     resource_manager:add(path, self)
 end
 
@@ -523,31 +526,55 @@ end
 -- Draw the whole map
 function TiledMap:draw(layer_name, submap_name, origin, width, height)
     -- TODO origin unused.  is it in tiles or pixels?
-    local tw, th = self.raw.tilewidth, self.raw.tileheight
+    -- TODO width and height also unused
     for _, layer in pairs(self.layers) do
         if layer.name == layer_name and layer.submap == submap_name then
             if layer.type == 'tilelayer' then
-                local width, height = layer.width, layer.height
-                local data = layer.data
-                for t = 0, width * height - 1 do
-                    local gid = data[t + 1]
-                    if gid ~= 0 then
-                        local tile = self.tiles[gid]
-                        local ty, tx = util.divmod(t, width)
-                        -- TODO don't draw tiles not on the screen
-                        love.graphics.draw(
-                            tile.tileset.image,
-                            tile.tileset.quads[tile.id],
-                            -- convert tile offsets to pixels
-                            tx * tw,
-                            (ty + 1) * th - tile.tileset.raw.tileheight,
-                            0, 1, 1)
-                    end
-                end
+                self:draw_layer(layer)
             elseif layer.type == 'imagelayer' then
                 love.graphics.draw(layer.image, layer.raw.offsetx, layer.raw.offsety)
             end
         end
+    end
+end
+
+-- Draw a particular layer using sprite batches
+function TiledMap:draw_layer(layer)
+    -- NOTE: This batched approach means that the map /may not/ render
+    -- correctly if an oversized tile overlaps other tiles.  But I don't do
+    -- that, and it seems like a bad idea anyway, so.
+    -- TODO consider benchmarking this (on a large map) against recreating a
+    -- batch every frame but with only visible tiles?
+    local tw, th = self.raw.tilewidth, self.raw.tileheight
+    local batches = self.sprite_batches[layer]
+    if not batches then
+        batches = {}
+        self.sprite_batches[layer] = batches
+
+        local width, height = layer.width, layer.height
+        local data = layer.data
+        for t = 0, width * height - 1 do
+            local gid = data[t + 1]
+            if gid ~= 0 then
+                local tile = self.tiles[gid]
+                local tileset = tile.tileset
+                local batch = batches[tileset]
+                if not batch then
+                    batch = love.graphics.newSpriteBatch(
+                        tileset.image, width * height, 'static')
+                    batches[tileset] = batch
+                end
+                local ty, tx = util.divmod(t, width)
+                batch:add(
+                    tileset.quads[tile.id],
+                    -- convert tile offsets to pixels
+                    tx * tw,
+                    (ty + 1) * th - tileset.raw.tileheight)
+            end
+        end
+    end
+    for tileset, batch in pairs(batches) do
+        love.graphics.draw(batch)
     end
 end
 
