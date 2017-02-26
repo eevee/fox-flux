@@ -20,6 +20,9 @@ game = {
     progress = {
         flags = {},
         hearts = {},  -- region => map path => heart id => bool
+        -- TODO hmm, this avoids "knowing" the progression, which is nice in
+        -- theory, but also feels a wee bit hokey
+        region_order = {},
     },
     is_dirty = false,
 
@@ -37,6 +40,7 @@ game = {
         local region = map:prop('region', '')
         if not self.progress.hearts[region] then
             self.progress.hearts[region] = {}
+            table.insert(self.progress.region_order, region)
         end
         local old = self.progress.hearts[region][map.path] or {}
         local new = {}

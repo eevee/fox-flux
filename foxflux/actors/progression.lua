@@ -100,7 +100,7 @@ local BossDoor = actors_base.Actor:extend{
 function BossDoor:init(...)
     BossDoor.__super.init(self, ...)
 
-    if game.progress.flags[self.boss_door_flag] then
+    if game:flag(self.boss_door_flag) then
         self:unlock()
     end
 end
@@ -108,12 +108,28 @@ end
 function BossDoor:unlock()
     self.is_unlocked = true
     self.sprite:set_pose('unlocked')
-    game.progress.flags[self.boss_door_flag] = true
+    game:set_flag(self.boss_door_flag)
 end
 
 function BossDoor:on_use(activator)
     -- FIXME need to check hearts from the current zone!!
-    if self.is_unlocked or (activator.inventory.strawberry_hearts or 0) >= 69 then
+    local unlocked = self.is_unlocked
+    if not unlocked then
+        -- Check whether we have enough hearts yet
+        local heartct = 0
+        for map_path, hearts in pairs(game.progress.hearts[worldscene.map:prop('region', '')]) do
+            for heart, collected in pairs(hearts) do
+                if collected then
+                    heartct = heartct + 1
+                end
+            end
+        end
+        if heartct >= 69 then
+            unlocked = true
+        end
+    end
+
+    if unlocked then
         if not self.is_unlocked then
             self:unlock()
         end
@@ -162,6 +178,20 @@ local LockScreen = actors_base.Actor:extend{
     is_usable = true,
 }
 
+function LockScreen:on_enter()
+    LockScreen.__super.on_enter(self)
+
+    if game:flag('opened forest blast door') then
+        self.sprite:set_pose('unlocked')
+        self.is_usable = false
+        for _, actor in ipairs(worldscene.actors) do
+            if actor:isa(BlastDoorShutter) then
+                actor:open_instant()
+            end
+        end
+    end
+end
+
 function LockScreen:blocks()
     return false
 end
@@ -172,12 +202,13 @@ function LockScreen:on_use(activator)
     end
 
     if self.sprite.pose == 'locked' then
-        if not game.progress.flags['has forest passcode'] then
+        if not game:flag('has forest passcode') then
             local candidates = conversations.need_passcode[activator.form]
             local i = math.random(1, #candidates)
             Gamestate.push(DialogueScene({ lexy = activator }, candidates[i]))
             return
         end
+        game:set_flag('opened forest blast door')
         game.resource_manager:get('assets/sounds/boopbeep.ogg'):play()
         self.sprite:set_pose('unlocked')
         self.is_usable = false

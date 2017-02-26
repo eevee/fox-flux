@@ -130,7 +130,14 @@ conversations.defeat_lop = {
             "And there's a passcode.",
             speaker = 'lexy',
             pose = { body = 'paper', eyes = 'down' },
-            set = 'has forest passcode',
+        },
+        {
+            -- FIXME this could conceivably use `set`, but i'd have to fix
+            -- dialogue to use game:set_flag(), which doesn't exist outside of
+            -- this game.  so maybe later
+            execute = function()
+                game:set_flag('has forest passcode')
+            end,
         },
         {
             "Cool.  Thanks, Lop.",
@@ -151,7 +158,11 @@ conversations.defeat_lop = {
             "And there's a passcode.",
             speaker = 'lexy',
             pose = { body = 'paper', eyes = 'down' },
-            set = 'has forest passcode',
+        },
+        {
+            execute = function()
+                game:set_flag('has forest passcode')
+            end,
         },
         {
             "Cool.  Thanks, Lop.",
@@ -171,7 +182,11 @@ conversations.defeat_lop = {
             "And there's a passcode.",
             speaker = 'lexy',
             pose = { body = 'paper', eyes = 'down' },
-            set = 'has forest passcode',
+        },
+        {
+            execute = function()
+                game:set_flag('has forest passcode')
+            end,
         },
         {
             "Cool.  Thanks, Lop.",

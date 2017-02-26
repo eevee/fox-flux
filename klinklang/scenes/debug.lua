@@ -141,6 +141,18 @@ function DebugScene:do_world_menu(inner_width)
         end
     end
     suit.layout:pop()
+
+    if suit.Button("Give all discovered hearts", suit.layout:row()).hit then
+        for region, map_hearts in pairs(game.progress.hearts) do
+            for map_path, hearts in pairs(map_hearts) do
+                for heart, collected in pairs(hearts) do
+                    hearts[heart] = true
+                end
+            end
+        end
+        game.is_dirty = true
+        worldscene:update_heart_counts()
+    end
 end
 
 function DebugScene:do_dialogue_menu(inner_width)

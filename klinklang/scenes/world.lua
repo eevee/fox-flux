@@ -8,11 +8,12 @@ local Player = require 'klinklang.actors.player'
 local actors_generic = require 'klinklang.actors.generic'
 local TriggerZone = require 'klinklang.actors.trigger'
 local BaseScene = require 'klinklang.scenes.base'
-local PauseScene = require 'klinklang.scenes.pause'
 local SceneFader = require 'klinklang.scenes.fader'
 local whammo = require 'klinklang.whammo'
 
 local tiledmap = require 'klinklang.tiledmap'
+
+local MenuScene = require 'foxflux.scenes.menu'
 
 local CAMERA_MARGIN = 0.33
 -- Sets the maximum length of an actor update.
@@ -546,7 +547,9 @@ function WorldScene:keypressed(key, scancode, isrepeat)
         return
     end
 
-    if scancode == 'space' then
+    if scancode == 'escape' then
+        Gamestate.push(MenuScene())
+    elseif scancode == 'space' then
         self.player:decide_jump()
     elseif scancode == 'q' then
         do return end

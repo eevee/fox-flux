@@ -69,7 +69,7 @@ local Lop = actors_base.Actor:extend{
     dialogue_sprites = {
         { name = 'base', sprite_name = 'lop portrait', while_talking = { default = 'talking' } },
         { name = 'eyes', sprite_name = 'lop portrait - eye' },
-        { name = 'decor', sprite_name = 'lop portrait - decor' },
+        { name = 'decor', sprite_name = 'lop portrait - decor', default = false },
     },
 
     is_usable = true,
@@ -77,16 +77,23 @@ local Lop = actors_base.Actor:extend{
     is_defeated = false,
 }
 
-function Lop:init(...)
-    Lop.__super.init(self, ...)
+function Lop:on_enter()
+    Lop.__super.on_enter(self)
 
-    self.sprite:set_pose('armed')
     self.sprite:set_facing_right(false)
+    if game:flag('confronted lop') then
+        self.is_defeated = true
+        self.sprite:set_pose('stand')
+        self:schedule_idle()
+    else
+        self.sprite:set_pose('armed')
+    end
 end
 
 function Lop:on_approach_lop(activator)
     if not self.is_defeated then
         Gamestate.push(BossScene(activator, self))
+        game:set_flag('confronted lop')
     end
 end
 
@@ -126,7 +133,7 @@ function Lop:on_use(activator)
     end
 
     local convo
-    if game.progress.flags['has forest passcode'] then
+    if game:flag('has forest passcode') then
         local convos = conversations.followup_lop[activator.form]
         convo = convos[math.random(1, #convos)]
     else
