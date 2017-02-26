@@ -345,7 +345,6 @@ function MobileActor:_collision_callback(collision, pushers, already_hit)
             -- If we've already pushed this object once, or we're not actually
             -- trying to push it, do nothing...  but pretend it's solid, so we
             -- don't, say, fall through it
-            already_hit[actor] = 'nudged'
             passable = false
         else
             -- TODO the mass thing is pretty cute, but it doesn't chain --
@@ -438,7 +437,14 @@ function MobileActor:nudge(movement, pushers, xxx_no_slide)
         if _is_vector_almost_zero(successful) then
             stuck_counter = stuck_counter + 1
             if stuck_counter >= 3 then
-                print("!!!  BREAKING OUT OF LOOP BECAUSE WE'RE STUCK, OOPS")
+                if game.debug then
+                    -- FIXME interesting!  i get this when jumping against the
+                    -- crate in a corner in tech-1; i think because clocks
+                    -- can't handle single angles correctly, so this is the
+                    -- same problem as walking down a hallway exactly your own
+                    -- height
+                    print("!!!  BREAKING OUT OF LOOP BECAUSE WE'RE STUCK, OOPS", self, movement, slide, remaining, combined_clock)
+                end
                 break
             end
         end
@@ -500,6 +506,8 @@ function MobileActor:check_for_ground(hits)
     if not self.is_portable then
         ground_actor = nil
     end
+    -- FIXME this can go wrong if our carrier is removed from the map.  or
+    -- we're removed from the map, for that matter!
     if self.ptrs.cargo_of ~= ground_actor then
         if self.ptrs.cargo_of then
             self.ptrs.cargo_of.cargo[self] = nil
@@ -539,7 +547,7 @@ function MobileActor:update(dt)
     --print()
     --print()
     --print()
-    --print("Collision time!  position", self.pos, "velocity", self.velocity, "movement", movement)
+    --print("--- UPDATE", self, "velocity", self.velocity, "movement", movement)
     local attempted = movement
 
     local movement, hits, last_clock = self:nudge(movement)
@@ -894,7 +902,10 @@ function SentientActor:update(dt)
         -- FIXME take max_speed into account here too so you can still be
         -- launched -- though i think that will look mighty funny since the
         -- drop will still happen
-        local drop = Vector(0, movement:len() * math.abs(self.max_slope.x) * 2)
+        -- FIXME this is actually completely ridiculous; no cap means it can
+        -- drop you a huge amount
+        -- FIXME also it interferes with the spring, argghh
+        local drop = Vector(0, math.abs(movement.x) * math.abs(self.max_slope.x) * 2)
         local drop_movement
         drop_movement, hits, last_clock = self:nudge(drop, nil, true)
         movement = movement + drop_movement
