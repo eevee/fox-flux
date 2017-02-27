@@ -472,9 +472,9 @@ function Spring:draw()
     local x0, y0, x1, y1 = self.shape:bbox()
     love.graphics.setScissor(
         x0 - worldscene.camera.x,
-        y0 - worldscene.camera.y,
+        math.floor(y0 + 0.5) - worldscene.camera.y,
         x1 - x0,
-        y1 - y0 - self.spring_depression)
+        y1 - y0 - math.floor(self.spring_depression + 0.5))
     Spring.__super.draw(self)
     love.graphics.pop()
 end
