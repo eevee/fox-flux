@@ -265,7 +265,7 @@ end
 
 function ReverseCockatrice:on_collide(actor)
     if actor.is_player and actor:is_transformable() then
-        actor:transform('stone')
+        actor:play_transform_cutscene('stone', actor.facing_left, 'lexy: stone tf')
     end
 end
 
@@ -288,6 +288,19 @@ end
 
 
 
+local StoneFoxRubble = actors_base.Actor:extend{
+    name = 'stone fox rubble',
+    sprite_name = 'lexy: stone rubble',
+    z = 1001,
+}
+
+function StoneFoxRubble:on_enter()
+    StoneFoxRubble.__super.on_enter(self)
+    self.sprite:set_pose('default', function()
+        worldscene:remove_actor(self)
+    end)
+end
+
 local Gecko = actors_base.SentientActor:extend{
     name = 'gecko',
     sprite_name = 'gecko',
@@ -301,7 +314,12 @@ end
 
 function Gecko:on_collide(actor)
     if actor.is_player and not actor.is_locked and actor.form == 'stone' then
-        actor:transform('rubber')
+        actor:play_transform_cutscene('rubber', actor.facing_left, 'lexy: stone revert', function()
+            -- This animation shows the statue cracking to reveal Lexy within;
+            -- give control back to the player while the stone pieces fall,
+            -- using this dummy actor
+            worldscene:add_actor(StoneFoxRubble(actor.pos:clone()))
+        end)
     end
 end
 

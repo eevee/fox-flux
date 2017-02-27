@@ -1,23 +1,33 @@
-{ "columns":26,
- "image":"..\/..\/assets\/images\/lexy-glass-revert.png",
- "imageheight":64,
- "imagewidth":1664,
+{ "columns":14,
+ "image":"..\/..\/assets\/images\/lexy-stone-revert.png",
+ "imageheight":96,
+ "imagewidth":896,
  "margin":0,
- "name":"lexy-glass-revert",
+ "name":"lexy-stone-revert",
  "spacing":0,
- "tilecount":26,
- "tileheight":64,
+ "tilecount":14,
+ "tileheight":96,
  "tileproperties":
     {
      "0":
         {
          "animation stops":true,
-         "sprite name":"lexy: glass revert\/default"
+         "sprite name":"lexy: stone revert\/default"
+        },
+     "4":
+        {
+         "animation stops":true,
+         "sprite name":"lexy: stone rubble\/default"
         }
     },
  "tilepropertytypes":
     {
      "0":
+        {
+         "animation stops":"bool",
+         "sprite name":"string"
+        },
+     "4":
         {
          "animation stops":"bool",
          "sprite name":"string"
@@ -29,31 +39,64 @@
         {
          "animation":[
                 {
-                 "duration":100,
+                 "duration":50,
+                 "tileid":0
+                }, 
+                {
+                 "duration":50,
                  "tileid":1
                 }, 
                 {
-                 "duration":100,
+                 "duration":50,
                  "tileid":2
                 }, 
                 {
-                 "duration":100,
+                 "duration":50,
                  "tileid":3
-                }, 
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":32,
+                     "y":78
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "4":
+        {
+         "animation":[
                 {
-                 "duration":500,
+                 "duration":50,
                  "tileid":4
                 }, 
                 {
-                 "duration":200,
+                 "duration":50,
                  "tileid":5
                 }, 
                 {
-                 "duration":150,
+                 "duration":50,
                  "tileid":6
                 }, 
                 {
-                 "duration":100,
+                 "duration":50,
                  "tileid":7
                 }, 
                 {
@@ -73,56 +116,12 @@
                  "tileid":11
                 }, 
                 {
-                 "duration":500,
+                 "duration":50,
                  "tileid":12
                 }, 
                 {
-                 "duration":100,
+                 "duration":50,
                  "tileid":13
-                }, 
-                {
-                 "duration":100,
-                 "tileid":14
-                }, 
-                {
-                 "duration":100,
-                 "tileid":15
-                }, 
-                {
-                 "duration":100,
-                 "tileid":16
-                }, 
-                {
-                 "duration":100,
-                 "tileid":17
-                }, 
-                {
-                 "duration":100,
-                 "tileid":18
-                }, 
-                {
-                 "duration":100,
-                 "tileid":19
-                }, 
-                {
-                 "duration":150,
-                 "tileid":20
-                }, 
-                {
-                 "duration":75,
-                 "tileid":21
-                }, 
-                {
-                 "duration":75,
-                 "tileid":22
-                }, 
-                {
-                 "duration":75,
-                 "tileid":23
-                }, 
-                {
-                 "duration":75,
-                 "tileid":24
                 }],
          "objectgroup":
             {
@@ -139,8 +138,8 @@
                      "type":"anchor",
                      "visible":true,
                      "width":0,
-                     "x":36,
-                     "y":62
+                     "x":32,
+                     "y":78
                     }],
              "opacity":1,
              "type":"objectgroup",

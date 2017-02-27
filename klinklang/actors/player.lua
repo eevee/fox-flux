@@ -10,6 +10,46 @@ local whammo_shapes = require 'klinklang.whammo.shapes'
 local conversations = require 'foxflux.conversations'
 
 
+local GlassShard1 = actors_base.MobileActor:extend{
+    name = 'glass shard 1',
+    sprite_name = 'glass shard 1',
+}
+
+function GlassShard1:blocks()
+    return false
+end
+
+function GlassShard1:on_collide_with(actor, ...)
+    if actor and actor.is_player then
+        return true
+    end
+    return GlassShard1.__super.on_collide_with(self, actor, ...)
+end
+
+function GlassShard1:update(dt)
+    GlassShard1.__super.update(self, dt)
+    if self.timer > 4 then
+        worldscene:remove_actor(self)
+    end
+end
+
+function GlassShard1:draw()
+    love.graphics.push('all')
+    love.graphics.setColor(255, 255, 255, math.min(1, 3 - self.timer) * 255)
+    GlassShard1.__super.draw(self)
+    love.graphics.pop()
+end
+
+local GlassShard2 = GlassShard1:extend{
+    name = 'glass shard 2',
+    sprite_name = 'glass shard 2',
+}
+local GlassShard3 = GlassShard1:extend{
+    name = 'glass shard 3',
+    sprite_name = 'glass shard 3',
+}
+
+
 local Player = actors_base.SentientActor:extend{
     name = 'lexy',
     sprite_name = 'lexy',
@@ -132,13 +172,12 @@ function Player:on_collide_with(actor, collision, ...)
         end
         if collision_speed > shatter_speed then
             game.resource_manager:get('assets/sounds/shatter.ogg'):play()
-            self.is_locked = true
-            self:set_sprite('lexy: glass revert')
-            -- FIXME really need an animation or SOMETHING here
-            worldscene.tick:delay(function()
-                self.is_locked = false
-                self:transform('rubber')
-            end, 5)
+            for _, actor_class in ipairs{GlassShard1, GlassShard2, GlassShard3} do
+                local shard = actor_class(self.pos)
+                shard.velocity = Vector(util.random_float(-192, 192), util.random_float(-128, -64))
+                worldscene:add_actor(shard)
+            end
+            self:play_transform_cutscene('rubber', self.facing_left, 'lexy: glass revert')
         end
     end
 
@@ -329,8 +368,8 @@ function Player:play_transform_cutscene(form, facing_left, sprite_name, onfinish
 end
 
 function Player:toast()
-    if self.form == 'slime' then
-        self:transform('rubber')
+    if self.form == 'slime' and not self.is_locked then
+        self:play_transform_cutscene('rubber', self.facing_left, 'lexy: slime revert')
     end
 end
 
