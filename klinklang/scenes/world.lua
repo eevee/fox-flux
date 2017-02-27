@@ -448,15 +448,15 @@ function WorldScene:draw()
 
     -- FIXME put this and the debug stuff on a separate "layer" which doesn't have to live here
     local frame = game.sprites[self.player.inventory_frame_sprite_name]:instantiate()
-    frame:draw_at(Vector(0, 0))
-    love.graphics.setScissor(16, 16, love.graphics.getWidth(), 32)
+    frame:draw_anchorless(Vector(0, 0))
+    love.graphics.setScissor(16 * game.scale, 16 * game.scale, love.graphics.getWidth(), 32 * game.scale)
     local name = love.graphics.newText(m5x7, self.player.inventory[self.player.inventory_cursor].display_name)
     local dy = 32
     if self.inventory_switch then
         if self.inventory_switch.progress < 1 then
             dy = math.floor(self.inventory_switch.progress * 32)
             local sprite = game.sprites[self.inventory_switch.old_item.sprite_name]:instantiate()
-            sprite:draw_at(Vector(16, 16 - dy) + sprite.anchor)
+            sprite:draw_anchorless(Vector(16, 16 - dy))
             love.graphics.draw(self.inventory_switch.new_name, 64, 32 - self.inventory_switch.new_name:getHeight() / 2 + 32 - dy)
         else
             love.graphics.setColor(255, 255, 255, self.inventory_switch.name_opacity * 255)
@@ -467,7 +467,7 @@ function WorldScene:draw()
 
     if self.player.form ~= 'stone' then
         local sprite = game.sprites[self.player.inventory[self.player.inventory_cursor].sprite_name]:instantiate()
-        sprite:draw_at(Vector(16, 16 + 32 - dy) + sprite.anchor)
+        sprite:draw_anchorless(Vector(16, 16 + 32 - dy))
     end
     love.graphics.pop()
 
