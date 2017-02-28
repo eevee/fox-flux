@@ -16,6 +16,7 @@ local conversations = require 'foxflux.conversations'
 local Dart = actors_base.MobileActor:extend{
     name = 'dart',
     sprite_name = 'dart',
+    is_usable = true,
 }
 
 function Dart:init(...)
@@ -23,6 +24,11 @@ function Dart:init(...)
 
     self.velocity = Vector(-256, 0)
     self.sprite:set_facing_right(false)
+end
+
+function Dart:on_use(activator)
+    local convo = conversations.pick_conversation('examine dart', activator.form)
+    Gamestate.push(DialogueScene({ lexy = activator }, convo))
 end
 
 function Dart:blocks()

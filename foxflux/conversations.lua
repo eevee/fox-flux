@@ -145,6 +145,18 @@ conversations['panel as glass'] = {
     },
 }
 
+conversations['examine dart'] = {
+    rubber = {
+        {{ "It's a little plastic dart, from a toy dart gun.", speaker = 'lexy' }},
+    },
+    slime = {
+        {{ "Phew!  Another couple feet and this dart would've gone right through me!", speaker = 'lexy' }},
+    },
+    glass = {
+        {{ "...", speaker = 'lexy' }},
+    },
+}
+
 conversations['defeat lop'] = {
     rubber = {{
         { speaker = 'lop', pose = { decor = 'letter' } },
