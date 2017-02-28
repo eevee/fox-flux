@@ -325,6 +325,33 @@
                  "width":0,
                  "x":1568,
                  "y":672
+                }, 
+                {
+                 "height":96,
+                 "id":58,
+                 "name":"",
+                 "properties":
+                    {
+                     "action":"conversation",
+                     "activation":"touch",
+                     "conversation":"introduction",
+                     "flag":"seen intro cutscene",
+                     "once":true
+                    },
+                 "propertytypes":
+                    {
+                     "action":"string",
+                     "activation":"string",
+                     "conversation":"string",
+                     "flag":"string",
+                     "once":"bool"
+                    },
+                 "rotation":0,
+                 "type":"trigger",
+                 "visible":true,
+                 "width":64,
+                 "x":0,
+                 "y":672
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -333,7 +360,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":58,
+ "nextobjectid":59,
  "orientation":"orthogonal",
  "properties":
     {

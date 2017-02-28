@@ -31,8 +31,17 @@ function TriggerZone:init(pos, size, props)
     if self.activation == 'use' then
         self.is_usable = true
     end
+end
 
-    -- FIXME lol.  also shouldn't this be on_enter, really
+function TriggerZone:on_enter()
+    if self.props.flag and game:flag(self.props.flag) then
+        worldscene:remove_actor(self)
+        return
+    end
+
+    TriggerZone.__super.on_enter()
+
+    -- FIXME lol
     worldscene.collider:add(self.shape, self)
 end
 
@@ -76,6 +85,9 @@ function TriggerZone:execute_trigger(activator)
         Gamestate.push(DialogueScene({
             lexy = activator,
             cerise = actors_npcs.Cerise,
+            narrator = {
+                background = game.resource_manager:load('assets/images/dialoguebox-narrator.png'),
+            },
         }, convo))
     end
 

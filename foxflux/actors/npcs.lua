@@ -166,6 +166,7 @@ local Cerise = actors_base.Actor:extend{
         { name = 'hand', sprite_name = 'cerise portrait - far hand', default = false },
         { name = 'eyelids', sprite_name = 'cerise portrait - eyelids', default = false },
         { name = 'disguise', sprite_name = 'cerise portrait - disguise', default = false },
+        base = { base = 'default', eyes = 'default', snoot = 'default' },
         compact = { hand = 'compact' },
         villain = { disguise = 'panties', eyelids = 'furrowed brow' },
         ['not villain'] = { disguise = false, eyelids = false },

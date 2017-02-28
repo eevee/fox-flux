@@ -35,21 +35,25 @@ local function pick_conversation(name, form)
 end
 
 
-conversations.intro = {
+conversations['introduction'] = { rubber = {{
+    -- FIXME i wish i could also say 'true' to mean all defaults
+    { speaker = 'cerise', pose = false },
+    { speaker = 'lexy', pose = false },
+    { "One morning, when Lexy woke from snuggled dreams, she found herself transformed in her bed into a--", speaker = 'narrator' },
     {
         "Gnngh.",
         "This...  isn't...  my room.",
         "Why isn't this my room.",
-        "Why am I wearing my collar...?  What did I do last night?",
-        "...I read a book in bed.  Hm.",
+        "Why am I wearing my collar...?  What the heck did I do last night?",
+        "...no, I read a book in bed.  Nothing weird.  Hm.",
         speaker = 'lexy',
-        pose = { eyes = 'tired' },
+        pose = { body = 'neutral', head = 'neutral', eyes = 'tired' },
     },
-    { speaker = 'lexy', pose = { body = 'compact', eyes = 'down lidded' } },
-    { "Ha HA!", speaker = 'cerise', pose = { 'compact', 'villain' } },
+    { "Oh...  Cerise is dialing.", speaker = 'lexy', pose = { body = 'compact', eyes = 'down lidded' } },
+    { "Ha HA!", speaker = 'cerise', pose = { 'base', 'compact', 'villain' } },
     { "Uhh.", speaker = 'lexy' },
     {
-        "Yes, it is I, your eternal nemesis!",
+        "Yes, it is I, the Crimson Bandit!",
         "I've stolen away your sweet Cerise!",
         speaker = 'cerise',
     },
@@ -66,20 +70,32 @@ conversations.intro = {
         speaker = 'lexy',
     },
 
-    { "Aw, we thought this would be right up your alley, too.  We worked so hard on it!", speaker = 'cerise', pose = 'not villain' },
+    { "First you must...  ah...  hm.", speaker = 'cerise' },
+    -- FIXME didn't i have some eyelids here
+    { "Are you not up for this?  I worked really hard on it, and thought it'd be right up your alley, but if not then that's okay!", speaker = 'cerise', pose = 'not villain' },
     { "I'm.  I'm tire.  What is \"this\"?", speaker = 'lexy' },
-    { "Your present!  I was trying to explain.", speaker = 'cerise' },
-    { "Huh?  It's not my birthday.", "I think.", speaker = 'lexy' },
-    { "Do you not know what day it is?", speaker = 'cerise' },
-    { "It's...  9:03.", speaker = 'lexy' },  -- FIXME use actual time?
+    { "It's your present, sweetie!", speaker = 'cerise' },
+    { "Buh?", "It's not my birthday.", "I think.", "Yeah.", speaker = 'lexy' },
+    { "Lexy!  Did you forget what day it is?", speaker = 'cerise' },
+    {
+        function()
+            local datetime = os.date('*t')
+            local hour = datetime.hour
+            if hour > 12 then
+                hour = hour - 12
+            end
+            return ("It's...  %d:%02d?"):format(hour, datetime.min)
+        end,
+        speaker = 'lexy',
+    },
     { "No, silly!  Well, yes.  But it's also Hearts Day!", speaker = 'cerise' },
     { "Oh.", "...", speaker = 'lexy' },
     { "OH.", speaker = 'lexy', pose = { eyes = 'down', blush = 'default' } },
     { "That's more the expression I was hoping to see!", "Now, where was I?", speaker = 'cerise' },
-    { "Something about how I'm super cute.", speaker = 'lexy' },
+    { "Uhh.  \"Super cute\"?", speaker = 'lexy' },
 
     { "Ahem!  Yes!  I have your precious Cerise and her sweet titties in my clutches!", speaker = 'cerise', pose = 'villain' },
-    { "Oh noo!", speaker = 'cerise', pose = 'not villain' },
+    { "Oh noo!  Save me, Lexy!", speaker = 'cerise', pose = 'not villain' },
     { "Ha HA!  Give up now!  Only a rubber fox could ever make it past my defenses!", speaker = 'cerise', pose = 'villain' },
     { "Um...  but I'm a rubber fox?", speaker = 'lexy' },
     {
@@ -87,24 +103,29 @@ conversations.intro = {
         "No matter!  Just in case, I filled my PUZZLE ZONES with all manner of creatures that can mutate tender rubber into all manner of helpless shapes!",
         speaker = 'cerise',
     },
-    { "DID you now.  You, uh, should've led with that.", speaker = 'lexy' },
+    { "DID you now.  You kinda buried the lede there.", speaker = 'lexy' },
     {
         "I sure did!  All to protect the STRAWBERRY HEARTS you'll need to unlock the boss door!",
         "But don't even think about collecting them!  You'll need a whole lot!  Better give up now!",
         speaker = 'cerise',
     },
-    { "How many is a whole lot, exactly?", speaker = 'lexy' },
+    { "Oh, no!  Um, how many is a whole lot, exactly?", speaker = 'lexy' },
     { "Sixty-nine!", speaker = 'cerise' },
     { "...", "Of course.", speaker = 'lexy', pose = { 'compact sweatdrop' } },
     {
         "In summary, you don't stand a chance, little rubber fox!",
-        "But feel free to dial if you need a hint.",
+        "But feel free to dial if you need a hint.  Or just want to chat.",
         "I'll be waiting for you~!",
         speaker = 'cerise',
     },
     { pose = false, speaker = 'cerise' },
+    {
+        execute = function()
+            game:set_flag('seen intro cutscene')
+        end,
+    },
     { "...", speaker = 'lexy', pose = { blush = 'default', eyes = 'down' } },
-}
+}}}
 
 conversations['insufficient hearts'] = {
     rubber = {
