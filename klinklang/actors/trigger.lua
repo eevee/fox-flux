@@ -5,6 +5,7 @@ local actors_base = require 'klinklang.actors.base'
 local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 local DialogueScene = require 'klinklang.scenes.dialogue'
+local SceneFader = require 'klinklang.scenes.fader'
 
 
 local TriggerZone = actors_base.BareActor:extend{
@@ -64,8 +65,10 @@ end
 function TriggerZone:execute_trigger(activator)
     -- TODO turn these into, idk, closures or something interesting?
     if self.action == 'change map' then
-        local map = game.resource_manager:load(self.props.map)
-        worldscene:load_map(map, self.props.spot)
+        Gamestate.push(SceneFader(worldscene, true, 0.5, {255, 130, 206}, function()
+            local map = game.resource_manager:load(self.props.map)
+            worldscene:load_map(map, self.props.spot)
+        end))
     elseif self.action == 'enter submap' then
         worldscene:enter_submap(self.props.submap)
     elseif self.action == 'leave submap' then
