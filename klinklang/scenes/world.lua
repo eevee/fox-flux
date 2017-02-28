@@ -160,23 +160,6 @@ function WorldScene:update(dt)
         self.player:decide_abandon_jump()
     end
 
-    if self.player.ptrs.chip then
-        local chip_fire = love.keyboard.isScancodeDown('d')
-        for i, joystick in ipairs(love.joystick.getJoysticks()) do
-            if joystick:isGamepad() then
-                if joystick:isGamepadDown('b') then
-                    chip_fire = true
-                end
-            end
-        end
-        self.player.ptrs.chip:decide_fire(chip_fire)
-    end
-
-    if love.keyboard.isDown(',') then
-        local Gamestate = require 'vendor.hump.gamestate'
-        Gamestate.switch(self)
-    end
-
     self.fluct:update(dt)
     self.tick:update(dt)
 
