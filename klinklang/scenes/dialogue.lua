@@ -68,6 +68,12 @@ function StackedSprite:init(data)
 end
 
 function StackedSprite:change_pose(pose)
+    if pose == false then
+        for name, sprite in pairs(self.sprites) do
+            self.sprite_poses[name] = false
+        end
+    end
+
     if type(pose) == 'string' or #pose == 0 then
         pose = {pose}
     end
@@ -278,12 +284,11 @@ function DialogueScene:init(speakers, script)
     self.wraplimit = w - TEXT_MARGIN_X * 2
 
     self.script_index = 0
-
-    self:_advance_script()
 end
 
 function DialogueScene:enter(previous_scene)
     self.wrapped = previous_scene
+    self:_advance_script()
 end
 
 function DialogueScene:update(dt)
@@ -502,7 +507,7 @@ function DialogueScene:_advance_script()
         end
 
         -- Pose changes can happen on any step
-        if step.pose then
+        if step.pose ~= nil then
             -- TODO this is super hokey at the moment dang
             local speaker = self.speakers[step.speaker]
             speaker.pose = step.pose
