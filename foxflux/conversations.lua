@@ -138,6 +138,13 @@ conversations['need passcode'] = {
     },
 }
 
+conversations['panel as glass'] = {
+    glass = {
+        {{ "doesn't work", speaker = 'lexy' }},
+        {{ "no pawprint", speaker = 'lexy' }},
+    },
+}
+
 conversations['defeat lop'] = {
     rubber = {{
         { speaker = 'lop', pose = { decor = 'letter' } },

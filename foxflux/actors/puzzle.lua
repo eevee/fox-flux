@@ -1,7 +1,9 @@
 local Vector = require 'vendor.hump.vector'
+local Gamestate = require 'vendor.hump.gamestate'
 
 local actors_base = require 'klinklang.actors.base'
 local actors_wire = require 'klinklang.actors.wire'
+local DialogueScene = require 'klinklang.scenes.dialogue'
 local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 
@@ -535,6 +537,12 @@ local Panel = actors_base.Actor:extend{
 }
 
 function Panel:on_use(activator)
+    if activator.form == 'glass' then
+        local convo = conversations.pick_conversation('panel as glass', activator.form)
+        Gamestate.push(DialogueScene({ lexy = activator }, convo))
+        return
+    end
+
     game.resource_manager:get('assets/sounds/boopbeep.ogg'):play()
     local state = not self.state
     for _, actor in ipairs(worldscene.actors) do
