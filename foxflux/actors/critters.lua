@@ -50,6 +50,7 @@ function Slime:update(dt)
         if math.max(math.abs(player_delta.x), math.abs(player_delta.y)) < 4 then
             -- Gotcha!
             worldscene:remove_actor(self)
+            game.resource_manager:get('assets/sounds/tf-slime.ogg'):play()
             player:play_transform_cutscene('slime', self.velocity.x > 0, 'lexy: slime tf')
             return
         end
@@ -200,6 +201,7 @@ function Draclear:update(dt)
                 -- Gotcha!
                 self.state = 'returning'
                 worldscene:remove_actor(self)
+                game.resource_manager:get('assets/sounds/tf-glass.ogg'):play()
                 player:play_transform_cutscene('glass', player_delta.x < 0, 'lexy: glass tf', function()
                     -- Player may have moved in the meantime!
                     self:move_to(player.pos + self.player_target_offset)
@@ -265,6 +267,7 @@ end
 
 function ReverseCockatrice:on_collide(actor)
     if actor.is_player and actor:is_transformable() then
+        game.resource_manager:get('assets/sounds/tf-stone.ogg'):play()
         actor:play_transform_cutscene('stone', actor.facing_left, 'lexy: stone tf')
     end
 end
@@ -319,6 +322,9 @@ function Gecko:on_collide(actor)
             -- give control back to the player while the stone pieces fall,
             -- using this dummy actor
             worldscene:add_actor(StoneFoxRubble(actor.pos:clone()))
+            -- Also play the sound effect /here/, since this is when the actual
+            -- breaking happens
+            game.resource_manager:get('assets/sounds/stone-break.ogg'):play()
         end)
     end
 end

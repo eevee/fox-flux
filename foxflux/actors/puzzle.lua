@@ -141,6 +141,7 @@ function FloorButton:on_collide(actor, movement, collision)
     if not self.is_pressed and collision.touchtype > 0 then
         for normal in pairs(collision.normals) do
             if normal.y < 0 then
+                game.resource_manager:get('assets/sounds/click.ogg'):play()
                 self.is_pressed = true
                 self.sprite:set_pose('pressed')
 
@@ -319,6 +320,8 @@ function Boulder:on_collide(actor, movement, collision)
         self.health = self.health - 1
 
         if self.health == 0 then
+            -- Smash!
+            game.resource_manager:get('assets/sounds/stone-break.ogg'):play()
             for dx = -1, 1, 2 do
                 for dy = -1, 1, 2 do
                     local chunk = RockChunk(self.pos + Vector(dx * 12, dy * 12 - 16))
@@ -451,6 +454,7 @@ function Spring:update(dt)
         self:nudge(Vector(0, -ds))
         if self.spring_phase == 0 then
             -- We hit the top, so launch everyone we're carrying
+            game.resource_manager:get('assets/sounds/boing.ogg'):play()
             -- TODO technically should count recursive cargo for mass purposes
             for actor in pairs(self.cargo) do
                 -- The square root is...  somewhat arbitrary, because otherwise

@@ -376,6 +376,7 @@ end
 
 function Player:toast()
     if self.form == 'slime' and not self.is_locked then
+        game.resource_manager:get('assets/sounds/singe.ogg'):play()
         self:play_transform_cutscene('rubber', self.facing_left, 'lexy: slime revert')
     end
 end
