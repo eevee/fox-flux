@@ -237,12 +237,12 @@ function Draclear:update(dt)
                         self.state = 'idle'
                         self:set_sprite('draclear: clear')
                     end)
-                end, util.random_float(8, 16))
+                end, util.random_float(8, 12))
             else
                 -- Still hungry; just wait a bit before pursuing again
                 worldscene.tick:delay(function()
                     self.state = 'idle'
-                end, util.random_float(3, 7))
+                end, util.random_float(2, 5))
             end
         end
     end
