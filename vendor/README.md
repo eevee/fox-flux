@@ -10,6 +10,16 @@ Original source: https://github.com/kikito/anim8
 
 License: MIT
 
+## baton
+
+Commit bfb2cd3 from Nov 6, 2016
+
+Vendored on Feb 27, 2017
+
+Original source: https://github.com/tesselode/baton
+
+License: MIT
+
 ## dkjson
 
 Version 2.5

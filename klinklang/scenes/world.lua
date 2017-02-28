@@ -99,40 +99,10 @@ function WorldScene:update(dt)
     -- If both are held down, then we want to obey whichever was held more
     -- recently, which means we also need to track whether they were held down
     -- last frame.
-    local is_left_down = love.keyboard.isScancodeDown('left')
-    local is_right_down = love.keyboard.isScancodeDown('right')
-    local is_up_down = love.keyboard.isScancodeDown('up')
-    local is_down_down = love.keyboard.isScancodeDown('down')
-    -- FIXME should probably have some notion of a "current gamepad"?  should
-    -- only one control scheme work at a time?  how is this usually handled omg
-    for i, joystick in ipairs(love.joystick.getJoysticks()) do
-        if joystick:isGamepad() then
-            if joystick:isGamepadDown('dpleft') then
-                is_left_down = true
-            end
-            if joystick:isGamepadDown('dpright') then
-                is_right_down = true
-            end
-            if joystick:isGamepadDown('dpup') then
-                is_up_down = true
-            end
-            if joystick:isGamepadDown('dpdown') then
-                is_down_down = true
-            end
-            local axis = joystick:getGamepadAxis('leftx')
-            if axis < -0.25 then
-                is_left_down = true
-            elseif axis > 0.25 then
-                is_right_down = true
-            end
-            local axis = joystick:getGamepadAxis('lefty')
-            if axis < -0.25 then
-                is_up_down = true
-            elseif axis > 0.25 then
-                is_down_down = true
-            end
-        end
-    end
+    local is_left_down = game.input:down('left')
+    local is_right_down = game.input:down('right')
+    local is_up_down = game.input:down('up')
+    local is_down_down = game.input:down('down')
     if is_left_down and is_right_down then
         if self.was_left_down and self.was_right_down then
             -- Continuing to hold both keys; do nothing
@@ -185,20 +155,36 @@ function WorldScene:update(dt)
     -- but /continuing/ to jump is a continuous action.  So we handle the
     -- initial jump in keypressed, but abandon a jump here as soon as the key
     -- is no longer held.
-    local still_jumping = false
-    if love.keyboard.isScancodeDown('space') then
-        still_jumping = true
+    -- FIXME no longer true, but input is handled globally so catching a
+    -- spacebar from dialogue is okay
+    if game.input:pressed('jump') then
+        -- Down + jump also means let go
+        if is_down_down then
+            self.player:decide_climb(nil)
+        end
+        self.player:decide_jump()
     end
-    for i, joystick in ipairs(love.joystick.getJoysticks()) do
-        if joystick:isGamepad() then
-            if joystick:isGamepadDown('a') then
-                still_jumping = true
-                break
+    if not game.input:down('jump') then
+        self.player:decide_abandon_jump()
+    end
+
+    -- FIXME this stupid dt thing is so we don't try to do a second "use" after
+    -- switching maps (which does a zero update), ugghhh.  i don't know where
+    -- else this belongs though?
+    if dt > 0 and game.input:pressed('use') then
+        if self.player.is_locked then
+            -- Do nothing
+        elseif self.player.form == 'stone' then
+            -- Do nothing
+        else
+            -- Use inventory item, or nearby thing
+            -- FIXME this should be separate keys maybe?
+            if self.player.touching_mechanism then
+                self.player.touching_mechanism:on_use(self.player)
+            elseif self.player.inventory_cursor > 0 then
+                self.player.inventory[self.player.inventory_cursor]:on_inventory_use(self.player)
             end
         end
-    end
-    if not still_jumping then
-        self.player:decide_abandon_jump()
     end
 
     self.fluct:update(dt)
@@ -549,7 +535,8 @@ end
 -- their centers too
 function WorldScene:_draw_use_key_hint(anchor)
     local letter, sprite
-    if self.using_gamepad then
+    -- TODO just get the actual key/button from game.input
+    if game.input:getActiveDevice() == 'joystick' then
         letter = 'X'
         sprite = game.sprites['keycap button']:instantiate()
     else
@@ -599,19 +586,12 @@ end
 
 -- FIXME this is really /all/ game-specific
 function WorldScene:keypressed(key, scancode, isrepeat)
-    self.using_gamepad = false
     if isrepeat then
         return
     end
 
     if scancode == 'escape' then
         Gamestate.push(MenuScene())
-    elseif scancode == 'space' then
-        -- Down + jump also means let go
-        if self.was_down_down then
-            self.player:decide_climb(nil)
-        end
-        self.player:decide_jump()
     elseif scancode == 'q' then
         do return end
         -- Switch inventory items
@@ -637,60 +617,8 @@ function WorldScene:keypressed(key, scancode, isrepeat)
                 :oncomplete(function() self.inventory_switch = nil end)
             self.inventory_switch.event = event
         end
-    elseif scancode == 'e' then
-        if self.player.is_dead then
-            return
-        end
-        if self.player.form == 'stone' then
-            return
-        end
-        -- Use inventory item, or nearby thing
-        -- FIXME this should be separate keys maybe?
-        if self.player.touching_mechanism then
-            self.player.touching_mechanism:on_use(self.player)
-        elseif self.player.inventory_cursor > 0 then
-            self.player.inventory[self.player.inventory_cursor]:on_inventory_use(self.player)
-        end
-    elseif scancode == 'r' then
-        local reset_timer = { value = 3 }
-        self.reset_event = self.fluct:to(reset_timer, 3, { value = 0 })
-            :oncomplete(function()
-                self.reset_event = nil
-                Gamestate.push(SceneFader(
-                    self, true, 0.5, {0, 0, 0},
-                    function()
-                        self:reload_map()
-                    end
-                ))
-            end)
     end
 end
-
-function WorldScene:keyreleased(key, scancode)
-    if scancode == 'r' then
-        if self.reset_event then
-            self.reset_event:stop()
-            self.reset_event = nil
-        end
-    end
-end
-
-function WorldScene:gamepadpressed(joystick, button)
-    self.using_gamepad = true
-    if button == 'a' then
-        -- Down + jump also means let go
-        if self.was_down_down then
-            self.player:decide_climb(nil)
-        end
-        self.player:decide_jump()
-    elseif button == 'x' then
-        -- Use inventory item, or nearby thing
-        if self.player.touching_mechanism then
-            self.player.touching_mechanism:on_use(self.player)
-        end
-    end
-end
-
 
 function WorldScene:mousepressed(x, y, button, istouch)
     if game.debug and button == 2 then

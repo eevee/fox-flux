@@ -291,6 +291,7 @@ function DialogueScene:update(dt)
     -- menus
     -- FIXME this causes a character or two to show while trying to execute a
     -- scenefade
+    -- FIXME put this in baton
     local holding_b = love.keyboard.isScancodeDown('d')
     for i, joystick in ipairs(love.joystick.getJoysticks()) do
         if joystick:isGamepad() then
@@ -306,6 +307,21 @@ function DialogueScene:update(dt)
             self.hesitating = false
         end
         self:_advance_script()
+    end
+
+    -- Do some things
+    if dt > 0 and not self.hesitating then
+        if game.input:pressed('accept') then
+            if self.state == 'menu' then
+                self:_cursor_accept()
+            else
+                self:_advance_script()
+            end
+        elseif game.input:pressed('up') then
+            self:_cursor_up()
+        elseif game.input:pressed('down') then
+            self:_cursor_down()
+        end
     end
 
     self.tick:update(dt)
@@ -741,45 +757,6 @@ function DialogueScene:draw()
     end
 
     love.graphics.pop()
-end
-
-function DialogueScene:keypressed(key, scancode, isrepeat)
-    if isrepeat then
-        return
-    end
-    if self.hesitating then
-        return
-    end
-
-    if scancode == 'space' or scancode == 'e' then
-        if self.state == 'menu' then
-            self:_cursor_accept()
-        else
-            self:_advance_script()
-        end
-    elseif scancode == 'up' then
-        self:_cursor_up()
-    elseif scancode == 'down' then
-        self:_cursor_down()
-    end
-end
-
-function DialogueScene:gamepadpressed(joystick, button)
-    if self.hesitating then
-        return
-    end
-
-    if button == 'a' or button == 'x' then
-        if self.state == 'menu' then
-            self:_cursor_accept()
-        else
-            self:_advance_script()
-        end
-    elseif button == 'dpup' then
-        self:_cursor_up()
-    elseif button == 'dpdown' then
-        self:_cursor_down()
-    end
 end
 
 function DialogueScene:resize(w, h)
