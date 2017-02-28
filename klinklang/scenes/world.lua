@@ -32,6 +32,8 @@ local WorldScene = BaseScene:extend{
     using_gamepad = false,
     was_left_down = false,
     was_right_down = false,
+    was_up_down = false,
+    was_down_down = false,
 }
 
 --------------------------------------------------------------------------------
@@ -99,6 +101,8 @@ function WorldScene:update(dt)
     -- last frame.
     local is_left_down = love.keyboard.isScancodeDown('left')
     local is_right_down = love.keyboard.isScancodeDown('right')
+    local is_up_down = love.keyboard.isScancodeDown('up')
+    local is_down_down = love.keyboard.isScancodeDown('down')
     -- FIXME should probably have some notion of a "current gamepad"?  should
     -- only one control scheme work at a time?  how is this usually handled omg
     for i, joystick in ipairs(love.joystick.getJoysticks()) do
@@ -109,11 +113,23 @@ function WorldScene:update(dt)
             if joystick:isGamepadDown('dpright') then
                 is_right_down = true
             end
+            if joystick:isGamepadDown('dpup') then
+                is_up_down = true
+            end
+            if joystick:isGamepadDown('dpdown') then
+                is_down_down = true
+            end
             local axis = joystick:getGamepadAxis('leftx')
             if axis < -0.25 then
                 is_left_down = true
             elseif axis > 0.25 then
                 is_right_down = true
+            end
+            local axis = joystick:getGamepadAxis('lefty')
+            if axis < -0.25 then
+                is_up_down = true
+            elseif axis > 0.25 then
+                is_down_down = true
             end
         end
     end
@@ -140,6 +156,31 @@ function WorldScene:update(dt)
     end
     self.was_left_down = is_left_down
     self.was_right_down = is_right_down
+    -- FIXME this is such a fucking mess lmao
+    if is_up_down and is_down_down then
+        if self.was_up_down and self.was_down_down then
+        elseif self.was_up_down then
+            self.player:decide_climb(1)
+        elseif self.was_down_down then
+            self.player:decide_climb(-1)
+        else
+            self.player:decide_pause_climbing()
+        end
+    elseif is_up_down then
+        -- TODO up+jump doesn't work correctly, but it's a little fiddly, since
+        -- you should only resume climbing once you reach the peak of the jump?
+        self.player:decide_climb(1)
+    elseif is_down_down then
+        -- Only start climbing down if this is a NEW press, so that down+jump
+        -- doesn't immediately regrab on the next frame
+        if not self.was_down_down then
+            self.player:decide_climb(-1)
+        end
+    else
+        self.player:decide_pause_climbing()
+    end
+    self.was_up_down = is_up_down
+    self.was_down_down = is_down_down
     -- Jumping is slightly more subtle.  The initial jump is an instant action,
     -- but /continuing/ to jump is a continuous action.  So we handle the
     -- initial jump in keypressed, but abandon a jump here as soon as the key
@@ -566,6 +607,10 @@ function WorldScene:keypressed(key, scancode, isrepeat)
     if scancode == 'escape' then
         Gamestate.push(MenuScene())
     elseif scancode == 'space' then
+        -- Down + jump also means let go
+        if self.was_down_down then
+            self.player:decide_climb(nil)
+        end
         self.player:decide_jump()
     elseif scancode == 'q' then
         do return end
@@ -633,6 +678,10 @@ end
 function WorldScene:gamepadpressed(joystick, button)
     self.using_gamepad = true
     if button == 'a' then
+        -- Down + jump also means let go
+        if self.was_down_down then
+            self.player:decide_climb(nil)
+        end
         self.player:decide_jump()
     elseif button == 'x' then
         -- Use inventory item, or nearby thing

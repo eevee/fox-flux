@@ -705,6 +705,13 @@ function SentientActor:decide_climb(direction)
     self.decision_climb = direction
 end
 
+-- If already climbing, stop, but keep holding on
+function SentientActor:decide_pause_climbing()
+    if self.decision_climb ~= nil then
+        self.decision_climb = 0
+    end
+end
+
 function SentientActor:push(dv)
     SentientActor.__super.push(self, dv)
 
