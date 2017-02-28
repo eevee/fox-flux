@@ -509,11 +509,6 @@ function WorldScene:draw()
     end
     ]]
     love.graphics.pop()
-
-
-    if self.reset_event then
-        love.graphics.printf("keep holding R to reset the room", 0, love.graphics.getHeight() - m5x7:getHeight() * 1.5, love.graphics.getWidth(), "center")
-    end
 end
 
 function WorldScene:_draw_actors(actors)
