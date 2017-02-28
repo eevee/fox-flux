@@ -25,6 +25,14 @@
         {
          "sprite name":"compact\/default"
         },
+     "22":
+        {
+         "sprite name":"keycap key\/default"
+        },
+     "23":
+        {
+         "sprite name":"keycap button\/default"
+        },
      "7":
         {
          "sprite name":"spoon\/default"
@@ -48,9 +56,76 @@
         {
          "sprite name":"string"
         },
+     "22":
+        {
+         "sprite name":"string"
+        },
+     "23":
+        {
+         "sprite name":"string"
+        },
      "7":
         {
          "sprite name":"string"
+        }
+    },
+ "tiles":
+    {
+     "22":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":16
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "23":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":16
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
         }
     },
  "tilewidth":32

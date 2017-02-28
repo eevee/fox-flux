@@ -29,6 +29,7 @@ local WorldScene = BaseScene:extend{
     fluct = nil,
     tick = nil,
 
+    using_gamepad = false,
     was_left_down = false,
     was_right_down = false,
 }
@@ -351,6 +352,12 @@ function WorldScene:draw()
         self.map:draw('wiring', self.submap, self.camera, w, h)
     end
 
+    -- Draw a keycap when the player is next to something touchable
+    -- FIXME i seem to put this separately in every game?  standardize somehow?
+    if self.player.touching_mechanism then
+        self:_draw_use_key_hint(self.player.pos + Vector(0, -80))
+    end
+
     if game.debug then
         --[[
         for shape in pairs(self.collider.shapes) do
@@ -468,6 +475,10 @@ function WorldScene:draw()
     if self.player.form ~= 'stone' then
         local sprite = game.sprites[self.player.inventory[self.player.inventory_cursor].sprite_name]:instantiate()
         sprite:draw_anchorless(Vector(16, 16 + 32 - dy))
+        love.graphics.setScissor()
+        if not self.player.touching_mechanism then
+            self:_draw_use_key_hint(Vector(64, 48))
+        end
     end
     love.graphics.pop()
 
@@ -510,6 +521,27 @@ function WorldScene:_draw_actors(actors)
     end
 end
 
+-- Note: pos is the center of the hint; sprites should have their anchors at
+-- their centers too
+function WorldScene:_draw_use_key_hint(anchor)
+    local letter, sprite
+    if self.using_gamepad then
+        letter = 'X'
+        sprite = game.sprites['keycap button']:instantiate()
+    else
+        letter = love.keyboard.getKeyFromScancode('e'):upper()
+        sprite = game.sprites['keycap key']:instantiate()
+    end
+    sprite:draw_at(anchor)
+    love.graphics.push('all')
+    love.graphics.setColor(0, 0, 0)
+    love.graphics.setFont(m5x7small)
+    local tw = m5x7small:getWidth(letter)
+    local th = m5x7small:getHeight() * m5x7small:getLineHeight()
+    love.graphics.print(letter, math.floor(anchor.x - tw / 2 + 0.5), math.floor(anchor.y - 8))
+    love.graphics.pop()
+end
+
 function WorldScene:_draw_blockmap()
     love.graphics.push('all')
     love.graphics.setColor(255, 255, 255, 64)
@@ -543,6 +575,7 @@ end
 
 -- FIXME this is really /all/ game-specific
 function WorldScene:keypressed(key, scancode, isrepeat)
+    self.using_gamepad = false
     if isrepeat then
         return
     end
@@ -615,6 +648,7 @@ function WorldScene:keyreleased(key, scancode)
 end
 
 function WorldScene:gamepadpressed(joystick, button)
+    self.using_gamepad = true
     if button == 'a' then
         self.player:decide_jump()
     elseif button == 'x' then
