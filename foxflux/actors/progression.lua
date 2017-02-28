@@ -219,6 +219,32 @@ function LockScreen:on_use(activator)
 end
 
 
+local OtherKey = actors_base.Actor:extend{
+    name = 'other key',
+    sprite_name = 'other key',
+    is_usable = true,
+}
+
+function OtherKey:on_enter()
+    OtherKey.__super.on_enter(self)
+
+    if love.filesystem.exists('.hg') then
+        worldscene:remove_actor(self)
+    end
+end
+
+function OtherKey:on_use(activator)
+    local actors_npcs = require 'foxflux.actors.npcs'
+    local convo = conversations.pick_conversation('other key', activator.form)
+    Gamestate.push(DialogueScene({
+        lexy = activator,
+        cerise = actors_npcs.Cerise,
+    }, convo))
+    love.filesystem.write('.hg', "1")
+    worldscene:remove_actor(self)
+end
+
+
 return {
     StrawberryHeart = StrawberryHeart,
 }

@@ -5,6 +5,8 @@ local actors_wire = require 'klinklang.actors.wire'
 local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 
+local conversations = require 'foxflux.conversations'
+
 -- Particle-ish effect spawned by destroyed spikes
 local DustCloud = actors_base.Actor:extend{
     name = 'dust cloud',

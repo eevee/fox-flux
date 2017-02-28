@@ -106,14 +106,14 @@
              "name":"",
              "objects":[
                     {
-                     "height":25,
+                     "height":24,
                      "id":1,
                      "name":"",
                      "rotation":0,
                      "type":"",
                      "visible":true,
                      "width":16,
-                     "x":7,
+                     "x":8,
                      "y":32
                     }, 
                     {
@@ -125,8 +125,8 @@
                      "type":"anchor",
                      "visible":true,
                      "width":0,
-                     "x":15,
-                     "y":57
+                     "x":16,
+                     "y":56
                     }],
              "opacity":1,
              "type":"objectgroup",

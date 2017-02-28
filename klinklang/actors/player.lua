@@ -66,18 +66,19 @@ local Player = actors_base.SentientActor:extend{
             ['compact sweatdrop'] = { blush = false, sweat = 'default', eyes = 'down lidded' },
             blush = { blush = 'default' },
             ['no blush'] = { blush = false },
+            paper = { body = 'paper' },
         },
         slime = {
             { name = 'body', sprite_name = 'lexy portrait: slime - body' },
             { name = 'head', sprite_name = 'lexy portrait: slime - head', while_talking = { neutral = 'talking' } },
-            --{ name = 'eyes', sprite_name = 'lexy portrait: slime - eyes' },
-            -- FIXME i don't think i drew this, or letter...
-            compact = { body = 'compact' },
+            { name = 'eyes', sprite_name = 'lexy portrait: slime - eyes', default = false },
+            compact = { body = 'compact', eyes = 'down' },
+            paper = { body = 'paper', eyes = 'down' },
         },
         glass = {
             { name = 'body', sprite_name = 'lexy portrait: glass' },
-            -- FIXME
-            compact = {},
+            compact = { body = 'compact' },
+            paper = { body = 'paper' },
         },
     },
     dialogue_chatter_sound = 'assets/sounds/chatter-lexy-rubber.ogg',

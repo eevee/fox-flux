@@ -37,9 +37,21 @@
         {
          "sprite name":"lexy portrait: slime - body\/compact"
         },
+     "15":
+        {
+         "sprite name":"lexy portrait: glass\/compact"
+        },
      "17":
         {
          "sprite name":"lexy portrait: rubber - body\/paper"
+        },
+     "18":
+        {
+         "sprite name":"lexy portrait: slime - body\/paper"
+        },
+     "19":
+        {
+         "sprite name":"lexy portrait: glass\/paper"
         },
      "2":
         {
@@ -101,6 +113,10 @@
         {
          "sprite name":"lexy portrait: rubber - eyes\/down"
         },
+     "62":
+        {
+         "sprite name":"lexy portrait: slime - eyes\/down"
+        },
      "65":
         {
          "sprite name":"lexy portrait: rubber - eyes\/down lidded"
@@ -156,7 +172,19 @@
         {
          "sprite name":"string"
         },
+     "15":
+        {
+         "sprite name":"string"
+        },
      "17":
+        {
+         "sprite name":"string"
+        },
+     "18":
+        {
+         "sprite name":"string"
+        },
+     "19":
         {
          "sprite name":"string"
         },
@@ -220,6 +248,10 @@
         {
          "sprite name":"string"
         },
+     "62":
+        {
+         "sprite name":"string"
+        },
      "65":
         {
          "sprite name":"string"
@@ -251,10 +283,6 @@
         {
          "animation":[
                 {
-                 "duration":200,
-                 "tileid":24
-                }, 
-                {
                  "duration":50,
                  "tileid":28
                 }, 
@@ -281,16 +309,16 @@
                 {
                  "duration":50,
                  "tileid":28
+                }, 
+                {
+                 "duration":200,
+                 "tileid":24
                 }]
         },
      "29":
         {
          "animation":[
                 {
-                 "duration":200,
-                 "tileid":25
-                }, 
-                {
                  "duration":50,
                  "tileid":29
                 }, 
@@ -317,15 +345,15 @@
                 {
                  "duration":50,
                  "tileid":29
+                }, 
+                {
+                 "duration":200,
+                 "tileid":25
                 }]
         },
      "30":
         {
          "animation":[
-                {
-                 "duration":400,
-                 "tileid":26
-                }, 
                 {
                  "duration":100,
                  "tileid":30
@@ -353,6 +381,14 @@
                 {
                  "duration":100,
                  "tileid":30
+                }, 
+                {
+                 "duration":200,
+                 "tileid":34
+                }, 
+                {
+                 "duration":400,
+                 "tileid":26
                 }]
         },
      "37":

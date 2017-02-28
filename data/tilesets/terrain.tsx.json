@@ -60,9 +60,22 @@
          "actor":"blast door shutter",
          "sprite name":"blast door shutter\/default"
         },
+     "137":
+        {
+         "actor":"other key",
+         "sprite name":"other key\/default"
+        },
+     "14":
+        {
+         "sprite name":"glass shard 1\/default"
+        },
      "143":
         {
          "sprite name":"blast door\/middle"
+        },
+     "15":
+        {
+         "sprite name":"glass shard 2\/default"
         },
      "159":
         {
@@ -203,6 +216,10 @@
      "27":
         {
          "sprite name":"slime heart\/collected"
+        },
+     "28":
+        {
+         "sprite name":"glass shard 3\/default"
         },
      "38":
         {
@@ -346,7 +363,20 @@
          "actor":"string",
          "sprite name":"string"
         },
+     "137":
+        {
+         "actor":"string",
+         "sprite name":"string"
+        },
+     "14":
+        {
+         "sprite name":"string"
+        },
      "143":
+        {
+         "sprite name":"string"
+        },
+     "15":
         {
          "sprite name":"string"
         },
@@ -487,6 +517,10 @@
          "sprite name":"string"
         },
      "27":
+        {
+         "sprite name":"string"
+        },
+     "28":
         {
          "sprite name":"string"
         },
@@ -1039,6 +1073,72 @@
              "y":0
             }
         },
+     "137":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":32,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":16,
+                     "x":8,
+                     "y":0
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "14":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":4,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":8,
+                     "x":12,
+                     "y":13
+                    }, 
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":17
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
      "143":
         {
          "objectgroup":
@@ -1058,6 +1158,45 @@
                      "width":0,
                      "x":16,
                      "y":0
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "15":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":4,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":8,
+                     "x":12,
+                     "y":14
+                    }, 
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":18
                     }],
              "opacity":1,
              "type":"objectgroup",
@@ -2120,7 +2259,18 @@
              "draworder":"index",
              "height":0,
              "name":"",
-             "objects":[],
+             "objects":[
+                    {
+                     "height":32,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":32,
+                     "x":0,
+                     "y":0
+                    }],
              "opacity":1,
              "type":"objectgroup",
              "visible":true,
@@ -2599,6 +2749,45 @@
                      "width":0,
                      "x":16,
                      "y":16
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "28":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":7,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":12,
+                     "x":10,
+                     "y":13
+                    }, 
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":20
                     }],
              "opacity":1,
              "type":"objectgroup",
