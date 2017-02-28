@@ -72,6 +72,7 @@ function StackedSprite:change_pose(pose)
         for name, sprite in pairs(self.sprites) do
             self.sprite_poses[name] = false
         end
+        return
     end
 
     if type(pose) == 'string' or #pose == 0 then
@@ -481,7 +482,11 @@ function DialogueScene:_advance_script()
         self.curline = 1
         self.curchar = 0
         local _textwidth
-        _textwidth, self.phrase_lines = self.font:getWrap(self.script[self.script_index][self.curphrase], self.wraplimit)
+        local text = self.script[self.script_index][self.curphrase]
+        if type(text) == 'function' then
+            text = text()
+        end
+        _textwidth, self.phrase_lines = self.font:getWrap(text, self.wraplimit)
         self.phrase_texts = {}
         self.last_was_space = true
         self.state = 'speaking'
@@ -519,7 +524,11 @@ function DialogueScene:_advance_script()
         if #step > 0 then
             self.state = 'speaking'
             local _textwidth
-            _textwidth, self.phrase_lines = self.font:getWrap(step[1], self.wraplimit)
+            local text = step[1]
+            if type(text) == 'function' then
+                text = text()
+            end
+            _textwidth, self.phrase_lines = self.font:getWrap(text, self.wraplimit)
             self.phrase_texts = {}
             self.phrase_speaker = self.speakers[step.speaker]
             if self.phrase_speaker.sprite and self.phrase_speaker.sprite.set_talking then
