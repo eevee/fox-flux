@@ -251,6 +251,11 @@ function DialogueScene:init(speakers, script)
         if speaker.sprite and speaker.position == 'right' then
             speaker.sprite:set_facing_right(false)
         end
+
+        -- FIXME UGGHHH OTHERWISE FACING_RIGHT AND DEFAULT POSES DON'T APPLY ON THE FIRST FRAME
+        if speaker.sprite then
+            speaker.sprite:update(0)
+        end
     end
 
     self.script = script
