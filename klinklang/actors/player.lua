@@ -61,16 +61,24 @@ local Player = actors_base.SentientActor:extend{
             { name = 'eyes', sprite_name = 'lexy portrait: rubber - eyes' },
             { name = 'blush', sprite_name = 'lexy portrait: rubber - blush', default = false },
             { name = 'sweat', sprite_name = 'lexy portrait: rubber - sweat', default = false },
-            compact = { body = 'compact' },
+            compact = { body = 'compact', eyes = 'down' },
+            -- TODO i wish this could be contextual?
+            ['compact sweatdrop'] = { blush = false, sweat = 'default', eyes = 'down lidded' },
+            blush = { blush = 'default' },
+            ['no blush'] = { blush = false },
         },
         slime = {
             { name = 'body', sprite_name = 'lexy portrait: slime - body' },
             { name = 'head', sprite_name = 'lexy portrait: slime - head', while_talking = { neutral = 'talking' } },
             --{ name = 'eyes', sprite_name = 'lexy portrait: slime - eyes' },
+            -- FIXME i don't think i drew this, or letter...
             compact = { body = 'compact' },
         },
-        glass = 'lexy portrait: glass',
-
+        glass = {
+            { name = 'body', sprite_name = 'lexy portrait: glass' },
+            -- FIXME
+            compact = {},
+        },
     },
     dialogue_chatter_sound = 'assets/sounds/chatter-lexy-rubber.ogg',
     dialogue_color = {255, 255, 255},
@@ -108,10 +116,11 @@ function Player:init(...)
             local actors_npcs = require 'foxflux.actors.npcs'
             local Gamestate = require 'vendor.hump.gamestate'
             local DialogueScene = require 'klinklang.scenes.dialogue'
+            local convo = conversations.pick_topical_conversation()
             Gamestate.push(DialogueScene({
                 lexy = activator,
                 cerise = actors_npcs.Cerise,
-            }, conversations.intro))
+            }, convo))
         end,
     })
 
@@ -272,6 +281,10 @@ end
 
 -- Change form instantly (does NOT do cutscenes etc)
 function Player:transform(form)
+    if self.form and form == 'rubber' and form ~= self.form then
+        conversations.unlock_topic(self.form .. ' revert')
+    end
+
     self.form = form
     self.inventory_frame_sprite_name = 'inventory frame: ' .. form
     self:set_sprite('lexy: ' .. form)
@@ -314,6 +327,8 @@ function Player:transform(form)
         self.jumpvel = Player.jumpvel
         self.ground_friction = Player.ground_friction
     end
+
+    conversations.unlock_topic(form)
 end
 
 function Player:draw()

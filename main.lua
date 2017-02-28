@@ -22,6 +22,7 @@ game = {
 
     progress = {
         flags = {},
+        topics = {},
         hearts = {},  -- region => map path => heart id => bool
         -- TODO hmm, this avoids "knowing" the progression, which is nice in
         -- theory, but also feels a wee bit hokey

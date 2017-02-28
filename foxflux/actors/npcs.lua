@@ -134,10 +134,9 @@ function Lop:on_use(activator)
 
     local convo
     if game:flag('has forest passcode') then
-        local convos = conversations.followup_lop[activator.form]
-        convo = convos[math.random(1, #convos)]
+        convo = conversations.pick_conversation('lop followup', activator.form)
     else
-        convo = conversations.defeat_lop[activator.form]
+        convo = conversations.pick_conversation('defeat lop', activator.form)
     end
     Gamestate.push(DialogueScene({
         lexy = activator,
@@ -164,6 +163,8 @@ local Cerise = actors_base.Actor:extend{
         compact = { hand = 'compact' },
         villain = { disguise = 'panties', eyelids = 'furrowed brow' },
         ['not villain'] = { disguise = false, eyelids = false },
+        smiling = { eyes = 'smiling' },
+        neutral = { eyes = 'default' },
     },
 
     is_usable = true,

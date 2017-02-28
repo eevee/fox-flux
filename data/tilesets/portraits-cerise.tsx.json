@@ -41,6 +41,10 @@
         {
          "sprite name":"cerise portrait - eyes\/default"
         },
+     "8":
+        {
+         "sprite name":"cerise portrait - eyes\/smiling"
+        },
      "9":
         {
          "sprite name":"cerise portrait - eyelids\/furrowed brow"
@@ -77,6 +81,10 @@
          "sprite name":"string"
         },
      "6":
+        {
+         "sprite name":"string"
+        },
+     "8":
         {
          "sprite name":"string"
         },

@@ -456,6 +456,10 @@ function Spring:update(dt)
                 -- transfer of energy, which something something ½mv², so maybe
                 -- there's an actual physical basis here somewhere.
                 actor:push(Vector(0, -self.spring_launch_speed / math.sqrt(actor.mass)))
+
+                if actor.is_player then
+                    conversations.unlock_topic('spring')
+                end
             end
         end
     end

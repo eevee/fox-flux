@@ -138,10 +138,8 @@ function BossDoor:on_use(activator)
         local map = game.resource_manager:load(self.boss_door_map)
         worldscene:load_map(map)
     else
-        local candidates = conversations.insufficient_hearts[activator.form]
-        -- TODO it would be nice to use...  something? here to avoid immediate repeats
-        local i = math.random(1, #candidates)
-        Gamestate.push(DialogueScene({ lexy = activator }, candidates[i]))
+        local convo = conversations.pick_conversation('insufficient hearts', activator.form)
+        Gamestate.push(DialogueScene({ lexy = activator }, convo))
     end
 end
 
@@ -203,9 +201,8 @@ function LockScreen:on_use(activator)
 
     if self.sprite.pose == 'locked' then
         if not game:flag('has forest passcode') then
-            local candidates = conversations.need_passcode[activator.form]
-            local i = math.random(1, #candidates)
-            Gamestate.push(DialogueScene({ lexy = activator }, candidates[i]))
+            local convo = conversations.pick_conversation('need passcode', activator.form)
+            Gamestate.push(DialogueScene({ lexy = activator }, convo))
             return
         end
         game:set_flag('opened forest blast door')
