@@ -51,6 +51,13 @@ end
 --------------------------------------------------------------------------------
 -- LÖVE-specific helpers
 
+-- Returns true if any of alt, ctrl, or super are held.  Useful as a very rough
+-- heuristic for whether a keypress is intended as a global shortcut.
+local function any_modifier_keys()
+    return love.keyboard.isDown('lalt', 'ralt', 'lctrl', 'rctrl', 'lgui', 'rgui')
+end
+
+-- Find files recursively
 local function _find_files_impl(stack)
     while true do
         local row
@@ -362,6 +369,7 @@ return {
     clamp = clamp,
     divmod = divmod,
     random_float = random_float,
+    any_modifier_keys = any_modifier_keys,
     find_files = find_files,
     ClockRange = ClockRange,
     vector_clock_direction = ClockRange.direction,
