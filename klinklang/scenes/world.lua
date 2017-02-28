@@ -365,7 +365,9 @@ function WorldScene:draw()
     -- Draw a keycap when the player is next to something touchable
     -- FIXME i seem to put this separately in every game?  standardize somehow?
     if self.player.touching_mechanism then
-        self:_draw_use_key_hint(self.player.pos + Vector(0, -80))
+        if self.player.form ~= 'stone' then
+            self:_draw_use_key_hint(self.player.pos + Vector(0, -80))
+        end
     end
 
     if game.debug then
