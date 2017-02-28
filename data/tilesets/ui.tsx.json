@@ -21,6 +21,10 @@
         {
          "sprite name":"heart counter\/default"
         },
+     "19":
+        {
+         "sprite name":"menu cursor\/default"
+        },
      "2":
         {
          "sprite name":"compact\/default"
@@ -52,6 +56,10 @@
         {
          "sprite name":"string"
         },
+     "19":
+        {
+         "sprite name":"string"
+        },
      "2":
         {
          "sprite name":"string"
@@ -71,6 +79,34 @@
     },
  "tiles":
     {
+     "19":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":16
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
      "22":
         {
          "objectgroup":

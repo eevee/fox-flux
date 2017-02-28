@@ -11,7 +11,8 @@ local WorldScene = require 'klinklang.scenes.world'
 local SpriteSet = require 'klinklang.sprite'
 local tiledmap = require 'klinklang.tiledmap'
 local util = require 'klinklang.util'
---local TitleScene = require 'isaacsdescent.scenes.title'
+
+local TitleScene = require 'foxflux.scenes.title'
 
 
 game = {
@@ -28,6 +29,7 @@ game = {
         -- theory, but also feels a wee bit hokey
         region_order = {},
     },
+    save_files = {},
     is_dirty = false,
 
     -- FIXME it nearly goes without saying by now, but this should be in its
@@ -97,11 +99,22 @@ game = {
                 love.filesystem.remove('demosave.json')
                 print(("Starting a new game, but backing up old save file as %s"):format(fn))
             else
+                self.has_savegame = true
                 for k, v in pairs(savegame) do
                     game.progress[k] = v
                 end
             end
         end
+    end,
+    erase_save = function(self)
+        love.filesystem.remove('demosave.json')
+        -- TODO this seems very silly; maybe i just shouldn't load the save until the title screen actually tries to continue?  i need to use that to figure out the last place i went, too
+        self.progress = {
+            flags = {},
+            topics = {},
+            hearts = {},  -- region => map path => heart id => bool
+            region_order = {},
+        }
     end,
 
     debug = false,
@@ -201,7 +214,9 @@ function love.load(args)
         jump = {'key:space', 'button:a'},
         use = {'sc:e', 'button:x'},
 
-        accept = {'sc:e', 'sc:space', 'button:a'},
+        -- TODO what should the guide button do?
+        menu = {'sc:escape', 'button:start'},
+        accept = {'sc:e', 'sc:space', 'sc:return', 'button:a'},
     }
 
     game.maps = {
@@ -211,18 +226,13 @@ function love.load(args)
     -- TODO should maps instead hardcode their next maps?  or should they just
     -- have a generic "exit" a la doom?
     game.map_index = 1
-    --local map = tiledmap.TiledMap("data/maps/" .. game.maps[game.map_index], resource_manager)
-    local map = resource_manager:load("data/maps/" .. game.maps[game.map_index])
-    --map = tiledmap.TiledMap("data/maps/slopetest.tmx.json", resource_manager)
+    --local map = resource_manager:load("data/maps/" .. game.maps[game.map_index])
     worldscene = WorldScene()
-    worldscene:load_map(map)
+    --worldscene:load_map(map)
 
     Gamestate.registerEvents()
-    Gamestate.switch(worldscene)
-    --Gamestate.switch(TitleScene(worldscene, "data/maps/" .. game.maps[game.map_index]))
-
-    --local tmpscene = DialogueScene(worldscene)
-    --Gamestate.switch(tmpscene)
+    --Gamestate.switch(worldscene)
+    Gamestate.switch(TitleScene(worldscene, "data/maps/" .. game.maps[game.map_index]))
 end
 
 function love.update(dt)
@@ -240,7 +250,11 @@ function love.resize(w, h)
 end
 
 function love.keypressed(key, scancode, isrepeat)
-    if scancode == 'return' and not isrepeat and love.keyboard.isDown('lalt', 'ralt') then
+    if isrepeat then
+        return
+    end
+
+    if scancode == 'return' and love.keyboard.isDown('lalt', 'ralt') then
         if love.window.getFullscreen() then
             love.window.setFullscreen(false)
             -- FIXME this freezes X for me until i ssh in and killall love, so.
@@ -253,7 +267,7 @@ function love.keypressed(key, scancode, isrepeat)
             _previous_size = {love.window.getMode()}
             love.window.setFullscreen(true)
         end
-    elseif scancode == 'pause' and not isrepeat and game.debug then
+    elseif scancode == 'pause' and game.debug then
         if not game.debug_scene then
             game.debug_scene = DebugScene(m5x7)
         end
