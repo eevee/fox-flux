@@ -646,6 +646,13 @@ function WorldScene:load_map(map, spot_name)
         end
     end
 
+    if spot_name then
+        -- FIXME this is very much a hack that happens to work with the design
+        -- of fox flux; there should be a more explicit way of setting save
+        -- points
+        game:set_save_spot(map, spot_name)
+    end
+
     self.map = map
     --self.music = nil  -- FIXME not sure when this should happen; isaac vs neon are very different
     self.fluct = flux.group()

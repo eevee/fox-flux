@@ -28,8 +28,9 @@ game = {
         -- TODO hmm, this avoids "knowing" the progression, which is nice in
         -- theory, but also feels a wee bit hokey
         region_order = {},
+        last_map_path = 'data/maps/forest-overworld.tmx.json',
+        last_map_spot = nil,
     },
-    save_files = {},
     is_dirty = false,
 
     -- FIXME it nearly goes without saying by now, but this should be in its
@@ -78,25 +79,42 @@ game = {
         self.is_dirty = true
         self.progress.hearts[region][map.path][heart] = true
     end,
+    set_save_spot = function(self, map, spot)
+        self.progress.last_map_path = map.path
+        self.progress.last_map_spot = spot
+        self.is_dirty = true
+    end,
 
+    -- FIXME this is structured as though it supports multiple save files, but
+    -- hardcodes the filename in several places
     save = function(self)
         if self.is_dirty then
             self:really_save()
         end
     end,
     really_save = function(self)
+        -- FIXME strictly speaking this should write to a dummy file, then do
+        -- an atomic move
         love.filesystem.write('demosave.json', json.encode(self.progress))
         self.is_dirty = false
     end,
-    load = function(self)
-        local data = love.filesystem.read('demosave.json')
+    detect_save_files = function(self)
+        if love.filesystem.exists('demosave.json') then
+            return {'demosave.json'}
+        else
+            return {}
+        end
+    end,
+    load = function(self, path)
+        local data = love.filesystem.read(path)
         if data then
             local savegame, _pos, err = json.decode(data)
             if not savegame then
                 print("Error loading save file:", err)
+                -- FIXME generate from path
                 local fn = ("demosave-broken-%d.json"):format(os.time())
                 love.filesystem.write(fn, data)
-                love.filesystem.remove('demosave.json')
+                love.filesystem.remove(path)
                 print(("Starting a new game, but backing up old save file as %s"):format(fn))
             else
                 self.has_savegame = true
@@ -107,14 +125,9 @@ game = {
         end
     end,
     erase_save = function(self)
+        -- FIXME this should enforce that the game hasn't yet been loaded?  or
+        -- maybe i don't care and that's the caller's problem?
         love.filesystem.remove('demosave.json')
-        -- TODO this seems very silly; maybe i just shouldn't load the save until the title screen actually tries to continue?  i need to use that to figure out the last place i went, too
-        self.progress = {
-            flags = {},
-            topics = {},
-            hearts = {},  -- region => map path => heart id => bool
-            region_order = {},
-        }
     end,
 
     debug = false,
@@ -195,9 +208,6 @@ function love.load(args)
 
     love.joystick.loadGamepadMappings("vendor/gamecontrollerdb.txt")
 
-    game:load()
-    tick.recur(function() game:save() end, 5)
-
     -- FIXME things i would like to have here:
     -- - cleverly scale axis inputs like that other thing, and limit them to a circular range as well?
     -- - use scancodes by default!!!  the examples use keys
@@ -232,7 +242,7 @@ function love.load(args)
 
     Gamestate.registerEvents()
     --Gamestate.switch(worldscene)
-    Gamestate.switch(TitleScene(worldscene, "data/maps/" .. game.maps[game.map_index]))
+    Gamestate.switch(TitleScene(worldscene))
 end
 
 function love.update(dt)

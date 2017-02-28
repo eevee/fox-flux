@@ -1,5 +1,6 @@
 local Gamestate = require 'vendor.hump.gamestate'
 local Vector = require 'vendor.hump.vector'
+local tick = require 'vendor.tick'
 
 local BaseScene = require 'klinklang.scenes.base'
 local SceneFader = require 'klinklang.scenes.fader'
@@ -9,8 +10,10 @@ local TitleScene = BaseScene:extend{
     __tostring = function(self) return "titlescene" end,
 }
 
-function TitleScene:init(next_scene, map_path)
+function TitleScene:init(next_scene)
     TitleScene.__super.init(self)
+
+    self.next_scene = next_scene
 
     self.music = love.audio.newSource('assets/music/title.ogg', 'stream')
     self.music:setLooping(true)
@@ -18,17 +21,14 @@ function TitleScene:init(next_scene, map_path)
     self.image = love.graphics.newImage('assets/images/title.png')
     self.image:setFilter('linear', 'linear')
 
-    self.next_scene = next_scene
-    self.map_path = map_path
-
-    -- waiting => loading => title <=> menu
-    self.state = 'waiting'
+    self.is_menu_visible = false
     self.any_key_pressed = false
 
+    self.save_files = game.detect_save_files()
     self.menu_choices = {}
-    if game.has_savegame then
+    if #self.save_files then
         table.insert(self.menu_choices,
-            { label = "Continue", action = function() self:do_continue() end })
+            { label = "Continue", action = function() self:do_continue(self.save_files[1]) end })
     end
     table.insert(self.menu_choices, { label = "New game", action = function() self:do_new_game() end })
     table.insert(self.menu_choices, { label = "Quit", action = function() love.event.quit() end })
@@ -46,8 +46,22 @@ function TitleScene:init(next_scene, map_path)
 end
 
 local pink = {255, 130, 206}
-function TitleScene:do_continue()
-    Gamestate.switch(SceneFader(self.next_scene, false, 1.0, pink))
+function TitleScene:do_continue(save_file)
+    Gamestate.switch(SceneFader(self.next_scene, false, 1.0, pink, function()
+        if save_file then
+            game:load(save_file)
+        end
+        -- Set up autosave!
+        -- FIXME this seems rather important to put in such an out of the way
+        -- place, but it shouldn't go in love.load since we haven't loaded the
+        -- existing save file yet
+        tick.recur(function() game:save() end, 5)
+
+        -- FIXME this doesn't even check if the file exists, which can give
+        -- goofy errors later on
+        local map = game.resource_manager:load(game.progress.last_map_path)
+        self.next_scene:load_map(map, game.progress.last_map_spot)
+    end))
 end
 
 function TitleScene:do_new_game()
@@ -67,21 +81,17 @@ end
 function TitleScene:update(dt)
     -- Only load the first map if we've drawn at least one frame, to minimize
     -- the time spent showing the player nothing
-    if self.state == 'loading' then
-        local map = game.resource_manager:load(self.map_path)
-        self.next_scene:load_map(map)
-        self.state = 'title'
-    elseif self.state == 'title' then
+    if not self.is_menu_visible then
         -- We do this here instead of in keypressed because otherwise, the
         -- keypress would be passed along to baton, and it'd get interpreted a
         -- second time in the menu itself!  Argh!  FIXME!
         if self.any_key_pressed then
-            self.state = 'menu'
+            self.is_menu_visible = true
             self.any_key_pressed = false
         end
-    elseif self.state == 'menu' then
+    else
         if game.input:pressed('menu') then
-            self.state = 'title'
+            self.is_menu_visible = false
             return
         end
         -- TODO this is somewhere that a repeat would be nice?
@@ -102,10 +112,6 @@ function TitleScene:update(dt)
 end
 
 function TitleScene:draw()
-    if self.state == 'waiting' then
-        self.state = 'loading'
-    end
-
     local sw, sh = love.graphics.getDimensions()
     local iw, ih = self.image:getDimensions()
     local scale = math.max(sw / iw, sh / ih)
@@ -118,7 +124,7 @@ function TitleScene:draw()
         scale)
 
 
-    if self.state == 'menu' then
+    if self.is_menu_visible then
         self:_draw_menu()
     end
 end
@@ -155,13 +161,13 @@ function TitleScene:keypressed(key, scancode, isrepeat)
         return
     end
 
-    if self.state == 'title' then
+    if not self.is_menu_visible then
         self.any_key_pressed = true
     end
 end
 
 function TitleScene:gamepadpressed(joystick, button)
-    if self.state == 'title' then
+    if not self.is_menu_visible then
         self.any_key_pressed = true
     end
 end
