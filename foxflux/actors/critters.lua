@@ -88,7 +88,7 @@ function Slime:update(dt)
             self.move_event = worldscene.tick:delay(function()
                 self:decide_walk(0)
                 self.move_event = nil
-            end, love.math.random(0.5, 1.5))
+            end, util.random_float(0.5, 1.5))
         end
         -- Reset our jump height, if we leapt at the player once but missed
         --self.jumpvel = Slime.jumpvel
@@ -128,9 +128,9 @@ function Campfire:schedule_particle()
             color = {246, 143, 55}
         end
         worldscene:add_actor(actors_misc.Particle(
-            pos, Vector(0, love.math.random(-160, -64)), Vector.zero, color, love.math.random(1, 3)))
+            pos, Vector(0, love.math.random(-160, -64)), Vector.zero, color, util.random_float(1, 3)))
         self:schedule_particle()
-    end, love.math.random(0.125, 0.75))
+    end, util.random_float(0.125, 0.75))
 end
 
 function Campfire:on_collide(actor)
@@ -278,11 +278,11 @@ function ReverseCockatrice:update(dt)
         self.move_event = worldscene.tick:delay(function()
             -- FIXME don't move in directions we already know we're blocked
             self:decide_walk(love.math.random(3) - 2)
-        end, love.math.random(0.5, 2))
+        end, util.random_float(0.5, 2))
         self.move_event:after(function()
             self:decide_walk(0)
             self.move_event = nil
-        end, love.math.random(0.5, 2.0))
+        end, util.random_float(0.5, 2.0))
     end
 
     ReverseCockatrice.__super.update(self, dt)
@@ -335,11 +335,11 @@ function Gecko:update(dt)
         self.move_event = worldscene.tick:delay(function()
             -- FIXME don't move in directions we already know we're blocked
             self:decide_walk(love.math.random(3) - 2)
-        end, love.math.random(0.5, 2))
+        end, util.random_float(0.5, 2))
         self.move_event:after(function()
             self:decide_walk(0)
             self.move_event = nil
-        end, love.math.random(0.5, 2.0))
+        end, util.random_float(0.5, 2.0))
     end
 
     Gecko.__super.update(self, dt)
