@@ -461,6 +461,18 @@
                  "width":64,
                  "x":1120,
                  "y":640
+                }, 
+                {
+                 "ellipse":true,
+                 "height":0,
+                 "id":31,
+                 "name":"from boss",
+                 "rotation":0,
+                 "type":"spot",
+                 "visible":true,
+                 "width":0,
+                 "x":992,
+                 "y":448
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -469,7 +481,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":31,
+ "nextobjectid":32,
  "orientation":"orthogonal",
  "properties":
     {

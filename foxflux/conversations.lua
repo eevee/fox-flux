@@ -1,3 +1,10 @@
+local Gamestate = require 'vendor.hump.gamestate'
+
+local SceneFader = require 'klinklang.scenes.fader'
+
+local CreditsScene = require 'foxflux.scenes.credits'
+
+
 local conversations = {}
 
 local _last_index  -- avoid picking the same index twice in a row
@@ -21,17 +28,26 @@ end
 -- as form => list of conversations.  This function picks a conversation at
 -- random from those available.
 local function pick_conversation(name, form)
-    local convos = conversations[name]
-    if convos == nil then
+    local form_convos = conversations[name]
+    if form_convos == nil then
         error(("No such conversation %s"):format(name))
     end
 
-    convos = convos[form]
+    convos = form_convos[form]
     if convos == nil or #convos == 0 then
         error(("Conversation %s has no candidates for form %s"):format(name, form))
     end
 
-    return _pick(convos)
+    local convo = _pick(convos)
+    -- TODO this is a dumb hack, but then, all of this is
+    if form_convos.via_compact then
+        return {
+            { speaker = 'lexy', pose = { 'compact' } },
+            { speaker = 'cerise', pose = { 'compact', 'villain' } },
+            unpack(convo),
+        }
+    end
+    return convo
 end
 
 
@@ -288,12 +304,76 @@ conversations['lop followup'] = {
     },
 }
 
+conversations['no need to dial'] = {
+    rubber = {
+        {{ "I don't need to dial Cerise.  She's right over there.", speaker = 'lexy' }},
+    },
+    slime = {
+        {{ "Why bother dialing?  I can see her from here!", speaker = 'lexy' }},
+    },
+    glass = {
+        {{ "so close", speaker = 'lexy' }},
+    },
+}
+conversations['ending'] = {
+    rubber = {{
+        { "Zounds!", speaker = 'cerise', pose = { 'base', 'villain' } },
+        { "Zounds?", speaker = 'lexy' },
+        {
+            "Zounds!!",
+            "You've come so far, and finally reached my inner sanctum!  Now for our final showdown!",
+            speaker = 'cerise',
+        },
+        { "Ha!  I dealt with your cavalry, and I'll deal with you too!", speaker = 'lexy' },
+        { "Cavalry?", speaker = 'cerise' },
+        { "Yeah, you know.  Lop.", speaker = 'lexy' },
+        {
+            "Oh!  Yes!  That's very clever!  As expected!!",
+            "But now!!!  Prepare yourself...  for...  um...",
+            speaker = 'cerise',
+        },
+        { "...", speaker = 'lexy' },
+        {
+            "Umm...",
+            "Okay!",
+            "I may!  Have run out of time!!  Before I figured this part out!",
+            "Making puzzles is a lot harder than I thought!",
+            speaker = 'cerise',
+        },
+        { "Hmm...", "Does that mean I win?", speaker = 'lexy' },
+        { "What??  Never!  I'm just...  argh!  You're so cute!  And squishy!  Rubber foxes truly are my weakness!  I'm helpless before you!  Auugghhgblglbglhb.", speaker = 'cerise' },
+        { "Wow, Lexy!  That was incredible!", speaker = 'cerise', pose = 'not villain' },
+        { "Was it?  I mean, you're welcome!", speaker = 'lexy' },
+        { "Hooray!  Now we can spend Hearts Day together!", speaker = 'cerise', pose = 'smiling' },
+        { "So, uh, since I rescued you and all...", speaker = 'lexy' },
+        { "Yeees?", speaker = 'cerise', pose = 'neutral' },
+        { "Can we do a sex?", speaker = 'lexy', pose = 'blush' },
+        { "Absolutely!  What are you in the mood for?", speaker = 'cerise', pose = 'smiling' },
+        {
+            "Something really, just, incredibly fucking weird.",
+            "Something that, I don't know, would be unfathomably difficult to draw.",
+            speaker = 'lexy',
+        },
+        { "That's a weird way to put it!  But yes!  I've been waiting all day for you to get here...", speaker = 'cerise' },
+        { "For you see, my plan all along was to get you horny!  And you fell for it!!  Muahaha!!", speaker = 'cerise', pose = { 'neutral', 'villain' } },
+        { ".........", speaker = 'lexy' },
+        {
+            execute = function()
+                Gamestate.switch(SceneFader(CreditsScene(), false, 2.0, {255, 130, 206}))
+            end,
+        },
+        -- FIXME the execute...  doesn't count, if this isn't here??
+        { ".........", speaker = 'lexy' },
+    }},
+}
+
 
 --------------------------------------------------------------------------------
 -- These all happen in the playground
 
 -- TODO convo for arriving in the playground itself
 conversations['playground'] = {
+    via_compact = true,
     rubber = {{
         { "Hey!  How did you get here?", speaker = 'cerise' },
         { "Where even IS this?!", speaker = 'lexy' },
@@ -319,6 +399,7 @@ conversations['playground'] = {
 }
 
 conversations['tech lighting'] = {
+    via_compact = true,
     rubber = {{
         { "Oh, these lights are cool.", speaker = 'lexy' },
         { "Thanks!  We made them and then forgot to use them anywhere.  They show up maybe once.", speaker = 'cerise' },
@@ -333,6 +414,7 @@ conversations['tech lighting'] = {
     }},
 }
 conversations['tech foreground'] = {
+    via_compact = true,
     rubber = {{
         { "What's this metal railing?", speaker = 'lexy' },
         { "Just a decoration that didn't end up matching anything else.", speaker = 'cerise' },
@@ -343,6 +425,7 @@ conversations['tech foreground'] = {
     }},
 }
 conversations['tech platforms'] = {
+    via_compact = true,
     rubber = {{
         { "These platforms are cute!", speaker = 'lexy' },
         { "Yeah!  They're just a bit funny-looking, somehow.", speaker = 'cerise' },
@@ -354,10 +437,21 @@ conversations['tech platforms'] = {
     }},
 }
 conversations['pocketwatch'] = {
+    via_compact = true,
     rubber = {{
-        { "Is this my pocketwatch?!", speaker = 'lexy' },
-        { "I had to dump out your satchel so you couldn't cheat!  Not sure how that ended up here, though.", speaker = 'cerise' },
-        -- TODO time
+        { "Is this my pocketwatch?", speaker = 'lexy' },
+        {
+            function()
+                local datetime = os.date('*t', os.time() + 4*60 + 47)
+                local hour = datetime.hour
+                if hour > 12 then
+                    hour = hour - 12
+                end
+                return ("Ugh.  Yeah, it says %d:%02d:%02d.  Definitely mine.  What's it doing here?"):format(hour, datetime.min, datetime.sec)
+            end,
+            speaker = 'lexy',
+        },
+        { "I had to dump out your satchel so you couldn't cheat!  Not sure how it got way out here, though.", speaker = 'cerise' },
     }},
     slime = {{
     }},
@@ -365,6 +459,7 @@ conversations['pocketwatch'] = {
     }},
 }
 conversations['geckos in grass'] = {
+    via_compact = true,
     rubber = {{
         { "It's really hard to see these little geckos in the long grass.", speaker = 'lexy' },
         { "That's why there aren't any important ones in long grass!", speaker = 'cerise' },
@@ -378,6 +473,7 @@ conversations['geckos in grass'] = {
     }},
 }
 conversations['conveyor belt'] = {
+    via_compact = true,
     rubber = {{
         { "Is this a conveyor belt?  This is awesome.", speaker = 'lexy' },
         { "It is!  We couldn't think of anywhere good to use it, so we dumped it here.", speaker = 'cerise' },
@@ -388,6 +484,7 @@ conversations['conveyor belt'] = {
     }},
 }
 conversations['pipes'] = {
+    via_compact = true,
     rubber = {{
         { "What were all these pipes for?", speaker = 'lexy' },
         { "You know those little sewery kinda areas?", speaker = 'cerise' },
@@ -405,6 +502,7 @@ conversations['pipes'] = {
     }},
 }
 conversations['spare crates'] = {
+    via_compact = true,
     rubber = {{
         { "Here are some leftover crates.", speaker = 'cerise' },
         { "What's in these crates, anyway?", speaker = 'lexy' },
@@ -416,6 +514,7 @@ conversations['spare crates'] = {
     }},
 }
 conversations['fan testing'] = {
+    via_compact = true,
     rubber = {{
         { "I see you found the fan testing area!", speaker = 'cerise' },
         { "I guess I did.  This seems like a weird place for them.", speaker = 'lexy' },
@@ -427,6 +526,7 @@ conversations['fan testing'] = {
     }},
 }
 conversations['platform testing'] = {
+    via_compact = true,
     rubber = {{
         { "This is an interesting little contraption.", speaker = 'lexy' },
         { "I had to make sure the moving platforms could pick things up without getting stuck!", speaker = 'cerise' },
@@ -439,6 +539,7 @@ conversations['platform testing'] = {
     }},
 }
 conversations['void'] = {
+    via_compact = true,
     rubber = {{
         { "Umm.  Where is the ground.", speaker = 'lexy' },
         { "Well, you weren't actually supposed to get here, remember?", speaker = 'cerise' },
@@ -450,6 +551,7 @@ conversations['void'] = {
     }},
 }
 conversations['old boss door'] = {
+    via_compact = true,
     rubber = {{
         { "What's this?", speaker = 'lexy' },
         { "That's the original final boss door.  I didn't think it looked very good, so I asked Robin to design a new one.  With more pink.", speaker = 'cerise' },
@@ -460,6 +562,7 @@ conversations['old boss door'] = {
     }},
 }
 conversations['key'] = {
+    via_compact = true,
     rubber = {{
         { "A key?  Does this open something?", speaker = 'lexy' },
         { "I thought some locked doors would fit the style, but I didn't have time.", speaker = 'cerise' },
@@ -472,6 +575,7 @@ conversations['key'] = {
     }},
 }
 conversations['other key'] = {
+    via_compact = true,
     rubber = {{
         { "This key is kind of cool.  What's it for?", speaker = 'lexy' },
         { "You know that box of mystery keys you find when you move into a new place?  And none of them seem to open anything?", speaker = 'cerise' },

@@ -154,7 +154,7 @@ local ForestBossDoor = BossDoor:extend{
 local TechBossDoor = BossDoor:extend{
     name = 'tech boss door',
     sprite_name = 'tech boss door',
-    boss_door_flag = 'unlocked forest boss door',
+    boss_door_flag = 'unlocked tech boss door',
     boss_door_map = 'data/maps/tech-boss.tmx.json',
 }
 

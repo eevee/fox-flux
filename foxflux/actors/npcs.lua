@@ -177,18 +177,24 @@ local Cerise = actors_base.Actor:extend{
     is_usable = true,
 }
 
+function Cerise:on_enter()
+    Cerise.__super.on_enter(self)
+
+    self.facing_left = true
+    self.sprite:set_pose('disguise')
+    self.sprite:set_facing_right(false)
+end
+
 function Cerise:on_use(activator)
     if not activator.is_player then
         return
     end
 
+    local convo = conversations.pick_conversation('ending', activator.form)
     Gamestate.push(DialogueScene({
         lexy = activator,
         cerise = self,
-    }, {
-        { "Hey, sweetie!", speaker = 'cerise' },
-        { "Oh, hey.", speaker = 'lexy' },
-    }))
+    }, convo))
 end
 
 

@@ -1,11 +1,11 @@
-{ "columns":1,
+{ "columns":2,
  "image":"..\/..\/assets\/images\/cerise.png",
  "imageheight":112,
- "imagewidth":64,
+ "imagewidth":128,
  "margin":0,
  "name":"cerise",
  "spacing":0,
- "tilecount":1,
+ "tilecount":2,
  "tileheight":112,
  "tileproperties":
     {
@@ -13,6 +13,10 @@
         {
          "actor":"cerise",
          "sprite name":"cerise\/stand"
+        },
+     "1":
+        {
+         "sprite name":"cerise\/disguise"
         }
     },
  "tilepropertytypes":
@@ -20,6 +24,10 @@
      "0":
         {
          "actor":"string",
+         "sprite name":"string"
+        },
+     "1":
+        {
          "sprite name":"string"
         }
     },
