@@ -651,6 +651,14 @@ function WorldScene:load_map(map, spot_name)
         -- of fox flux; there should be a more explicit way of setting save
         -- points
         game:set_save_spot(map, spot_name)
+    else
+        -- If this map declares its attachment to an overworld, use that point
+        -- as a save point
+        local overworld_map = map:prop('overworld map')
+        local overworld_spot = map:prop('overworld spot')
+        if overworld_map and overworld_spot then
+            game:set_save_spot(overworld_map, overworld_spot)
+        end
     end
 
     self.map = map

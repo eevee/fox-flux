@@ -2,15 +2,13 @@ local Gamestate = require 'vendor.hump.gamestate'
 local Vector = require 'vendor.hump.vector'
 
 local BaseScene = require 'klinklang.scenes.base'
+local SceneFader = require 'klinklang.scenes.fader'
+local util = require 'klinklang.util'
+
+local Menu = require 'foxflux.menu'
 
 local MenuScene = BaseScene:extend{
     __tostring = function(self) return "menuscene" end,
-
-    choices = {
-        "Resume playing",
-        -- TODO uhhhh yeah how do i...  do...  that
-        "Abandon this room",
-    },
 }
 
 --------------------------------------------------------------------------------
@@ -32,6 +30,47 @@ function MenuScene:enter(previous_scene)
         end
         self.hearts_by_region[region] = heartct
         self.hearts_total = self.hearts_total + heartct
+    end
+
+    local choices = {
+        {
+            label = "Resume playing",
+            action = function() Gamestate.pop() end,
+        },
+    }
+    local overworld_map = worldscene.map:prop('overworld map')
+    if overworld_map then
+        local overworld_spot = worldscene.map:prop('overworld spot')
+        table.insert(choices, {
+            label = "Leave this area",
+            action = function()
+                Gamestate.switch(SceneFader(worldscene, true, 0.33, {255, 130, 206}, function()
+                    worldscene:load_map(game.resource_manager:load(overworld_map), overworld_spot)
+                end))
+            end,
+        })
+    end
+    table.insert(choices, { label = "Quit game", action = function() love.event.quit() end })
+    self.menu = Menu(choices)
+
+    self.first_frame = true
+end
+
+function MenuScene:update(dt)
+    -- TODO SIIIGGHHH this would be fixed if gamestates only switched between frames i think
+    if game.input:pressed('menu') and not util.any_modifier_keys() and not self.first_frame then
+        Gamestate.pop()
+        return
+    end
+    self.first_frame = false
+
+    self.menu:update(dt)
+    if game.input:pressed('up') then
+        self.menu:up()
+    elseif game.input:pressed('down') then
+        self.menu:down()
+    elseif game.input:pressed('accept') then
+        self.menu:accept()
     end
 end
 
@@ -56,7 +95,7 @@ function MenuScene:draw()
     local x = math.floor((w - row_width) / 2)
     local font = love.graphics.getFont()
     local row_height = font:getHeight() * font:getLineHeight()
-    local y = math.floor((h - row_height * #game.progress.region_order) / 2)
+    local y = math.floor(h * 2/3 - (row_height * #game.progress.region_order) / 2)
 
     -- TODO this hardcodes the total number of hearts, but...  eh...
     love.graphics.printf(
@@ -71,13 +110,14 @@ function MenuScene:draw()
             x + region_width + icon_width, y, count_width, 'right')
     end
 
-    love.graphics.pop()
-end
+    self.menu:draw{
+        x = w / 2,
+        y = h / 3,
+        xalign = 'center',
+        yalign = 'middle',
+    }
 
-function MenuScene:keypressed(key, scancode, isrepeat)
-    if (scancode == 'escape' or scancode == 'Menu') and not love.keyboard.isScancodeDown('lctrl', 'rctrl', 'lalt', 'ralt', 'lgui', 'rgui') then
-        Gamestate.pop()
-    end
+    love.graphics.pop()
 end
 
 

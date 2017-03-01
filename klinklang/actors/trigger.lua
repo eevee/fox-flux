@@ -65,7 +65,7 @@ end
 function TriggerZone:execute_trigger(activator)
     -- TODO turn these into, idk, closures or something interesting?
     if self.action == 'change map' then
-        Gamestate.push(SceneFader(worldscene, true, 0.5, {255, 130, 206}, function()
+        Gamestate.push(SceneFader(worldscene, true, 0.33, {255, 130, 206}, function()
             local map = game.resource_manager:load(self.props.map)
             worldscene:load_map(map, self.props.spot)
         end))

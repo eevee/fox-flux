@@ -774,6 +774,27 @@
                  "width":112,
                  "x":664,
                  "y":384
+                }, 
+                {
+                 "height":44,
+                 "id":85,
+                 "name":"",
+                 "properties":
+                    {
+                     "action":"conversation",
+                     "conversation":"tech platforms"
+                    },
+                 "propertytypes":
+                    {
+                     "action":"string",
+                     "conversation":"string"
+                    },
+                 "rotation":0,
+                 "type":"trigger",
+                 "visible":true,
+                 "width":96,
+                 "x":1888,
+                 "y":544
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -782,14 +803,18 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":85,
+ "nextobjectid":86,
  "orientation":"orthogonal",
  "properties":
     {
+     "overworld map":"data\/maps\/tech-overworld.tmx.json",
+     "overworld spot":"from playground",
      "region":"playground"
     },
  "propertytypes":
     {
+     "overworld map":"string",
+     "overworld spot":"string",
      "region":"string"
     },
  "renderorder":"right-down",

@@ -4,6 +4,7 @@ local Vector = require 'vendor.hump.vector'
 local actors_base = require 'klinklang.actors.base'
 local actors_generic = require 'klinklang.actors.generic'
 local DialogueScene = require 'klinklang.scenes.dialogue'
+local SceneFader = require 'klinklang.scenes.fader'
 local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 
@@ -134,9 +135,9 @@ function BossDoor:on_use(activator)
             self:unlock()
         end
         -- TODO sound for this?
-        -- TODO transition, etc...
-        local map = game.resource_manager:load(self.boss_door_map)
-        worldscene:load_map(map)
+        Gamestate.push(SceneFader(worldscene, true, 0.33, {255, 130, 206}, function()
+            worldscene:load_map(game.resource_manager:load(self.boss_door_map))
+        end))
     else
         local convo = conversations.pick_conversation('insufficient hearts', activator.form)
         Gamestate.push(DialogueScene({ lexy = activator }, convo))

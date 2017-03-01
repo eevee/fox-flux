@@ -1335,10 +1335,14 @@
  "orientation":"orthogonal",
  "properties":
     {
+     "overworld map":"data\/maps\/forest-overworld.tmx.json",
+     "overworld spot":"from level 2",
      "region":"forest"
     },
  "propertytypes":
     {
+     "overworld map":"string",
+     "overworld spot":"string",
      "region":"string"
     },
  "renderorder":"right-down",
