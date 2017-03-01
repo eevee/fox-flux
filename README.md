@@ -1,13 +1,17 @@
-# Fox flux
+# fox flux
 
-This is a puzzle-platformer.  Details forthcoming.
+This is a slightly NSFW puzzle-platformer where you turn into things.
 
 It requires [LÖVE](https://love2d.org/) 0.10.2 and nothing else.
+
+Thank you [glip](http://glitchedpuppet.com/) for providing the [soundtrack](https://floraverse.bandcamp.com/album/fox-flux-demo-ost), title screen art, and [universe](http://floraverse.com/)!
 
 
 ## Running
 
 Just install LÖVE and run this repository with it.
+
+Or see the [itch.io page](https://eevee.itch.io/fox-flux) for downloads and a friendlier description.
 
 
 ## Built with
@@ -21,5 +25,3 @@ Just install LÖVE and run this repository with it.
 - AndroidArts's 64-color [Famicube](http://androidarts.com/palette/Famicube.htm) palette
 
 - [Tiled](http://www.mapeditor.org/), a map editor
-
-- A little inspiration from the [PICO-8](http://www.lexaloffle.com/pico-8.php) and [Ludum Dare](http://ludumdare.com/compo/)
