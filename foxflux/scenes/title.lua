@@ -28,13 +28,29 @@ function TitleScene:init(next_scene)
 
     self.save_files = game.detect_save_files()
     local choices = {}
-    if #self.save_files then
-        table.insert(choices,
-            { label = "Continue", action = function() self:do_continue(self.save_files[1]) end })
+    if #self.save_files > 0 then
+        table.insert(choices, {
+            label = "Continue",
+            action = function() self:do_continue(self.save_files[1]) end,
+        })
+        table.insert(choices, {
+            label = "New game",
+            action = function()
+                self.menu = self.confirm_menu
+                self.menu.cursor = 1
+            end,
+        })
+
+        self.confirm_menu = Menu{
+            { label = "Just kidding!", action = function() self.menu = self.primary_menu end },
+            { label = "Yeah, nuke it", action = function() self:do_new_game() end },
+        }
+    else
+        table.insert(choices, { label = "New game", action = function() self:do_new_game() end })
     end
-    table.insert(choices, { label = "New game", action = function() self:do_new_game() end })
     table.insert(choices, { label = "Quit", action = function() love.event.quit() end })
-    self.menu = Menu(choices)
+    self.primary_menu = Menu(choices)
+    self.menu = self.primary_menu
 end
 
 local pink = {255, 130, 206}
