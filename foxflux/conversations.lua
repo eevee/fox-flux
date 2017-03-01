@@ -722,7 +722,7 @@ local topical_conversations = {}
 local last_topic = nil
 local LAST_TOPIC_DELAY = 10
 local last_dial
-local DIALING_DELAY = 5  -- FIXME? this includes the time spent in the conversation itself...
+local DIALING_DELAY = 30  -- FIXME? this includes the time spent in the conversation itself...
 
 local function unlock_topic(name)
     if game.progress.topics[name] then
@@ -759,7 +759,12 @@ local function pick_topical_conversation()
     local form = worldscene.player.form
     local now = love.timer.getTime()
     if last_dial and now - last_dial < DIALING_DELAY then
-        return pick_conversation('no answer', form)
+        local convo = pick_conversation('no answer', form)
+        return {
+            { speaker = 'lexy', pose = { 'compact' } },
+            { speaker = 'cerise', pose = false },
+            unpack(convo),
+        }
     end
     last_dial = now
 
