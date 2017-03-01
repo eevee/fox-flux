@@ -139,6 +139,15 @@ function TitleScene:draw()
             shadowcolor = {207, 60, 113},
             textcolor = {255, 255, 255},
         }
+
+        love.graphics.push('all')
+        love.graphics.setColor(207, 60, 113, 128)
+        local th = m5x7small:getHeight() * m5x7small:getLineHeight()
+        love.graphics.rectangle('fill', 0, 0, w, th)
+        love.graphics.setColor(255, 255, 255)
+        love.graphics.setFont(m5x7small)
+        love.graphics.printf("Strawberry Jam 2017 demo edition", 0, 0, w, 'center')
+        love.graphics.pop()
     end
 end
 
