@@ -172,6 +172,8 @@ function love.load(args)
         end
     end
 
+    love.filesystem.setIdentity('fox-flux_eevee')
+
     love.graphics.setDefaultFilter('nearest', 'nearest', 1)
 
     -- Eagerly load all actor modules, so we can access them by name
