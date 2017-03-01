@@ -671,7 +671,7 @@ function DialogueScene:draw()
     local boxquadl = love.graphics.newQuad(0, 0, boxrepeatleft, background:getHeight(), background:getDimensions())
     love.graphics.draw(background, boxquadl, 0, boxtop, 0, BOXSCALE)
     local boxquadm = love.graphics.newQuad(boxrepeatleft, 0, boxrepeatright - boxrepeatleft, background:getHeight(), background:getDimensions())
-    love.graphics.draw(background, boxquadm, boxrepeatleft * BOXSCALE, boxtop, 0, math.floor(w / (boxrepeatright - boxrepeatleft)) + 1, BOXSCALE)
+    love.graphics.draw(background, boxquadm, boxrepeatleft * BOXSCALE, boxtop, 0, (w - background:getWidth() + (boxrepeatright - boxrepeatleft)) / (boxrepeatright - boxrepeatleft), BOXSCALE)
     local boxquadr = love.graphics.newQuad(boxrepeatright, 0, background:getWidth() - boxrepeatright, background:getHeight(), background:getDimensions())
     love.graphics.draw(background, boxquadr, w - (background:getWidth() - boxrepeatright) * BOXSCALE, boxtop, 0, BOXSCALE)
 
