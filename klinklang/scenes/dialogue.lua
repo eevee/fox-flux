@@ -585,6 +585,15 @@ function DialogueScene:_advance_script()
             Gamestate.pop()
             return
         end
+        if step.pause then
+            -- TODO this is kind of hacky, but fixes the problem that an
+            -- 'execute' that starts a SceneFader doesn't otherwise pause the
+            -- script, so the fade might see the first character of the next
+            -- line (or, worse, the dialogue might try to close!)
+            self.state = 'waiting'
+            self:_hesitate()
+            return
+        end
     end
 end
 
