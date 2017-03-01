@@ -836,7 +836,7 @@ topical_conversations = {
         { "What a curiously specific weakness!  Also didn't you put the collar on me?", speaker = 'lexy' },
         { "I did!  All part of my master plan to make you vulnerable to my PUZZLE CRITTERS!", speaker = 'cerise' },
         { "I'm getting mixed messages here.", speaker = 'lexy' },
-        { "I think you're thinking about this a little too hard, hun.", speaker = 'cerise', pose = 'smiling' },
+        { "You're thinking about this a little too hard, hun.", speaker = 'cerise', pose = 'smiling' },
     }, {
         form = 'slime',
         topic = 'slime',
@@ -896,8 +896,9 @@ topical_conversations = {
         { "Succumbed to the fearsome draclear once again!", speaker = 'cerise' },
         { "yes", speaker = 'lexy' },
         { "I...  can't tell if you're enjoying this or not!  I thought you would, but you're not even blushing.", "Unless you are, but it's transparent too?", speaker = 'cerise' },
-        { "ah", "sorry", "i need", "filling", speaker = 'lexy' },
-        { "I think that's a good sign!", speaker = 'cerise' },
+        { "ah", "sorry", "just need", speaker = 'lexy' },
+        { "Need what?", speaker = 'cerise' },
+        { "...", speaker = 'lexy' },
     }, {
         form = 'rubber',
         topic = 'glass',
@@ -905,8 +906,7 @@ topical_conversations = {
         {
             "Actually, huh, they really are a bit more imposing when I'm like this.",
             "Remember that one that bit me a few months ago?  My ear fur was white for two days.",
-            "But now they suck out...  everything?",
-            "It's an interesting change in perspective, I guess.",
+            "But now they suck out...  everything?  It's a really interesting...  change in perspective, or something.",
             speaker = 'lexy',
         },
         { "I will take that as a very complicated yes!", speaker = 'cerise' },
@@ -930,7 +930,7 @@ topical_conversations = {
     }, {
         form = 'rubber',
         topic = 'stone',
-        { "How are you liking my PUZZLE...  um, COUNTRY?  Are you quaking in fear of my overwhelming power?", speaker = 'cerise' },
+        { "How are you liking my PUZZLEVERSE?  Are you quaking in fear of my overwhelming power?", speaker = 'cerise' },
         { "Oh, definitely!  I'm...  petrified.", speaker = 'lexy' },
         { "...", speaker = 'cerise' },
     }, {
@@ -938,7 +938,7 @@ topical_conversations = {
         topic = 'stone revert',
         { "I'm just curious, but, why does a gecko revert stoning?", speaker = 'lexy' },
         {
-            "Good question!  I don't know.  It's a folklore remedy from ages ago.  Who knows if it even works for real.  Good thing it worked on you!",
+            "Good question!  I don't know.  It's a folk remedy from ages ago.  Who knows if it even works for real.  Good thing it worked on you!",
             "I mean, no, it's the worst!  Muahaha!",
             speaker = 'cerise',
         },
@@ -954,8 +954,16 @@ topical_conversations = {
 -- Generic smalltalk about the levels themselves
 
     {
+        map = 'data/maps/forest-overworld.tmx.json',
+        topic = 'data/maps/tech-overworld.tmx.json',
+        form = 'rubber',
+        { "Hello!  This is FOREST WORLD.", speaker = 'cerise' },
+        { "It looks like a normal forest.", speaker = 'lexy' },
+        { "It is!  And there's a whole WORLD of it.", speaker = 'cerise' },
+    }, {
         map = 'data/maps/forest-1.tmx.json',
         topic = 'data/maps/forest-1.tmx.json',
+        form = 'rubber',
         {
             "Welcome to the first of my diabolical PUZZLE ZONES!",
             "This one serves as a gentle introduction to my many PUZZLE ELEMENTS!  Like... jumping!  And, well, mostly just jumping.",
@@ -964,16 +972,22 @@ topical_conversations = {
         { "Hmm.  Aren't you trying to stop me from getting there?  Why would you give me a gentle introduction?", speaker = 'lexy' },
         { "I may be evil, but I'm still fair!", speaker = 'cerise' },
     }, {
+        map = 'data/maps/forest-1.tmx.json',
+        form = 'slime',
+        { "Interesting!  How did you manage to turn into a slime in the harmless INTRO ZONE?", speaker = 'cerise' },
+        { "I just went through a door when I was already a slime!", speaker = 'lexy' },
+        { "I see!  I hope that doesn't break any puzzles, uh oh.", speaker = 'cerise' },
+    }, {
         map = 'data/maps/forest-2.tmx.json',
         topic = 'data/maps/forest-2.tmx.json',
         form = 'rubber',
         {
             "Ah, you've arrived at my discombobulating SLIME ZONE!",
-            "Beware the slimes, which seek to consume you whole!  Definitely don't let them do that, since it'll help you progress!",
+            "Beware the slimes, which seek to consume you whole!  If one touches you, not a trace of you will be left!  Only thick green slime!",
             speaker = 'cerise',
         },
-        { "Hmm.  Aren't you trying to stop me from getting there?  Why would you give me a gentle introduction?", speaker = 'lexy' },
-        { "I may be evil, but I'm still fair!", speaker = 'cerise' },
+        { "Oh!  That would be...  terrible.", speaker = 'lexy', pose = 'blush' },
+        { "Also, you need them to do that to progress, so all the more reason to avoid them!!", speaker = 'cerise' },
     }, {
         map = 'data/maps/forest-2.tmx.json',
         topic = 'data/maps/forest-2.tmx.json',
@@ -986,7 +1000,9 @@ topical_conversations = {
         },
         { "I don't know, but I sure don't now!  I just have bright green slime and dark green slime.", speaker = 'lexy' },
         { "I can see that!  You look like you need someone to give you a good stir.", speaker = 'cerise' },
-        { "That sounds nice!  Maybe we could try stirring some pink in too.", speaker = 'cerise' },
+        { "That sounds nice!  Maybe we could try stirring some pink in too.", speaker = 'lexy' },
+        { "I like where you're going with that, but I don't think bright pink and bright green make a very nice color!", speaker = 'cerise' },
+        { "Only one way to find out!", speaker = 'lexy' },
     }, {
         map = 'data/maps/forest-3.tmx.json',
         topic = 'data/maps/forest-3.tmx.json',
@@ -999,6 +1015,14 @@ topical_conversations = {
         { "You're really selling this.", speaker = 'lexy' },
         { "Shush!", speaker = 'cerise' },
     }, {
+        map = 'data/maps/forest-3.tmx.json',
+        topic = 'data/maps/forest-3.tmx.json',
+        form = 'glass',
+        { "Another victim has succumbed to the GLASS ZONE!", speaker = 'cerise' },
+        { "oh no", speaker = 'lexy' },
+        { "But your loss is my gain!  Now the GLASS ZONE has a beautiful decoration!", speaker = 'cerise' },
+        { "ah", speaker = 'lexy' },
+    }, {
         map = 'data/maps/forest-4.tmx.json',
         topic = 'data/maps/forest-4.tmx.json',
         form = 'rubber',
@@ -1006,6 +1030,14 @@ topical_conversations = {
         { "Did you just say \"bone zone\"?", speaker = 'lexy' },
         { "What!  No!  I said STONE ZONE!  What sort of smutty obstacle course do you think this is?!", speaker = 'cerise' },
         { "Uhh...", speaker = 'lexy', pose = 'sweatdrop' },
+    }, {
+        map = 'data/maps/forest-4.tmx.json',
+        topic = 'data/maps/forest-4.tmx.json',
+        form = 'rubber',
+        { "The trouble with the STONE ZONE is that you can't dial me while you're completely petrified, so I can't give you hints!", speaker = 'cerise' },
+        { "You haven't been giving me any useful hints anyway!", speaker = 'lexy' },
+        { "Of course not!  Why would I help my arch-nemesis?!", speaker = 'cerise' },
+        { "I can't keep this narrative straight.", speaker = 'lexy' },
     }, {
         map = 'data/maps/tech-overworld.tmx.json',
         topic = 'data/maps/tech-overworld.tmx.json',
@@ -1027,7 +1059,13 @@ topical_conversations = {
         { "Behold!  TECH ZONE!", speaker = 'cerise' },
         { "I thought the whole place was tech zone?", speaker = 'lexy' },
         { "No, no, that would be silly.  This is TECH ZONE.  The whole tech area together is TECH WORLD.", speaker = 'cerise' },
-        { "Ah, that's much more sensible.", speaker = 'lexy' },
+        { "Ah, yes, that's much more sensible.", speaker = 'lexy' },
+    }, {
+        map = 'data/maps/tech-1.tmx.json',
+        topic = 'data/maps/tech-1.tmx.json',
+        form = 'glass',
+        { "As glass, you pass right through force fields!  It's like you're not even there!", speaker = 'cerise' },
+        { "ah", speaker = 'lexy' },
     }, {
         map = 'data/maps/tech-2.tmx.json',
         topic = 'data/maps/tech-2.tmx.json',
@@ -1037,6 +1075,46 @@ topical_conversations = {
         { speaker = 'lexy', pose = 'sweatdrop' },
         { "I bet you can't guess where it got its name!", speaker = 'cerise' },
         { "I'll bet I can.", speaker = 'lexy' },
+    }, {
+        map = 'data/maps/tech-2.tmx.json',
+        topic = 'data/maps/tech-2.tmx.json',
+        form = 'slime',
+        { "Ha, this fire puzzle is pretty tricky!", speaker = 'lexy' },
+        { "Yes!  I know!", speaker = 'cerise' },
+        { "If I got it wrong enough...  I'd have to spend so long going back and forth, being turned back into slime over and over again!", speaker = 'lexy' },
+        { "Yes!  Quiver!  Etc!", speaker = 'cerise' },
+        { "It's hard not to!", speaker = 'lexy' },
+    }, {
+        map = 'data/maps/tech-2.tmx.json',
+        topic = 'data/maps/tech-2.tmx.json',
+        form = 'glass',
+        { "Please be careful!  Broken glass is dangerous.", speaker = 'cerise' },
+        { "...", speaker = 'lexy' },
+    }, {
+        map = 'data/maps/tech-3.tmx.json',
+        topic = 'data/maps/tech-3.tmx.json',
+        form = 'rubber',
+        { "This entire ZONE is an obstacle course for glass foxes!", speaker = 'cerise' },
+        { "Is it called GLASS ZONE?", speaker = 'lexy' },
+        { "No!  It's called SHATTER ZONE!  Because every time you make even the slightest mistake, your brittle glass body shatters into a thousand scattered pieces!", speaker = 'cerise' },
+        { "...", speaker = 'lexy', pose = 'blush' },
+        { "One misstep, and what's left of you is lost!  No one will even recognize your remains as ever having been a fox!  Only--", speaker = 'cerise' },
+        { "I GET IT.", speaker = 'lexy', pose = 'blush' },
+    }, {
+        map = 'data/maps/tech-3.tmx.json',
+        topic = 'data/maps/tech-3.tmx.json',
+        form = 'glass',
+        { "How are you finding SHATTER ZONE?", speaker = 'cerise' },
+        { "oh", "its just for me", "it needs me", "i like it", speaker = 'lexy' },
+        { "Oh!  Good!  I mean, bad!", speaker = 'cerise' },
+        { "even if i break", "i can do it", "ah", speaker = 'lexy' },
+    }, {
+        map = 'data/maps/tech-4.tmx.json',
+        topic = 'data/maps/tech-4.tmx.json',
+        form = 'rubber',
+        { "This is KIND OF MEAN LEFTOVER PUZZLES ZONE!  It's full of leftover puzzles that were kind of mean.", speaker = 'cerise' },
+        { "They don't seem all THAT hard.", speaker = 'lexy' },
+        { "Well not all of us are huge puzzle nerds, puzzle nerd!", speaker = 'cerise' },
     },
 
 
@@ -1055,16 +1133,23 @@ topical_conversations = {
         { "That's why you're wearing the collar, hun.  I wouldn't recommend flinging your fluffy self down a twenty-foot drop, either.", speaker = 'cerise', pose = 'smiling' },
         { "I...  suppose so...", speaker = 'lexy', pose = { blush = 'default' } },
     }, {
+        form = 'slime',
+        topic = 'spikes',
+        { "It seems spikes have no effect on your slimy, amorphous body!", speaker = 'cerise' },
+        { "Oh!  How handy!", speaker = 'lexy' },
+        { "I insisted on slime-proof spikes, but they've yet to be invented!  My evil R&D department is researching as we speak!", speaker = 'cerise' },
+    }, {
         topic = 'spring',
         form = 'rubber',
         { "I see my ultimate trap has finally...  SPRUNG!", speaker = 'cerise' },
-        { "........", "I'm hanging up on you now.", speaker = 'lexy' },
+        { "What?  Is this a joke about--", "........", "I'm hanging up on you now.", speaker = 'lexy' },
     },
 
 
 --------------------------------------------------------------------------------
 -- Other smalltalk
 
+    -- Rubber
     {
         form = 'rubber',
         { "I can't believe how elaborate this is.  How did you manage to build all this?", speaker = 'lexy' },
@@ -1106,6 +1191,7 @@ topical_conversations = {
 
     -- TODO cherry hearts; why satchel not turn to glass
 
+    -- Slime
     {
         form = 'slime',
         { "Hey, Cerise!  How long is all this, anyway?", speaker = 'lexy' },
@@ -1114,6 +1200,16 @@ topical_conversations = {
         { "Aw, you're talking to me right now!", speaker = 'cerise' },
         { "Yeah, but I want to spend Hearts Day with you, not just talking on the compact!", speaker = 'lexy' },
         { "Well!  Hurry and come save me then!", speaker = 'cerise', pose = { 'not villain', 'smiling' } },
+    },
+
+    -- Glass
+    {
+        form = 'glass',
+        { "hi", speaker = 'lexy' },
+        { "Hello!  How's it coming?  Do you enjoy my PUZZLE LAIR??", speaker = 'cerise' },
+        { "oh", "its ok", speaker = 'lexy' },
+        { "Ha!  You cannot fool me!  I can see right through you!", speaker = 'cerise' },
+        { "...", "ah", speaker = 'lexy' },
     },
 }
 
