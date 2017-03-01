@@ -14,6 +14,9 @@ local CreditsScene = BaseScene:extend{
 function CreditsScene:init()
     CreditsScene.__super.init(self)
 
+    self.music = love.audio.newSource('assets/music/credits.ogg', 'stream')
+    self.music:setLooping(true)
+
     self.lop_sprite = game.sprites['lop']:instantiate()
     self.lop_sprite:set_pose('armed')
     self.lop_sprite:update(0)
@@ -31,6 +34,7 @@ function CreditsScene:init()
 end
 
 function CreditsScene:update(dt)
+    self.music:play()
     self.lexy_sprite:update(dt)
 end
 
