@@ -16,6 +16,9 @@ local MenuScene = BaseScene:extend{
 
 function MenuScene:enter(previous_scene)
     self.wrapped = previous_scene
+    if self.wrapped.music then
+        self.wrapped.music:pause()
+    end
 
     self.hearts_by_region = {}
     self.hearts_total = 0
@@ -35,7 +38,7 @@ function MenuScene:enter(previous_scene)
     local choices = {
         {
             label = "Resume playing",
-            action = function() Gamestate.pop() end,
+            action = function() self:_close_menu() end,
         },
     }
     local overworld_map = worldscene.map:prop('overworld map')
@@ -61,7 +64,7 @@ end
 function MenuScene:update(dt)
     -- TODO SIIIGGHHH this would be fixed if gamestates only switched between frames i think
     if game.input:pressed('menu') and not util.any_modifier_keys() and not self.first_frame then
-        Gamestate.pop()
+        self:_close_menu()
         return
     end
     self.first_frame = false
@@ -120,6 +123,13 @@ function MenuScene:draw()
     }
 
     love.graphics.pop()
+end
+
+function MenuScene:_close_menu()
+    if self.wrapped.music then
+        self.wrapped.music:resume()
+    end
+    Gamestate.pop()
 end
 
 

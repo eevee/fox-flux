@@ -79,8 +79,8 @@ game = {
         self.is_dirty = true
         self.progress.hearts[region][map.path][heart] = true
     end,
-    set_save_spot = function(self, map, spot)
-        self.progress.last_map_path = map.path
+    set_save_spot = function(self, map_path, spot)
+        self.progress.last_map_path = map_path
         self.progress.last_map_spot = spot
         self.is_dirty = true
     end,

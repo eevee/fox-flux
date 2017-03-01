@@ -193,6 +193,9 @@ function WorldScene:update(dt)
     -- Update the music to match the player's current position
     local x, y = self.player.pos:unpack()
     local new_music = false
+    if self.map_music then
+        new_music = self.map_music
+    end
     for shape, music in pairs(self.map.music_zones) do
         -- FIXME don't have a real api for this yet oops
         local x0, y0, x1, y1 = shape:bbox()
@@ -645,12 +648,15 @@ function WorldScene:load_map(map, spot_name)
             end
         end
     end
+    if self.music then
+        self.music:stop()
+    end
 
     if spot_name then
         -- FIXME this is very much a hack that happens to work with the design
         -- of fox flux; there should be a more explicit way of setting save
         -- points
-        game:set_save_spot(map, spot_name)
+        game:set_save_spot(map.path, spot_name)
     else
         -- If this map declares its attachment to an overworld, use that point
         -- as a save point
@@ -706,6 +712,13 @@ function WorldScene:load_map(map, spot_name)
         self.player:move_to(player_start:clone())
     else
         self.player = Player(player_start:clone())
+    end
+
+    local map_music_path = self.map:prop('music')
+    if map_music_path then
+        self.map_music = love.audio.newSource(map_music_path, 'stream')
+    else
+        self.map_music = nil
     end
 
     -- TODO this seems more a candidate for an 'enter' or map-switch event

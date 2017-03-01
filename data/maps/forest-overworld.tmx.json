@@ -366,12 +366,14 @@
     {
      "camera margin left":16,
      "camera margin right":32,
+     "music":"assets\/music\/forest-overworld.ogg",
      "region":"forest"
     },
  "propertytypes":
     {
      "camera margin left":"int",
      "camera margin right":"int",
+     "music":"string",
      "region":"string"
     },
  "renderorder":"right-down",

@@ -473,10 +473,14 @@
  "orientation":"orthogonal",
  "properties":
     {
+     "camera margin left":32,
+     "music":"assets\/music\/tech-overworld.ogg",
      "region":"tech"
     },
  "propertytypes":
     {
+     "camera margin left":"int",
+     "music":"string",
      "region":"string"
     },
  "renderorder":"right-down",

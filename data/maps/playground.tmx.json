@@ -807,12 +807,14 @@
  "orientation":"orthogonal",
  "properties":
     {
+     "music":"assets\/music\/compsong.ogg",
      "overworld map":"data\/maps\/tech-overworld.tmx.json",
      "overworld spot":"from playground",
      "region":"playground"
     },
  "propertytypes":
     {
+     "music":"string",
      "overworld map":"string",
      "overworld spot":"string",
      "region":"string"

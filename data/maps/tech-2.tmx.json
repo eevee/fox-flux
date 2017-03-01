@@ -817,12 +817,14 @@
  "orientation":"orthogonal",
  "properties":
     {
+     "music":"assets\/music\/tech-levels.ogg",
      "overworld map":"data\/maps\/tech-overworld.tmx.json",
      "overworld spot":"from level 2",
      "region":"tech"
     },
  "propertytypes":
     {
+     "music":"string",
      "overworld map":"string",
      "overworld spot":"string",
      "region":"string"

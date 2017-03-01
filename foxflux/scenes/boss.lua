@@ -18,6 +18,7 @@ function BossScene:init(player, boss)
     self.flux = flux.group()
     self.tick = tick.group()
     self.font = love.graphics.newFont('assets/fonts/m5x7.ttf', 16 * 4)
+    self.music = love.audio.newSource('assets/music/lopboss.ogg', 'stream')
     self.overlay_opacity = 0
     self.healthbar_width = 0
     self.state = 'camera'
@@ -28,6 +29,9 @@ end
 
 function BossScene:enter(previous_scene)
     self.wrapped = previous_scene
+    if self.wrapped.music then
+        self.wrapped.music:stop()
+    end
 
     self.player.is_locked = true
     self.player:decide_walk(0)
@@ -36,6 +40,8 @@ function BossScene:enter(previous_scene)
     self.player.velocity = Vector()
     self.player.sprite:set_pose('stand')
     self.player.sprite:set_facing_right(true)
+
+    self.music:play()
 
     local x0, y0, x1, y1 = self.boss.shape:bbox()
     local w, h = game:getDimensions()
@@ -64,6 +70,9 @@ function BossScene:announce_victory()
     :after(self, 0.5, { overlay_opacity = 0 }):ease('quadin'):delay(1)
     :oncomplete(function()
         self.player.is_locked = false
+        if self.wrapped.music then
+            self.wrapped.music:play()
+        end
         Gamestate.pop()
     end)
 end

@@ -1103,12 +1103,14 @@
  "orientation":"orthogonal",
  "properties":
     {
+     "music":"assets\/music\/forest-levels.ogg",
      "overworld map":"data\/maps\/forest-overworld.tmx.json",
      "overworld spot":"from level 3",
      "region":"forest"
     },
  "propertytypes":
     {
+     "music":"string",
      "overworld map":"string",
      "overworld spot":"string",
      "region":"string"
