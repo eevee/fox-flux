@@ -44,8 +44,8 @@ function CreditsScene:_lay_out_text()
         {{"itch.io", "https://eevee.itch.io/fox-flux"}, " ~ ", {"source code + more credits", "https://github.com/eevee/fox-flux"}},
         {"Made by ", {"Eevee", "https://eev.ee/"}, " (", {"@eevee", "https://twitter.com/eevee"}, ")"},
         {" "},
-        {"Thanks to ", {"glip", "http://glitchedpuppet.com/"}, " for the music,"},
-        {"art advice, Lop sprite, and ", {"Flora universe", "http://floraverse.com/"}, "!"},
+        {"Thanks to ", {"glip", "http://glitchedpuppet.com/"}, " for the ", {"music", "https://floraverse.bandcamp.com/album/fox-flux-demo-ost"}, ", art advice,"},
+        {"title screen, Lop sprite, and ", {"Flora universe", "http://floraverse.com/"}, "!"},
         {" "},
         {"Thanks for playing!  More coming eventually!"},
     }
