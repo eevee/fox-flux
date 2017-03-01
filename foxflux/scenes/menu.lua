@@ -46,6 +46,8 @@ function MenuScene:enter(previous_scene)
             action = function()
                 Gamestate.switch(SceneFader(worldscene, true, 0.33, {255, 130, 206}, function()
                     worldscene:load_map(game.resource_manager:load(overworld_map), overworld_spot)
+                    -- FIXME really this should be a general "reset actor" thing
+                    worldscene.player:transform('rubber')
                 end))
             end,
         })
