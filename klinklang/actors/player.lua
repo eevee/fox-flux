@@ -117,11 +117,17 @@ function Player:init(...)
             local actors_npcs = require 'foxflux.actors.npcs'
             local Gamestate = require 'vendor.hump.gamestate'
             local DialogueScene = require 'klinklang.scenes.dialogue'
-            local convo = conversations.pick_topical_conversation()
-            Gamestate.push(DialogueScene({
-                lexy = activator,
-                cerise = actors_npcs.Cerise,
-            }, convo))
+            -- FIXME extreme hardcoding
+            if worldscene.map.path == 'data/maps/tech-boss.tmx.json' then
+                local convo = conversations.pick_conversation('no need to dial', activator.form)
+                Gamestate.push(DialogueScene({ lexy = activator }, convo))
+            else
+                local convo = conversations.pick_topical_conversation()
+                Gamestate.push(DialogueScene({
+                    lexy = activator,
+                    cerise = actors_npcs.Cerise,
+                }, convo))
+            end
         end,
     })
 
