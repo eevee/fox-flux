@@ -294,6 +294,10 @@ end
 
 function DialogueScene:enter(previous_scene)
     self.wrapped = previous_scene
+    -- This is so if we're faded out by SceneFader, it'll fade the music from
+    -- the scene below us
+    self.music = self.wrapped.music
+
     self:_advance_script()
 end
 
