@@ -253,7 +253,8 @@ conversations['defeat lop'] = {
             "a letter",
             "i did it",
             "a passcode",
-            "it's in me now",
+            "tucked away inside me",
+            "now i can progress",
             speaker = 'lexy',
             pose = { body = 'paper', eyes = 'down' },
         },
@@ -361,9 +362,51 @@ conversations['ending'] = {
             execute = function()
                 Gamestate.switch(SceneFader(CreditsScene(), false, 2.0, {255, 130, 206}))
             end,
+            pause = true,
         },
-        -- FIXME the execute...  doesn't count, if this isn't here??
-        { ".........", speaker = 'lexy' },
+    }},
+    slime = {{
+        { speaker = 'cerise', pose = { 'base', 'villain' } },
+        { "Hey, Cerise!  I mean, the Crimson Bandit!", speaker = 'lexy' },
+        { "Hark!  You've slipped through all my defenses!  I suppose you've come to do battle?", speaker = 'cerise' },
+        { "I've come to surrender!", speaker = 'lexy' },
+        { "Just as I--  wait, really?", speaker = 'cerise' },
+        { "Of course!  You've already reduced me to little more than a glob of slime!  I'm barely holding together!", speaker = 'lexy' },
+        { "I can't even imagine how you could defeat me any more completely.  But I'd like to find out!", speaker = 'lexy' },
+        {
+            "Would you now!",
+            "Well!!  This is unexpected!  I underestimated my own sheer power!",
+            "Let's continue this in my dungeon slash bedroom, where I shall ANNIHILATE you once and for all!!",
+            speaker = 'cerise',
+        },
+        { "Ooh!", speaker = 'lexy' },
+        {
+            execute = function()
+                Gamestate.switch(SceneFader(CreditsScene(), false, 2.0, {255, 130, 206}))
+            end,
+            pause = true,
+        },
+    }},
+    glass = {{
+        { "Zounds!", speaker = 'cerise', pose = { 'base', 'villain' } },
+        { "ah", speaker = 'lexy' },
+        {
+            "Foolish fox!  How could you come to me in such a state?!  I could destroy you with a well-placed flick to the nose!",
+            speaker = 'cerise',
+        },
+        { "oh no", "please dont", speaker = 'lexy' },
+        { "Your cries for mercy give me pause!  Perhaps you can be of use to me.  You might make a nice vase, for example.", speaker = 'cerise' },
+        { "ahh", "that sounds nice", "something fulfilling", "and filling", speaker = 'lexy' },
+        { "I accept your surrender!  Welcome to your new life as a...  fox-shaped bottle?", speaker = 'cerise' },
+        { "ah~", speaker = 'lexy' },
+        { "Now let's go find some things to fill you with!  I have a few good ideas already.", speaker = 'cerise', pose = 'smiling' },
+        { "yes", speaker = 'lexy' },
+        {
+            execute = function()
+                Gamestate.switch(SceneFader(CreditsScene(), false, 2.0, {255, 130, 206}))
+            end,
+            pause = true,
+        },
     }},
 }
 
@@ -418,10 +461,18 @@ conversations['tech foreground'] = {
     rubber = {{
         { "What's this metal railing?", speaker = 'lexy' },
         { "Just a decoration that didn't end up matching anything else.", speaker = 'cerise' },
+        { "Looks like it's from a warehouse.", speaker = 'lexy' },
+        { "Oh!  I was going for a warehouse theme at first.  It ended up a bit different.", speaker = 'cerise' },
+        { "How fitting!", speaker = 'lexy' },
     }},
     slime = {{
+        { "Hey hey!  Should I be able to grab onto this?", speaker = 'lexy' },
+        { "Nope!  Just a decoration.", speaker = 'cerise' },
+        { "Ah, okay.  Hard to tell and all.", speaker = 'lexy' },
     }},
     glass = {{
+        { "neat", speaker = 'lexy' },
+        { "Thanks!", speaker = 'cerise' },
     }},
 }
 conversations['tech platforms'] = {
@@ -432,8 +483,14 @@ conversations['tech platforms'] = {
         { "Hm, I see what you mean.  They don't quite...  fit, somehow...", speaker = 'lexy' },
     }},
     slime = {{
+        { "I like these platforms.  They're round and colorful.  Like you!", speaker = 'lexy' },
+        { "Oh!", speaker = 'cerise' },
+        { "Thank you, sweetie!!", speaker = 'cerise', pose = 'smiling' },
     }},
     glass = {{
+        { "...", speaker = 'lexy' },
+        { "Did you want to talk about something?", speaker = 'cerise' },
+        { "i forget", speaker = 'lexy' },
     }},
 }
 conversations['pocketwatch'] = {
@@ -451,11 +508,15 @@ conversations['pocketwatch'] = {
             end,
             speaker = 'lexy',
         },
-        { "I had to dump out your satchel so you couldn't cheat!  Not sure how it got way out here, though.", speaker = 'cerise' },
+        { "I had to dump out your satchel so you wouldn't have any gizmos to cheat with!  Not sure how it got way out here, though.", speaker = 'cerise' },
     }},
     slime = {{
+        { "Oh, my pocketwatch!  Was this going to be in a puzzle somehow?  I would've loved to see that.", speaker = 'lexy' },
+        { "Alas!  I couldn't think of any puzzles that involved telling time.  I'm not sure what this is doing out here.", speaker = 'cerise' },
     }},
     glass = {{
+        { "ah...", "its mine", speaker = 'lexy' },
+        { "It sure is!", speaker = 'cerise' },
     }},
 }
 conversations['geckos in grass'] = {
@@ -470,6 +531,8 @@ conversations['geckos in grass'] = {
         { "I'd be down for that!", speaker = 'lexy' },
     }},
     glass = {{
+        { "a gecko", "its hard to see", "like me", speaker = 'lexy' },
+        { "Doesn't the grass make it easier to see you, not harder?", speaker = 'cerise' },
     }},
 }
 conversations['conveyor belt'] = {
@@ -479,8 +542,13 @@ conversations['conveyor belt'] = {
         { "It is!  We couldn't think of anywhere good to use it, so we dumped it here.", speaker = 'cerise' },
     }},
     slime = {{
+        { "Whee!  This is great!", speaker = 'lexy' },
+        { "Careful you don't get caught in there!  Who knows how long it'd take to get you out of the belt.", speaker = 'cerise' },
+        { "Now I'm curious!", speaker = 'lexy' },
     }},
     glass = {{
+        { "whee", speaker = 'lexy' },
+        { "I'm glad you're enjoying yourself!", speaker = 'cerise' },
     }},
 }
 conversations['pipes'] = {
@@ -495,6 +563,11 @@ conversations['pipes'] = {
         { "Oh.  That's a shame.", speaker = 'lexy' },
     }},
     slime = {{
+        { "Are these lovely pipes for me?", speaker = 'lexy' },
+        { "They are!  I ran out of time before I found a pump that could deal with thick slime without getting jammed.", speaker = 'cerise' },
+        { "What's wrong with getting jammed?", speaker = 'lexy' },
+        { "You wouldn't be able to do any puzzles!  Or much else.", speaker = 'cerise' },
+        { "Oh, true!  Still...", speaker = 'lexy' },
     }},
     glass = {{
         { "empty pipes", "hollow pipes", speaker = 'lexy' },
@@ -511,6 +584,10 @@ conversations['spare crates'] = {
     slime = {{
     }},
     glass = {{
+        { "Here are some leftover crates.", speaker = 'cerise' },
+        { "empty", "like me", speaker = 'lexy' },
+        { "If I were going to ship a glass fox, I might use a crate like these!", "You're a bit big, though.  I'd have to shave off some height, somehow.", speaker = 'cerise' },
+        { "ah", speaker = 'lexy' },
     }},
 }
 conversations['fan testing'] = {
@@ -521,8 +598,16 @@ conversations['fan testing'] = {
         { "First empty space I found!", speaker = 'cerise' },
     }},
     slime = {{
+        { "I see you found the fan testing area!", speaker = 'cerise' },
+        { "Haha, yeah!  Hey Cerise!", speaker = 'lexy' },
+        { "Yeah?", speaker = 'cerise' },
+        { "I'm a big fan!", speaker = 'lexy' },
+        { "You can't make that joke if I've already said \"fan\"!", speaker = 'cerise' },
     }},
     glass = {{
+        { "I see you found the fan testing area!", speaker = 'cerise' },
+        { "the air", "flows through me", "i like it", speaker = 'lexy' },
+        { "Good!  That's the idea, after all!", speaker = 'cerise' },
     }},
 }
 conversations['platform testing'] = {
@@ -534,8 +619,14 @@ conversations['platform testing'] = {
         { "Ooh, that's interesting.", speaker = 'cerise' },
     }},
     slime = {{
+        { "I could watch this all day!", speaker = 'lexy' },
+        { "Wouldn't it get old?", speaker = 'cerise' },
+        { "Up and down, up and down...  it's hypnotic!", speaker = 'lexy' },
     }},
     glass = {{
+        { "useless", "no purpose", speaker = 'lexy' },
+        { "Well, it was just for testing!", speaker = 'cerise' },
+        { "...", speaker = 'lexy' },
     }},
 }
 conversations['void'] = {
@@ -546,19 +637,29 @@ conversations['void'] = {
         { "That does not answer my question.", speaker = 'lexy' },
     }},
     slime = {{
+        { "Whoa!  Trippy.", speaker = 'lexy' },
+        { "It's just a testing area, so there was no reason to finish this.", speaker = 'cerise' },
+        { "Yeah, I getcha!", speaker = 'lexy' },
     }},
     glass = {{
+        { "nothing", "nowhere", speaker = 'lexy' },
+        { "That pretty much sums it up, yep!", speaker = 'cerise' },
     }},
 }
 conversations['old boss door'] = {
     via_compact = true,
     rubber = {{
         { "What's this?", speaker = 'lexy' },
-        { "That's the original final boss door.  I didn't think it looked very good, so I asked Robin to design a new one.  With more pink.", speaker = 'cerise' },
+        { "That's the original final boss door.  I didn't think it looked very good, so I asked Robin to design a new one.  With more pink!", speaker = 'cerise' },
     }},
     slime = {{
+        { "This door is kinda retro!", speaker = 'lexy' },
+        { "That was the original door to my inner sanctum!  It got a redesign later on.", speaker = 'cerise' },
+        { "I like the new one more, but this one's cool too!", speaker = 'lexy' },
     }},
     glass = {{
+        { "useless", "discarded", speaker = 'lexy' },
+        { "I suppose that sums it up, yes!", speaker = 'cerise' },
     }},
 }
 conversations['key'] = {
@@ -570,8 +671,15 @@ conversations['key'] = {
         { "Yep!", speaker = 'cerise' },
     }},
     slime = {{
+        { "I found the key to your heart, Cerise!", speaker = 'lexy' },
+        { "Don't be ridiculous!", speaker = 'cerise' },
+        { "The key to my heart is being a cutie fox.", speaker = 'cerise', pose = 'smiling' },
+        { "Oh, I had it all along!", speaker = 'lexy' },
     }},
     glass = {{
+        { "what", speaker = 'lexy' },
+        { "Oh, that's a spare key.  I didn't have time to put in locked doors.", speaker = 'cerise' },
+        { "ah", "worthless", speaker = 'lexy' },
     }},
 }
 conversations['other key'] = {
@@ -583,8 +691,14 @@ conversations['other key'] = {
         { "Sure!  Happy Hearts Day!", speaker = 'cerise' },
     }},
     slime = {{
+        { "Another key!  Maybe this is the key to your tummy.", speaker = 'lexy' },
+        { "It doesn't look like it fits my belly button, does it?", speaker = 'cerise' },
+        { "I'll take it and we can find out later!", speaker = 'lexy' },
     }},
     glass = {{
+        { "also worthless", speaker = 'lexy' },
+        { "It's not worthless!  It's very pretty.", speaker = 'cerise' },
+        { "oh", "yes", "i like it", speaker = 'lexy' },
     }},
 }
 
