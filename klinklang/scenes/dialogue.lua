@@ -169,7 +169,7 @@ function DialogueScene:init(speakers, script)
     local boxheight = 112
     local winheight = h
     -- FIXME cerise is slightly too big, arrgghhh
-    self.speaker_scale = math.floor((winheight - boxheight) / self.speaker_height)
+    self.speaker_scale = math.ceil((winheight - boxheight) / self.speaker_height)
 
     -- TODO a good start, but
     self.speakers = {}
