@@ -326,7 +326,7 @@ function Player:transform(form)
         self.xaccel = Player.xaccel / 2
         self.max_speed = Player.max_speed / 2
         self.jumpvel = actors_base.get_jump_velocity(32)
-        self.ground_friction = math.huge
+        self.ground_friction = 1000000000
         -- TODO lower max slope too?
     else
         self.xaccel = Player.xaccel
