@@ -739,9 +739,7 @@ function SentientActor:on_collide_with(actor, collision)
 
     -- Ignore collision with one-way platforms when climbing ladders, since
     -- they tend to cross (or themselves be) one-way platforms
-    if collision.shape._xxx_is_one_way_platform and
-        self.decision_climb and self.ptrs.climbable_down
-    then
+    if collision.shape._xxx_is_one_way_platform and self.decision_climb then
         return true
     end
 
@@ -752,6 +750,7 @@ function SentientActor:update(dt)
     if self.is_dead or self.is_locked then
         -- Ignore conscious decisions; just apply physics
         -- FIXME i think "locked" only makes sense for the player?
+        self.decision_climb = nil
         return SentientActor.__super.update(self, dt)
     end
 
