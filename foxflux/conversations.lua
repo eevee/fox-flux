@@ -1028,7 +1028,7 @@ topical_conversations = {
         { "Welcome, to the STONE ZONE!", speaker = 'cerise' },
         { "Did you just say \"bone zone\"?", speaker = 'lexy' },
         { "What!  No!  I said STONE ZONE!  What sort of smutty obstacle course do you think this is?!", speaker = 'cerise' },
-        { "Uhh...", speaker = 'lexy', pose = 'sweatdrop' },
+        { "Uhh...", speaker = 'lexy', pose = 'compact sweatdrop' },
     }, {
         map = 'data/maps/forest-4.tmx.json',
         topic = 'data/maps/forest-4.tmx.json',
@@ -1071,7 +1071,7 @@ topical_conversations = {
         form = 'rubber',
         { "Does this ZONE have a name?", speaker = 'lexy' },
         { "Um!", "This is...  MISCELLANEOUS PUZZLE ZONE!", speaker = 'cerise' },
-        { speaker = 'lexy', pose = 'sweatdrop' },
+        { speaker = 'lexy', pose = 'compact sweatdrop' },
         { "I bet you can't guess where it got its name!", speaker = 'cerise' },
         { "I'll bet I can.", speaker = 'lexy' },
     }, {
