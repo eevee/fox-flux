@@ -870,6 +870,11 @@ function SentientActor:update(dt)
         else
             self.velocity.y = 0
         end
+
+        -- Never flip a climbing sprite, since they can only possibly face in
+        -- one direction: away from the camera!
+        self.facing_left = false
+
         -- FIXME pretty sure this doesn't actually work, since it'll be
         -- overwritten by update() below and never gets to apply to jumping
         self.on_ground = true
