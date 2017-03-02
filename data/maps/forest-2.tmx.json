@@ -1011,11 +1011,11 @@
                  "polyline":[
                         {
                          "x":0,
-                         "y":0
+                         "y":-128
                         }, 
                         {
                          "x":0,
-                         "y":-128
+                         "y":0
                         }],
                  "rotation":0,
                  "type":"track",
@@ -1051,11 +1051,11 @@
                  "polyline":[
                         {
                          "x":0,
-                         "y":0
+                         "y":-128
                         }, 
                         {
                          "x":0,
-                         "y":-160
+                         "y":0
                         }],
                  "rotation":0,
                  "type":"track",
@@ -1113,7 +1113,7 @@
                  "name":"",
                  "properties":
                     {
-                     "platform speed":128,
+                     "platform speed":96,
                      "platform track":"two"
                     },
                  "propertytypes":
@@ -1126,7 +1126,7 @@
                  "visible":true,
                  "width":64,
                  "x":4320,
-                 "y":544
+                 "y":416
                 }, 
                 {
                  "gid":347,
@@ -1157,7 +1157,7 @@
                  "name":"",
                  "properties":
                     {
-                     "platform speed":128,
+                     "platform speed":96,
                      "platform track":"four"
                     },
                  "propertytypes":
@@ -1170,7 +1170,7 @@
                  "visible":true,
                  "width":64,
                  "x":4576,
-                 "y":352
+                 "y":224
                 }, 
                 {
                  "height":64,
