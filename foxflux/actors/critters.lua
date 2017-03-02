@@ -259,6 +259,7 @@ local ReverseCockatrice = actors_base.SentientActor:extend{
     sprite_name = 'reverse cockatrice',
 
     max_speed = 64,
+    is_portable = true,
 }
 
 function ReverseCockatrice:blocks()
