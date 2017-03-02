@@ -48,13 +48,12 @@ function SceneFader:enter(from_scene)
         self:fade_out_music(from_scene.music)
     end
     self._fluct:to(self.color, self.time, {[4] = 255})
-        :oncomplete(function()
-            self.going = false
-            if self.onmidpoint then
-                self.onmidpoint()
-            end
-        end)
-        :after(self.time, {[4] = 0})
+    :oncomplete(function()
+        self.going = false
+        if self.onmidpoint then
+            self.onmidpoint()
+        end
+        self._fluct:to(self.color, self.time, {[4] = 0})
         :oncomplete(function()
             -- FIXME arrrggghhhh this shows a black frame!!
             if self.pop then
@@ -66,6 +65,7 @@ function SceneFader:enter(from_scene)
                 Gamestate.switch(self.to_scene)
             end
         end)
+    end)
 end
 
 function SceneFader:update(dt)
