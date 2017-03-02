@@ -453,6 +453,7 @@ function WorldScene:draw()
         love.graphics.draw(text, x, y - 2)
         love.graphics.setColor(color or {255, 255, 255})
         love.graphics.draw(text, x, y)
+        love.graphics.setColor(255, 255, 255)
     end
     local sprite = game.sprites['heart counter']:instantiate()
     local sw, sh = sprite:getDimensions()
