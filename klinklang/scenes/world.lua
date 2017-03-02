@@ -445,13 +445,13 @@ function WorldScene:draw()
 
     love.graphics.push('all')
     love.graphics.scale(game.scale, game.scale)
-    local function draw_outlined_text(text, x, y)
+    local function draw_outlined_text(text, x, y, color)
         love.graphics.setColor(32, 32, 32)
         love.graphics.draw(text, x + 2, y)
         love.graphics.draw(text, x - 2, y)
         love.graphics.draw(text, x, y + 2)
         love.graphics.draw(text, x, y - 2)
-        love.graphics.setColor(255, 255, 255)
+        love.graphics.setColor(color or {255, 255, 255})
         love.graphics.draw(text, x, y)
     end
     local sprite = game.sprites['heart counter']:instantiate()
@@ -463,7 +463,13 @@ function WorldScene:draw()
     sprite:draw_anchorless(Vector(x, padding))
     x = x + sw + padding + 2
     local y = math.floor(padding + (32 - m5x7:getHeight() * m5x7:getLineHeight()) / 2)
-    draw_outlined_text(text, x, y)
+    local color = {255, 255, 255}
+    if self.hearts_collected_in_region >= 100 then
+        color = {255, 130, 206}
+    elseif self.hearts_collected_in_region >= 69 then
+        color = {255, 187, 49}
+    end
+    draw_outlined_text(text, x, y, color)
     if self.hearts_total_in_map > 0 then
         -- Position "n / m" so that the "/" is centered below the "x" of the
         -- total heart count
@@ -471,7 +477,11 @@ function WorldScene:draw()
         x = x + m5x7:getWidth("x") / 2 - center
         y = y + 32
         local text = love.graphics.newText(m5x7, ("%d / %d"):format(self.hearts_collected_in_map, self.hearts_total_in_map))
-        draw_outlined_text(text, x, y)
+        local color = {255, 255, 255}
+        if self.hearts_collected_in_map >= self.hearts_total_in_map then
+            color = {255, 130, 206}
+        end
+        draw_outlined_text(text, x, y, color)
     end
 
     -- FIXME put this and the debug stuff on a separate "layer" which doesn't have to live here
