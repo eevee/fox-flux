@@ -758,15 +758,6 @@ end
 local function pick_topical_conversation()
     local form = worldscene.player.form
     local now = love.timer.getTime()
-    if last_dial and now - last_dial < DIALING_DELAY then
-        local convo = pick_conversation('no answer', form)
-        return {
-            { speaker = 'lexy', pose = { 'compact' } },
-            { speaker = 'cerise', pose = false },
-            unpack(convo),
-        }
-    end
-    last_dial = now
 
     local candidates = {}
     local last_topic_candidates = {}
@@ -786,13 +777,17 @@ local function pick_topical_conversation()
             { speaker = 'cerise', pose = { 'compact', 'villain' } },
             unpack(convo),
         }
-    elseif #candidates > 0 then
+    elseif #candidates > 0 and (not last_dial or now - last_dial > DIALING_DELAY) then
         local convo = _pick(candidates)
-        return {
+        local amended_convo = {
             { speaker = 'lexy', pose = { 'compact' } },
             { speaker = 'cerise', pose = { 'compact', 'villain' } },
             unpack(convo),
         }
+        table.insert(amended_convo, {
+            execute = function() last_dial = love.timer.getTime() end,
+        })
+        return amended_convo
     else
         local convo = pick_conversation('no answer', form)
         return {
