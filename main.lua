@@ -16,7 +16,7 @@ local TitleScene = require 'foxflux.scenes.title'
 
 
 game = {
-    VERSION = "0.2",
+    VERSION = "0.1.2",
     TILE_SIZE = 32,
 
     input = nil,
