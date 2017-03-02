@@ -81,6 +81,11 @@ function WorldScene:_refresh_canvas()
 end
 
 function WorldScene:update(dt)
+    if game.input:pressed('menu') then
+        Gamestate.push(MenuScene())
+        return
+    end
+
     -- FIXME could get rid of this entirely if actors had to go through me to
     -- collide
     game.debug_hits = {}
@@ -590,9 +595,7 @@ function WorldScene:keypressed(key, scancode, isrepeat)
         return
     end
 
-    if scancode == 'escape' then
-        Gamestate.push(MenuScene())
-    elseif scancode == 'q' then
+    if scancode == 'q' then
         do return end
         -- Switch inventory items
         if not self.inventory_switch or self.inventory_switch.progress == 1 then
