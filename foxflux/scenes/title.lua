@@ -84,6 +84,13 @@ end
 
 function TitleScene:enter()
     self.music:play()
+
+    self.controls_keyboard_text = love.graphics.newText(m5x7, "Move: arrow keys\nJump: space\nInteract: E\nMenu: Esc\n(gamepads work too!)")
+    self.controls_gamepad_text = love.graphics.newText(m5x7, "Move: d-pad\nJump: A\nInteract: X\nMenu: Start\n(keyboards work too!)")
+
+    self.key_hint_event = tick.delay(function()
+        self.key_hint_text = love.graphics.newText(m5x7small, "(psst!  press a key/button!)")
+    end, 5)
 end
 
 function TitleScene:update(dt)
@@ -96,6 +103,12 @@ function TitleScene:update(dt)
         if self.any_key_pressed then
             self.is_menu_visible = true
             self.any_key_pressed = false
+
+            if self.key_hint_event then
+                self.key_hint_event:stop()
+            end
+            self.key_hint_event = nil
+            self.key_hint_text = nil
         end
     else
         if game.input:pressed('menu') then
@@ -109,7 +122,7 @@ function TitleScene:update(dt)
             self.menu:up()
         elseif game.input:pressed('down') then
             self.menu:down()
-        elseif game.input:pressed('accept') then
+        elseif game.input:pressed('accept') and not util.any_modifier_keys() then
             self.menu:accept()
         end
     end
@@ -128,25 +141,53 @@ function TitleScene:draw()
         scale)
 
     if self.is_menu_visible then
-        local w, h = love.graphics.getDimensions()
+        local w, h = game:getDimensions()
+        love.graphics.push('all')
+        love.graphics.scale(game.scale, game.scale)
+
         self.menu:draw{
             x = w - 16,
             xalign = 'right',
             y = h - 16,
             yalign = 'bottom',
-            margin = 16,
+            marginx = 16,
+            marginy = 8,
             bgcolor = {207, 60, 113, 128},
             shadowcolor = {207, 60, 113},
             textcolor = {255, 255, 255},
         }
 
-        love.graphics.push('all')
+        local controls_text
+        if game.input:getActiveDevice() == 'keyboard' then
+            controls_text = self.controls_keyboard_text
+        else
+            controls_text = self.controls_gamepad_text
+        end
+        local cw, ch = controls_text:getDimensions()
+        love.graphics.setColor(207, 60, 113, 128)
+        love.graphics.rectangle('fill', 16, h - 32 - ch, cw + 32, ch + 16)
+        love.graphics.setColor(207, 60, 113)
+        love.graphics.draw(controls_text, 32, h - 24 - ch + 2)
+        love.graphics.setColor(255, 255, 255)
+        love.graphics.draw(controls_text, 32, h - 24 - ch)
+
         love.graphics.setColor(207, 60, 113, 128)
         local th = m5x7small:getHeight() * m5x7small:getLineHeight()
         love.graphics.rectangle('fill', 0, 0, w, th)
         love.graphics.setColor(255, 255, 255)
         love.graphics.setFont(m5x7small)
         love.graphics.printf("Strawberry Jam 2017 demo edition", 0, 0, w, 'center')
+        love.graphics.printf(("v%s"):format(game.VERSION), 0, 0, w - 4, 'right')
+        love.graphics.pop()
+    elseif self.key_hint_text then
+        love.graphics.push('all')
+        love.graphics.scale(game.scale, game.scale)
+        local w, h = game:getDimensions()
+        local tw, th = self.key_hint_text:getDimensions()
+        love.graphics.setColor(207, 60, 113, 128)
+        love.graphics.rectangle('fill', w - 12 - tw, h - 12 - th, tw + 8, th + 8)
+        love.graphics.setColor(255, 255, 255)
+        love.graphics.draw(self.key_hint_text, w - 8 - tw, h - 8 - th)
         love.graphics.pop()
     end
 end

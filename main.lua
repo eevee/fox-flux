@@ -16,7 +16,7 @@ local TitleScene = require 'foxflux.scenes.title'
 
 
 game = {
-    VERSION = "0.1",
+    VERSION = "0.2",
     TILE_SIZE = 32,
 
     input = nil,
@@ -218,6 +218,7 @@ function love.load(args)
     -- - distinguish between edge-flip and receiving an actual event
     -- - aliases or something?  so i can say "accept" means "use", or even "either use or jump"
     -- - take repeats into account?
+    -- - alt-enter shouldn't count as enter
     game.input = baton.new{
         left = {'key:left', 'axis:leftx-', 'button:dpleft'},
         right = {'key:right', 'axis:leftx+', 'button:dpright'},

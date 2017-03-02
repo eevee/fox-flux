@@ -74,7 +74,7 @@ function MenuScene:update(dt)
         self.menu:up()
     elseif game.input:pressed('down') then
         self.menu:down()
-    elseif game.input:pressed('accept') then
+    elseif game.input:pressed('accept') and not util.any_modifier_keys() then
         self.menu:accept()
     end
 end
