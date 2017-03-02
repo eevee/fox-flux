@@ -725,12 +725,11 @@ local last_dial
 local DIALING_DELAY = 30
 
 local function unlock_topic(name)
-    if game.progress.topics[name] then
-        return
+    if not game.progress.topics[name] then
+        game.progress.topics[name] = true
+        game.is_dirty = true
     end
 
-    game.progress.topics[name] = true
-    game.is_dirty = true
     last_topic = name
     worldscene.tick:delay(function()
         if last_topic == name then
