@@ -660,9 +660,10 @@ end
 function HolographicPlatform:update(dt)
     HolographicPlatform.__super.update(self, dt)
 
-    -- moves at 1 tile per second, so this will be just over 3 tiles of lift
+    -- moves at 1 tile per second, so this will be 3 tiles of lift
     if self.timer > 3 and self.opacity == 1 then
-        worldscene.fluct:to(self, 0.25, { opacity = 0 })
+        self.velocity = Vector()
+        worldscene.fluct:to(self, 0.5, { opacity = 0 })
             :oncomplete(function() worldscene:remove_actor(self) end)
     end
 end
