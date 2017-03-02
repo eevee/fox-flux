@@ -468,54 +468,62 @@ function TiledMap:add_to_collider(collider, submap_name)
     -- the collision shapes /here/?  this object should be a dumb wrapper and
     -- not have any state i think.  maybe return a structure of shapes?
     -- or, alternatively, create shapes on the fly from the blockmap...?
+    -- FIXME ok so also we have to do a lot of stupid garbage here to avoid
+    -- keep duplicate copies of the entire collision around just because we
+    -- were loaded a second time
     if not self.shapes then
         self.shapes = {}
     end
 
     -- Add borders around the map itself, so nothing can leave it
-    local border
-    local margin = 16
-    -- Top
-    border = whammo_shapes.Box(0, -margin, self.width, margin)
-    self.shapes[border] = true
-    collider:add(border)
-    -- Bottom
-    border = whammo_shapes.Box(0, self.height, self.width, margin)
-    self.shapes[border] = true
-    collider:add(border)
-    -- Left
-    border = whammo_shapes.Box(-margin, 0, margin, self.height)
-    self.shapes[border] = true
-    collider:add(border)
-    -- Right
-    border = whammo_shapes.Box(self.width, 0, margin, self.height)
-    self.shapes[border] = true
-    collider:add(border)
+    if not self.shapes.border then
+        local margin = 16
+        self.shapes.border = {
+            -- Top
+            whammo_shapes.Box(0, -margin, self.width, margin),
+            -- Bottom
+            whammo_shapes.Box(0, self.height, self.width, margin),
+            -- Left
+            whammo_shapes.Box(-margin, 0, margin, self.height),
+            -- Right
+            whammo_shapes.Box(self.width, 0, margin, self.height),
+        }
+    end
+    for _, border in ipairs(self.shapes.border) do
+        collider:add(border)
+    end
 
     for _, layer in ipairs(self.layers) do
         if layer.type == 'tilelayer' and layer.submap == submap_name then
             local width, height = layer.width, layer.height
             local data = layer.data
-            for t = 0, width * height - 1 do
-                local gid = data[t + 1]
-                local tile = self.tiles[gid]
-                if tile then
-                    local shape, anchor = tile:get_collision()
-                    if shape then
-                        local ty, tx = util.divmod(t, width)
-                        shape:move(
-                            tx * self.raw.tilewidth + anchor.x,
-                            (ty + 1) * self.raw.tileheight - tile.tileset.raw.tileheight + anchor.y)
-                        self.shapes[shape] = true
-                        collider:add(shape, tile)
+            if not self.shapes[layer] then
+                self.shapes[layer] = {}
+                for t = 0, width * height - 1 do
+                    local gid = data[t + 1]
+                    local tile = self.tiles[gid]
+                    if tile then
+                        local shape, anchor = tile:get_collision()
+                        if shape then
+                            local ty, tx = util.divmod(t, width)
+                            shape:move(
+                                tx * self.raw.tilewidth + anchor.x,
+                                (ty + 1) * self.raw.tileheight - tile.tileset.raw.tileheight + anchor.y)
+                            self.shapes[layer][shape] = tile
+                        end
                     end
                 end
             end
+            for shape, tile in pairs(self.shapes[layer]) do
+                collider:add(shape, tile)
+            end
         elseif layer.type == 'objectgroup' and layer.submap == submap_name then
             for _, obj in ipairs(layer.objects) do
-                if obj.type == 'collision' then
+                if self.shapes[obj] then
+                    collider:add(self.shapes[obj])
+                elseif obj.type == 'collision' then
                     local shape = tiled_shape_to_whammo_shape(obj, Vector.zero)
-                    self.shapes[shape] = true
+                    self.shapes[obj] = shape
                     collider:add(shape)
                 end
             end
