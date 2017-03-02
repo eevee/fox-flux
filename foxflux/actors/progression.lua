@@ -87,7 +87,7 @@ local StoneHeart = StrawberryHeart:extend{
     sprite_name = 'stone heart',
 
     required_form = 'stone',
-    --collect_sound = 'assets/sounds/get-heart-glass.ogg',
+    collect_sound = 'assets/sounds/get-heart-stone.ogg',
 }
 
 
