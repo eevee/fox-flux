@@ -95,6 +95,7 @@ game = {
     really_save = function(self)
         -- FIXME strictly speaking this should write to a dummy file, then do
         -- an atomic move
+        self.progress.version = self.VERSION
         love.filesystem.write('demosave.json', json.encode(self.progress))
         self.is_dirty = false
     end,

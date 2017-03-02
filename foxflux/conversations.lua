@@ -360,6 +360,8 @@ conversations['ending'] = {
         { ".........", speaker = 'lexy' },
         {
             execute = function()
+                game:set_flag('seen rubber ending')
+                game:save()
                 Gamestate.switch(SceneFader(CreditsScene(), false, 2.0, {255, 130, 206}))
             end,
             pause = true,
@@ -382,6 +384,8 @@ conversations['ending'] = {
         { "Ooh!", speaker = 'lexy' },
         {
             execute = function()
+                game:set_flag('seen slime ending')
+                game:save()
                 Gamestate.switch(SceneFader(CreditsScene(), false, 2.0, {255, 130, 206}))
             end,
             pause = true,
@@ -403,6 +407,8 @@ conversations['ending'] = {
         { "yes", speaker = 'lexy' },
         {
             execute = function()
+                game:set_flag('seen glass ending')
+                game:save()
                 Gamestate.switch(SceneFader(CreditsScene(), false, 2.0, {255, 130, 206}))
             end,
             pause = true,
