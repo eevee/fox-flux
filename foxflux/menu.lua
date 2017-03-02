@@ -42,7 +42,7 @@ function Menu:draw(args)
 
     local w, h = love.graphics.getDimensions()
     local mw = self.width + marginx * 2 + cursor_width
-    local mh = self.height + margin * 2
+    local mh = self.height + marginy * 2
     local x = anchorx
     if xalign == 'center' then
         x = x - math.ceil(mw / 2)
