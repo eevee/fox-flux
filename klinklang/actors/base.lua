@@ -739,7 +739,9 @@ function SentientActor:on_collide_with(actor, collision)
 
     -- Ignore collision with one-way platforms when climbing ladders, since
     -- they tend to cross (or themselves be) one-way platforms
-    if self.decision_climb and collision.shape._xxx_is_one_way_platform then
+    if collision.shape._xxx_is_one_way_platform and
+        self.decision_climb and self.ptrs.climbable_down
+    then
         return true
     end
 
