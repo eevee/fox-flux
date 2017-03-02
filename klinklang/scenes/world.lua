@@ -13,6 +13,7 @@ local whammo = require 'klinklang.whammo'
 
 local tiledmap = require 'klinklang.tiledmap'
 
+local conversations = require 'foxflux.conversations'
 local MenuScene = require 'foxflux.scenes.menu'
 
 local CAMERA_MARGIN = 0.33
@@ -795,6 +796,8 @@ function WorldScene:load_map(map, spot_name)
     -- Advance the world by zero time to put it in a consistent state (e.g.
     -- figure out what's on the ground, update the camera)
     self:update(0)
+
+    conversations.unlock_topic(map.path)
 end
 
 function WorldScene:reload_map()
