@@ -309,7 +309,8 @@ local Gecko = actors_base.SentientActor:extend{
     name = 'gecko',
     sprite_name = 'gecko',
 
-    max_speed = 256,
+    xaccel = 1024,
+    max_speed = 128,
 }
 
 function Gecko:blocks()
