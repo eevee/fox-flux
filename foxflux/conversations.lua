@@ -722,7 +722,7 @@ local topical_conversations = {}
 local last_topic = nil
 local LAST_TOPIC_DELAY = 10
 local last_dial
-local DIALING_DELAY = 30  -- FIXME? this includes the time spent in the conversation itself...
+local DIALING_DELAY = 30
 
 local function unlock_topic(name)
     if game.progress.topics[name] then
